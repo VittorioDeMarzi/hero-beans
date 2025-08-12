@@ -8,4 +8,5 @@ class HeroBeansApplication
 
 fun main(args: Array<String>) {
     runApplication<HeroBeansApplication>(*args)
+
 }
