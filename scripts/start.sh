@@ -9,4 +9,3 @@ fi
 echo ">>> ####### Test #######"
 echo ">>> [ApplicationStart] Starting application: $JAR_FILE"
 nohup java -jar $JAR_FILE > /home/ubuntu/app/app.log 2>&1 &
-
