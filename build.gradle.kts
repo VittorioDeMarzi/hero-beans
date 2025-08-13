@@ -13,7 +13,6 @@ allOpen {
     annotation("jakarta.persistence.Embeddable")
 }
 
-
 group = "techcourse"
 version = "0.0.1-SNAPSHOT"
 
