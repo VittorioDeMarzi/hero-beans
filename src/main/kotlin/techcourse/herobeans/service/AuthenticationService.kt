@@ -19,7 +19,7 @@ class AuthenticationService(
     private val passwordEncoder: PasswordEncoder,
     private val memberJpaRepository: MemberJpaRepository,
 ) {
-    fun registration(request: RegistrationRequest): TokenResponse {
+    fun register(request: RegistrationRequest): TokenResponse {
         if (memberJpaRepository.existsByEmail(request.email)) {
             throw EmailAlreadyUsedException("Email already exists: ${request.email}")
         }
@@ -29,7 +29,7 @@ class AuthenticationService(
         return TokenResponse(token)
     }
 
-    fun logIn(request: LoginRequest): TokenResponse {
+    fun login(request: LoginRequest): TokenResponse {
         val member = memberJpaRepository.findByEmail(request.email) ?: throw EmailOrPasswordIncorrectException("Invalid password for email")
 
         if (!passwordEncoder.matches(request.password, member.password)) {
