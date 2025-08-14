@@ -41,13 +41,13 @@ class PackageOption(
 
     fun increaseQuantity(plusQuantity: Int) {
         require(quantity >= 0) { "quantity must be positive" }
-        require(quantity + plusQuantity <= MAX_QUANTITY) { "quantity must be between 0 and $MAX_QUANTITY" }
+        require(quantity + plusQuantity <= MAX_QUANTITY) { "quantity must be between $MIN_QUANTITY and $MAX_QUANTITY" }
         quantity += plusQuantity
     }
 
     fun decreaseQuantity(minusQuantity: Int) {
         require(quantity >= 0) { "quantity must be positive" }
-        require(quantity - minusQuantity <= MIN_QUANTITY) { "quantity must be between 0 and $MAX_QUANTITY" }
+        require(quantity - minusQuantity <= MIN_QUANTITY) { "quantity must be between $MIN_QUANTITY and $MAX_QUANTITY" }
         quantity -= minusQuantity
     }
 
