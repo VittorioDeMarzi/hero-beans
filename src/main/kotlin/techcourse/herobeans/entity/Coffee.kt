@@ -66,7 +66,7 @@ class Coffee(
         get() = options.sumOf { it.quantity } > 0
 
     fun addOption(option: PackageOption) {
-        require(options.none { it.size == option.size }) { "option already has ${option.size.value}" }
+        require(options.none { it.weight == option.weight }) { "option already has ${option.weight.value}" }
         options.add(option)
         // TODO: maybe updater stamp manually
     }

@@ -18,7 +18,7 @@ class PackageOption(
     @Column(nullable = false)
     var price: BigDecimal,
     @Column(nullable = false)
-    val size: Grams,
+    val weight: Grams,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "coffee_id")
     val coffee: Coffee? = null,
