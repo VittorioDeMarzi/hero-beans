@@ -1,4 +1,4 @@
-package techcourse.herobeans.configurations
+package techcourse.herobeans.configuration
 
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts

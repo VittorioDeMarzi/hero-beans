@@ -1,4 +1,4 @@
-package techcourse.herobeans.exceptions
+package techcourse.herobeans.exception
 
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
