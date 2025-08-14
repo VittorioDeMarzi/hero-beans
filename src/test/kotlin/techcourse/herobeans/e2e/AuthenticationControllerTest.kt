@@ -97,7 +97,7 @@ class AuthenticationControllerTest {
             .body(registrationRequest)
             .post("/api/members/register")
             .then()
-            .statusCode(200) // o 201
+            .statusCode(200)
 
         val loginRequest =
             LoginRequest(
