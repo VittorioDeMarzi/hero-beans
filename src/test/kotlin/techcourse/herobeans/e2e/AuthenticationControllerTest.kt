@@ -47,7 +47,7 @@ class AuthenticationControllerTest {
                 .body(registrationRequest)
                 .post("/api/members/register")
                 .then()
-                .statusCode(200)
+                .statusCode(201)
                 .extract().body().jsonPath().getString("token")
 
         assertThat(token).isNotEmpty()
@@ -72,7 +72,7 @@ class AuthenticationControllerTest {
             .contentType(ContentType.JSON)
             .body(registrationRequest)
             .post("/api/members/register")
-            .then().statusCode(200) // o 201
+            .then().statusCode(201)
 
         RestAssured.given()
             .log().all()
@@ -97,7 +97,7 @@ class AuthenticationControllerTest {
             .body(registrationRequest)
             .post("/api/members/register")
             .then()
-            .statusCode(200)
+            .statusCode(201)
 
         val loginRequest =
             LoginRequest(
