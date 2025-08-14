@@ -6,7 +6,7 @@ import techcourse.herobeans.configurations.JwtTokenProvider
 import techcourse.herobeans.configurations.PasswordEncoder
 import techcourse.herobeans.dtos.RegistrationRequest
 import techcourse.herobeans.dtos.TokenResponse
-import techcourse.herobeans.exceptions.MemberEmailAlreadyExistsException
+import techcourse.herobeans.exceptions.EmailAlreadyUsedException
 import techcourse.herobeans.model.Member
 import techcourse.herobeans.repositories.MemberJpaRepository
 
@@ -19,7 +19,7 @@ class AuthenticationService(
     @Transactional
     fun registration(request: RegistrationRequest): TokenResponse {
         if (memberJpaRepository.existsByEmail(request.email)) {
-            throw MemberEmailAlreadyExistsException("Email already exists: ${request.email}")
+            throw EmailAlreadyUsedException("Email already exists: ${request.email}")
         }
         val hashedPassword = passwordEncoder.encode(request.password)
         memberJpaRepository.save(Member(request.name, request.email, hashedPassword))

@@ -2,7 +2,8 @@ package techcourse.herobeans.e2e
 
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
+import org.hamcrest.CoreMatchers.containsString
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
@@ -40,9 +41,40 @@ class AuthenticationControllerTest {
                 .post("/api/members/register")
                 .then().extract().body().jsonPath().getString("token")
 
-        Assertions.assertThat(token).isNotEmpty
+        assertThat(token).isNotEmpty
         org.junit.jupiter.api.Assertions.assertTrue(jwtTokenProvider.validateToken(token))
         val member = memberRepository.findByEmail("test@test.com")
-        Assertions.assertThat(member?.name).isEqualTo("test")
+        assertThat(member?.name).isEqualTo("test")
+    }
+
+    @Test
+    fun `should throw if email already used`() {
+        val registrationRequest =
+            RegistrationRequest(
+                "test",
+                "test@test.com",
+                "12345678",
+            )
+
+        RestAssured.given()
+            .log().all()
+            .contentType(ContentType.JSON)
+            .body(registrationRequest)
+            .post("/api/members/register")
+            .then()
+            .statusCode(200) // o 201
+
+        RestAssured.given()
+            .log().all()
+            .contentType(ContentType.JSON)
+            .body(registrationRequest)
+            .post("/api/members/register")
+            .then()
+            .statusCode(409)
+            .body("message", containsString(EMAIL_ALREADY_IN_USE))
+    }
+
+    companion object {
+        const val EMAIL_ALREADY_IN_USE = "Email already exists"
     }
 }
