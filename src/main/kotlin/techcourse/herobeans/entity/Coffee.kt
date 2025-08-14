@@ -2,6 +2,7 @@ package techcourse.herobeans.entity
 
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
+import jakarta.persistence.Embeddable
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -16,6 +17,7 @@ import org.hibernate.annotations.UpdateTimestamp
 import techcourse.herobeans.enums.BrewRecommendation
 import techcourse.herobeans.enums.OriginCountry
 import techcourse.herobeans.enums.ProcessingMethod
+import techcourse.herobeans.enums.ProfileLevel
 import techcourse.herobeans.enums.RoastLevel
 import java.time.LocalDateTime
 
@@ -71,3 +73,16 @@ class Coffee(
 
     // TODO: do we need removeOption() method? e.g. admin wants to remove option
 }
+
+@Embeddable
+data class Profile(
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    val body: ProfileLevel,
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    val sweetness: ProfileLevel,
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    val acidity: ProfileLevel,
+)
