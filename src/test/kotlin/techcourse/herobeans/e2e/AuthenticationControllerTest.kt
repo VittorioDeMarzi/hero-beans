@@ -9,15 +9,14 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.annotation.DirtiesContext
+import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.ActiveProfiles
 import techcourse.herobeans.configuration.JwtTokenProvider
 import techcourse.herobeans.dto.LoginRequest
 import techcourse.herobeans.dto.RegistrationRequest
 import techcourse.herobeans.repository.MemberJpaRepository
 
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 class AuthenticationControllerTest {
     @Autowired
@@ -25,6 +24,11 @@ class AuthenticationControllerTest {
 
     @Autowired
     private lateinit var jwtTokenProvider: JwtTokenProvider
+
+    @LocalServerPort
+    private var port: Int = 0
+
+    val baseUrl get() = "http://localhost:$port"
 
     @BeforeEach
     fun setUp() {
@@ -43,6 +47,7 @@ class AuthenticationControllerTest {
         val token =
             RestAssured.given()
                 .log().all()
+                .baseUri(baseUrl)
                 .contentType(ContentType.JSON)
                 .body(registrationRequest)
                 .post("/api/members/register")
@@ -69,6 +74,7 @@ class AuthenticationControllerTest {
             )
 
         RestAssured.given()
+            .baseUri(baseUrl)
             .contentType(ContentType.JSON)
             .body(registrationRequest)
             .post("/api/members/register")
@@ -76,6 +82,7 @@ class AuthenticationControllerTest {
 
         RestAssured.given()
             .log().all()
+            .baseUri(baseUrl)
             .contentType(ContentType.JSON)
             .body(registrationRequest)
             .post("/api/members/register")
@@ -93,6 +100,7 @@ class AuthenticationControllerTest {
             )
 
         RestAssured.given()
+            .baseUri(baseUrl)
             .contentType(ContentType.JSON)
             .body(registrationRequest)
             .post("/api/members/register")
@@ -108,6 +116,7 @@ class AuthenticationControllerTest {
         val token =
             RestAssured.given()
                 .log().all()
+                .baseUri(baseUrl)
                 .contentType(ContentType.JSON)
                 .body(loginRequest)
                 .post("/api/members/login")
@@ -130,6 +139,7 @@ class AuthenticationControllerTest {
             )
 
         RestAssured.given()
+            .baseUri(baseUrl)
             .contentType(ContentType.JSON)
             .body(registrationRequest)
             .post("/api/members/register")
@@ -142,6 +152,7 @@ class AuthenticationControllerTest {
 
         RestAssured.given()
             .log().all()
+            .baseUri(baseUrl)
             .contentType(ContentType.JSON)
             .body(loginRequest)
             .post("/api/members/login")
