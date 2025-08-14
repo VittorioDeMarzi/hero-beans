@@ -17,6 +17,13 @@ class GlobalExceptionHandler {
     )
     fun handleConflict(ex: RuntimeException) = buildErrorResponse(HttpStatus.CONFLICT, ex)
 
+    @ExceptionHandler(
+        value = [
+            EmailOrPasswordIncorrectException::class,
+        ],
+    )
+    fun handleForbidden(ex: RuntimeException) = buildErrorResponse(HttpStatus.FORBIDDEN, ex)
+
     fun buildErrorResponse(
         status: HttpStatus,
         ex: RuntimeException,
