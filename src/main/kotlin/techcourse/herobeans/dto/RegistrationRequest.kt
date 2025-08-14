@@ -1,4 +1,4 @@
-package techcourse.herobeans.dtos
+package techcourse.herobeans.dto
 
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank

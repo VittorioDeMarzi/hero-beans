@@ -1,4 +1,4 @@
-package techcourse.herobeans.dtos
+package techcourse.herobeans.dto
 
 class TokenResponse(
     val token: String,

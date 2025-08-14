@@ -1,4 +1,4 @@
-package techcourse.herobeans.configurations
+package techcourse.herobeans.configuration
 
 import org.mindrot.jbcrypt.BCrypt
 import org.springframework.stereotype.Component

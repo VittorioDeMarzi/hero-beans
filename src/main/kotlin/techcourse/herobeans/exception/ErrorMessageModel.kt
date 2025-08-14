@@ -1,4 +1,4 @@
-package techcourse.herobeans.exceptions
+package techcourse.herobeans.exception
 
 class ErrorMessageModel(
     var status: Int? = null,

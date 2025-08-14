@@ -1,4 +1,4 @@
-package techcourse.herobeans.repositories
+package techcourse.herobeans.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
 import techcourse.herobeans.model.Member
