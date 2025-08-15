@@ -7,9 +7,9 @@ import techcourse.herobeans.configuration.PasswordEncoder
 import techcourse.herobeans.dto.LoginRequest
 import techcourse.herobeans.dto.RegistrationRequest
 import techcourse.herobeans.dto.TokenResponse
+import techcourse.herobeans.entity.Member
 import techcourse.herobeans.exception.EmailAlreadyUsedException
 import techcourse.herobeans.exception.EmailOrPasswordIncorrectException
-import techcourse.herobeans.model.Member
 import techcourse.herobeans.repository.MemberJpaRepository
 
 @Transactional
