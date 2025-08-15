@@ -1,4 +1,4 @@
-package techcourse.herobeans.model
+package techcourse.herobeans.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -28,5 +28,5 @@ class Member(
     var lastUpdatedAt: LocalDateTime? = null,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    val id: Long?,
 )
