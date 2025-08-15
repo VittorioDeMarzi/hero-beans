@@ -15,6 +15,7 @@ import jakarta.persistence.OneToMany
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import techcourse.herobeans.enums.BrewRecommendation
+import techcourse.herobeans.enums.Grams
 import techcourse.herobeans.enums.OriginCountry
 import techcourse.herobeans.enums.ProcessingMethod
 import techcourse.herobeans.enums.ProfileLevel
@@ -67,11 +68,18 @@ class Coffee(
 
     fun addOption(option: PackageOption) {
         require(options.none { it.weight == option.weight }) { "option already has ${option.weight.value}" }
+
         options.add(option)
         // TODO: maybe updater stamp manually
     }
 
-    // TODO: do we need removeOption() method? e.g. admin wants to remove option
+    fun removeOptionByWeight(weight: Grams) {
+        require(options.size >= 2) { "Removing option would leave coffee without enough options" }
+        require(options.any { it.weight == weight }) { "No option found for weight $weight" }
+
+        options.removeIf { it.weight == weight }
+        // TODO: if updater stamp manually apply, here should be updated
+    }
 }
 
 @Embeddable
