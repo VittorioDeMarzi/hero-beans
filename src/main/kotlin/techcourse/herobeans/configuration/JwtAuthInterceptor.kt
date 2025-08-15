@@ -16,7 +16,9 @@ class JwtAuthInterceptor(
         response: HttpServletResponse,
         handler: Any,
     ): Boolean {
-        val accessToken = request.getHeader("Authorization")?.substringAfter("Bearer ") ?: throw UnauthorizedAccessException("Invalid Token")
+        val accessToken =
+            request.getHeader("Authorization")?.substringAfter("Bearer ")
+                ?: throw UnauthorizedAccessException("Invalid Token")
         if (!jwtTokenProvider.validateToken(accessToken)) throw UnauthorizedAccessException("Invalid Token")
 
         val email = jwtTokenProvider.getEmailFromToken(accessToken) ?: throw UnauthorizedAccessException("Invalid Token")
