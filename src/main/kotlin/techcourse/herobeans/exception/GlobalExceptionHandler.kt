@@ -20,9 +20,21 @@ class GlobalExceptionHandler {
     @ExceptionHandler(
         value = [
             EmailOrPasswordIncorrectException::class,
+            ForbiddenAccessException::class,
         ],
     )
     fun handleForbidden(ex: RuntimeException) = buildErrorResponse(HttpStatus.FORBIDDEN, ex)
+
+    @ExceptionHandler(UnauthorizedAccessException::class)
+    fun handleUnauthorizedException(ex: UnauthorizedAccessException) = buildErrorResponse(HttpStatus.UNAUTHORIZED, ex)
+
+    @ExceptionHandler(NotFoundException::class)
+    fun handleNotFound(ex: NotFoundException) = buildErrorResponse(HttpStatus.NOT_FOUND, ex)
+
+    @ExceptionHandler(
+        value = [MaxAddressesExceededException::class],
+    )
+    fun handleBadRequest(ex: RuntimeException) = buildErrorResponse(HttpStatus.BAD_REQUEST, ex)
 
     fun buildErrorResponse(
         status: HttpStatus,
