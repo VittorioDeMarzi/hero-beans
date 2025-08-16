@@ -1,0 +1,48 @@
+package techcourse.herobeans.entity
+
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.ManyToOne
+
+/**
+ * label stands for "Home", "Work"
+ */
+@Entity
+class Address(
+    @Column(nullable = false)
+    val street: String,
+    @Column(nullable = false)
+    val number: String,
+    @Column(nullable = false)
+    val city: String = "Berlin",
+    @Column(nullable = false)
+    val postalCode: String,
+    @Column(nullable = false)
+    val countryCode: String = "DE",
+    val label: String? = null,
+    @ManyToOne(fetch = FetchType.LAZY)
+    val member: Member,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long = 0L,
+) {
+    init {
+        require(street.isNotEmpty()) { "Street cannot be empty" }
+        require(number.isNotEmpty()) { "Number cannot be empty and has to contain digits" }
+        require(this.isInBerlin()) { "Out of shipping & billing zone" }
+        require(this.isInGermany()) { "Out of shipping & billing zone" }
+    }
+
+    fun isInBerlin(): Boolean {
+        return this.city.equals("Berlin", ignoreCase = true) ||
+            this.postalCode.startsWith("10") || // Berlin postal codes start with 10xxx or 12xxx
+            this.postalCode.startsWith("12")
+    }
+
+    fun isInGermany(): Boolean {
+        return this.countryCode.equals("DE", ignoreCase = true)
+    }
+}
