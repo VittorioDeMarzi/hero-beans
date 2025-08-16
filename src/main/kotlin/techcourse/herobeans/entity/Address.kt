@@ -31,7 +31,7 @@ class Address(
 ) {
     init {
         require(street.isNotEmpty()) { "Street cannot be empty" }
-        require(number.isNotEmpty()) { "Number cannot be empty and has to contain digits" }
+        require(number.isNotEmpty()) { "Number cannot be empty" }
         require(this.isInBerlin()) { "Out of shipping & billing zone" }
         require(this.isInGermany()) { "Out of shipping & billing zone" }
     }
