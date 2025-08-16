@@ -7,6 +7,8 @@ import org.hamcrest.CoreMatchers.containsString
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
@@ -130,6 +132,23 @@ class AuthenticationControllerTest {
     }
 
     @Test
+    fun `should return 401 when login as non-registered member`() {
+        val loginRequest =
+            LoginRequest(
+                "test@test.com",
+                "12345678",
+            )
+
+        RestAssured.given()
+            .log().all()
+            .baseUri(baseUrl)
+            .contentType(ContentType.JSON)
+            .body(loginRequest)
+            .post("/api/members/login")
+            .then().statusCode(401)
+    }
+
+    @Test
     fun `should return 403 when login with invalid credentials`() {
         val registrationRequest =
             RegistrationRequest(
@@ -159,7 +178,88 @@ class AuthenticationControllerTest {
             .then().statusCode(403)
     }
 
+    @Test
+    fun `should return 401 for request with invalid token`() {
+        val token = "ndwndwoljdwpfkwkdsq.DNlwfk3wld'wamclwfjkepojfo3jf"
+        RestAssured.given().log().all()
+            .baseUri(baseUrl)
+            .header("Authorization", "Bearer $token")
+            .`when`()
+            .get("/api/members/me")
+            .then().statusCode(401)
+    }
+
+    @Test
+    fun `should return 401 without 'Authorization' header`() {
+        val registrationRequest =
+            RegistrationRequest(
+                "test",
+                "test@test.com",
+                "12345678",
+            )
+
+        RestAssured.given()
+            .baseUri(baseUrl)
+            .contentType(ContentType.JSON)
+            .body(registrationRequest)
+            .post("/api/members/register")
+            .then()
+            .statusCode(201)
+
+        val loginRequest =
+            LoginRequest(
+                "test@test.com",
+                "12345678",
+            )
+
+        val loginResponse =
+            RestAssured.given()
+                .baseUri(baseUrl)
+                .contentType(ContentType.JSON)
+                .body(loginRequest)
+                .post("/api/members/login")
+                .then().extract()
+
+        val token = loginResponse.body().jsonPath().getString("token")
+        RestAssured.given().log().all()
+            .baseUri(baseUrl)
+            .header("Location", "Bearer $token")
+            .`when`()
+            .get("/api/members/me")
+            .then().statusCode(401)
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidRegisterRequests")
+    fun `should return 400 for not respecting email and password rules when registering`(registrationRequest: RegistrationRequest) {
+        RestAssured.given()
+            .baseUri(baseUrl)
+            .contentType(ContentType.JSON)
+            .body(registrationRequest)
+            .post("/api/members/register")
+            .then().statusCode(400)
+    }
+
     companion object {
         const val EMAIL_ALREADY_IN_USE = "Email already exists"
+
+        @JvmStatic
+        fun invalidRegisterRequests(): List<RegistrationRequest> =
+            listOf(
+                // invalid mail
+                RegistrationRequest("test", "@", "abcdef1234"),
+                // invalid mail
+                RegistrationRequest("test", "a@", "abcdef1234"),
+                // invalid mail
+                RegistrationRequest("test", "@.com", "abcdef1234"),
+                // invalid password: too short
+                RegistrationRequest("test", "a@mail.com", "a".repeat(7)),
+                // invalid password: too long
+                RegistrationRequest("test", "a@mail.com", "a".repeat(65)),
+                // invalid mail: empty
+                RegistrationRequest("test", "", "abcdef1234"),
+                // invalid password: empty
+                RegistrationRequest("test", "a@mail.com", ""),
+            )
     }
 }
