@@ -14,16 +14,16 @@ import jakarta.persistence.ManyToOne
 @Entity
 class Address(
     @Column(nullable = false)
-    val street: String,
+    var street: String,
     @Column(nullable = false)
-    val number: String,
+    var number: String,
     @Column(nullable = false)
     val city: String = "Berlin",
     @Column(nullable = false)
-    val postalCode: String,
+    var postalCode: String,
     @Column(nullable = false)
     val countryCode: String = "DE",
-    val label: String? = null,
+    var label: String? = null,
     @ManyToOne(fetch = FetchType.LAZY)
     val member: Member,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
