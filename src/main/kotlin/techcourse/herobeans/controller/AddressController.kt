@@ -18,7 +18,7 @@ import techcourse.herobeans.dto.UpdateAddressRequest
 import techcourse.herobeans.service.AddressService
 
 @RestController
-@RequestMapping("/api/address") // TODO: add to interceptor
+@RequestMapping("/api/address")
 class AddressController(
     private val addressService: AddressService,
 ) {
@@ -42,9 +42,9 @@ class AddressController(
 
     @PatchMapping("/{addressId}")
     fun updateAddress(
+        @LoginMember member: MemberDto,
         @RequestBody request: UpdateAddressRequest,
         @PathVariable addressId: Long,
-        @LoginMember member: MemberDto,
     ): ResponseEntity<AddressDto> {
         val updatedAddress = addressService.updateAddress(addressId, member.id!!, request)
         return ResponseEntity.ok(updatedAddress)
