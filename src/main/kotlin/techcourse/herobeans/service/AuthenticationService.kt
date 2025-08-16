@@ -5,11 +5,15 @@ import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.configuration.JwtTokenProvider
 import techcourse.herobeans.configuration.PasswordEncoder
 import techcourse.herobeans.dto.LoginRequest
+import techcourse.herobeans.dto.MemberDto
 import techcourse.herobeans.dto.RegistrationRequest
 import techcourse.herobeans.dto.TokenResponse
 import techcourse.herobeans.entity.Member
 import techcourse.herobeans.exception.EmailAlreadyUsedException
 import techcourse.herobeans.exception.EmailOrPasswordIncorrectException
+import techcourse.herobeans.exception.NotFoundException
+import techcourse.herobeans.exception.UnauthorizedAccessException
+import techcourse.herobeans.mapper.MemberMapper.toDto
 import techcourse.herobeans.repository.MemberJpaRepository
 
 @Transactional
@@ -30,12 +34,17 @@ class AuthenticationService(
     }
 
     fun login(request: LoginRequest): TokenResponse {
-        val member = memberJpaRepository.findByEmail(request.email) ?: throw EmailOrPasswordIncorrectException("Invalid password for email")
+        val member = memberJpaRepository.findByEmail(request.email) ?: throw UnauthorizedAccessException("Member is not registered yet")
 
         if (!passwordEncoder.matches(request.password, member.password)) {
             throw EmailOrPasswordIncorrectException("Invalid password for email")
         }
         val token = tokenService.createToken(request.email)
         return TokenResponse(token)
+    }
+
+    fun findMyInfo(id: Long): MemberDto {
+        val member = memberJpaRepository.findById(id).orElseThrow { NotFoundException("Member with id $id not found") }
+        return member.toDto()
     }
 }
