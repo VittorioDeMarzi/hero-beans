@@ -1,4 +1,4 @@
-package techcourse.herobeans.model
+package techcourse.herobeans.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
