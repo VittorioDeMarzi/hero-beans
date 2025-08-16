@@ -1,5 +1,7 @@
 package techcourse.herobeans.e2e
 
+import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.security.Keys
 import io.restassured.RestAssured
 import io.restassured.http.ContentType
 import org.assertj.core.api.Assertions.assertThat
@@ -17,6 +19,9 @@ import techcourse.herobeans.configuration.JwtTokenProvider
 import techcourse.herobeans.dto.LoginRequest
 import techcourse.herobeans.dto.RegistrationRequest
 import techcourse.herobeans.repository.MemberJpaRepository
+import java.nio.charset.StandardCharsets
+import java.util.Date
+import java.util.concurrent.TimeUnit
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -181,6 +186,31 @@ class AuthenticationControllerTest {
     @Test
     fun `should return 401 for request with invalid token`() {
         val token = "ndwndwoljdwpfkwkdsq.DNlwfk3wld'wamclwfjkepojfo3jf"
+        RestAssured.given().log().all()
+            .baseUri(baseUrl)
+            .header("Authorization", "Bearer $token")
+            .`when`()
+            .get("/api/members/me")
+            .then().statusCode(401)
+    }
+
+    @Test
+    fun `should return 401 for request with expired token`() {
+        val secret = "test-secret-key-test-secret-key-test-test-test"
+        val secretKey = Keys.hmacShaKeyFor(secret.toByteArray(StandardCharsets.UTF_8))
+
+        val now = Date()
+        val issuedAt = Date(now.time - TimeUnit.HOURS.toMillis(2))
+        val expiration = Date(now.time - TimeUnit.HOURS.toMillis(1))
+
+        val token =
+            Jwts.builder()
+                .subject("email@e.com")
+                .issuedAt(issuedAt)
+                .expiration(expiration)
+                .signWith(secretKey)
+                .compact()
+
         RestAssured.given().log().all()
             .baseUri(baseUrl)
             .header("Authorization", "Bearer $token")
