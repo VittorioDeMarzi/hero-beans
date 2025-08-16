@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
-import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.entity.Coffee
 import techcourse.herobeans.entity.Profile
 import techcourse.herobeans.enums.BrewRecommendation
@@ -20,7 +19,6 @@ import techcourse.herobeans.repository.CoffeeJpaRepository
 
 @SpringBootTest
 @AutoConfigureMockMvc // mockMvc is lighter than SpringBootTest
-@Transactional
 class GuestControllerIntegrationTest() {
     @Autowired
     private lateinit var mockMvc: MockMvc
