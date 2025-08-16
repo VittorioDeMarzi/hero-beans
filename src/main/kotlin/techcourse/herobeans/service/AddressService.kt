@@ -1,6 +1,7 @@
 package techcourse.herobeans.service
 
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.dto.AddressDto
 import techcourse.herobeans.dto.AddressRequest
 import techcourse.herobeans.dto.UpdateAddressRequest
@@ -13,6 +14,7 @@ import techcourse.herobeans.repository.AddressJpaRepository
 import techcourse.herobeans.repository.MemberJpaRepository
 
 @Service
+@Transactional
 class AddressService(
     private val addressRepository: AddressJpaRepository,
     private val memberJpaRepository: MemberJpaRepository,
