@@ -55,7 +55,7 @@ class AdminCaffeController(
     fun addOptionToProduct(
         @PathVariable id: Long,
         @AdminOnly member: MemberDto,
-        @RequestBody option: PackageOptionRequest,
+        @Valid @RequestBody option: PackageOptionRequest,
     ): ResponseEntity<CoffeeDto> {
         val updatedProduct = coffeeService.addOptionToCoffe(id, option)
         return ResponseEntity.ok(updatedProduct)

@@ -10,6 +10,7 @@ import techcourse.herobeans.exception.NotFoundException
 import techcourse.herobeans.mapper.CoffeeMapper.toDto
 import techcourse.herobeans.mapper.CoffeeMapper.toEntity
 import techcourse.herobeans.repository.CoffeeJpaRepository
+import techcourse.herobeans.repository.requireDoesNotExistByName
 import kotlin.jvm.optionals.getOrNull
 
 @Service
@@ -36,6 +37,7 @@ class CoffeeService(
     @Transactional
     fun createCoffee(request: CoffeeRequest): CoffeeDto {
         val coffee = request.toEntity()
+        coffeeJpaRepository.requireDoesNotExistByName(coffee.name)
         val saved = coffeeJpaRepository.save(coffee)
         return saved.toDto()
     }

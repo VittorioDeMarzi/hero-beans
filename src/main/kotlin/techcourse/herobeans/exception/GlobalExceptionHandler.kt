@@ -3,6 +3,7 @@ package techcourse.herobeans.exception
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
@@ -10,9 +11,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class GlobalExceptionHandler {
     private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleValidationError(ex: MethodArgumentNotValidException): ResponseEntity<Map<String, String>> {
+        val errors =
+            ex.bindingResult.fieldErrors.associate {
+                it.field to (it.defaultMessage ?: "Invalid value")
+            }
+        return ResponseEntity.badRequest().body(errors)
+    }
+
     @ExceptionHandler(
         value = [
             EmailAlreadyUsedException::class,
+            CoffeeNameAlreadyExistsException::class,
         ],
     )
     fun handleConflict(ex: RuntimeException) = buildErrorResponse(HttpStatus.CONFLICT, ex)

@@ -151,6 +151,31 @@ class AdminCaffeControllerE2ETest {
     }
 
     @Test
+    fun `should throw if coffee name already exists`() {
+        RestAssured.given()
+            .baseUri(baseUrl)
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer $token")
+            .body(validRequest())
+            .post("/api/admin/coffees")
+            .then()
+            .statusCode(201)
+            .extract()
+            .`as`(CoffeeDto::class.java)
+
+        RestAssured.given()
+            .baseUri(baseUrl)
+            .contentType(ContentType.JSON)
+            .header("Authorization", "Bearer $token")
+            .body(validRequest())
+            .post("/api/admin/coffees")
+            .then()
+            .statusCode(409)
+            .extract().body().jsonPath().getString("message")
+            .contains("Coffee with name 'Ethiopian Test' already exists")
+    }
+
+    @Test
     fun `createProduct returns 403 for USER`() {
         val user =
             memberJpaRepository.save(
