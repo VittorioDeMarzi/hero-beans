@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.dto.CoffeeDto
 import techcourse.herobeans.dto.CoffeePatchRequest
 import techcourse.herobeans.dto.CoffeeRequest
+import techcourse.herobeans.dto.PackageOptionRequest
 import techcourse.herobeans.exception.NotFoundException
 import techcourse.herobeans.mapper.CoffeeMapper.toDto
 import techcourse.herobeans.mapper.CoffeeMapper.toEntity
@@ -26,10 +27,9 @@ class CoffeeService(
 
     @Transactional(readOnly = true)
     fun getProductById(id: Long): CoffeeDto {
-        // TODO: replace exception with NotFoundException!!!
         return coffeeJpaRepository
             .findById(id)
-            .orElseThrow { RuntimeException("Coffee with id $id not found") }
+            .orElseThrow { NotFoundException("Coffee with id $id not found") }
             .toDto()
     }
 
@@ -67,6 +67,16 @@ class CoffeeService(
             p.acidity?.let { coffee.profile.acidity = it }
         }
 
+        return coffee.toDto()
+    }
+
+    @Transactional
+    fun addOptionToCoffe(
+        id: Long,
+        option: PackageOptionRequest,
+    ): CoffeeDto {
+        val coffee = coffeeJpaRepository.findById(id).getOrNull() ?: throw NotFoundException("Product with id $id not found")
+        coffee.addOption(option.toEntity())
         return coffee.toDto()
     }
 }

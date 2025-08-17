@@ -25,6 +25,7 @@ import techcourse.herobeans.enums.ProfileLevel
 import techcourse.herobeans.enums.RoastLevel
 import techcourse.herobeans.repository.CoffeeJpaRepository
 import techcourse.herobeans.repository.MemberJpaRepository
+import techcourse.herobeans.repository.PackageOptionJpaRepository
 import techcourse.herobeans.service.AuthenticationService
 import java.math.BigDecimal
 
@@ -40,6 +41,9 @@ class AdminCaffeControllerE2ETest {
 
     @Autowired
     private lateinit var memberJpaRepository: MemberJpaRepository
+
+    @Autowired
+    private lateinit var optionJpaRepository: PackageOptionJpaRepository
 
     @LocalServerPort
     private var port: Int = 0
@@ -104,6 +108,7 @@ class AdminCaffeControllerE2ETest {
     fun setUp() {
         coffeeJpaRepository.deleteAll()
         memberJpaRepository.deleteAll()
+        memberJpaRepository.flush()
         val admin =
             memberJpaRepository.save(
                 Member(
@@ -173,7 +178,7 @@ class AdminCaffeControllerE2ETest {
         RestAssured.given()
             .baseUri(baseUrl)
             .contentType(ContentType.JSON)
-            .header("Authorization", "Bearer $token") // token admin dal setUp
+            .header("Authorization", "Bearer $token")
             .body(invalidRequest())
             .post("/api/admin/coffees")
             .then()
@@ -256,5 +261,51 @@ class AdminCaffeControllerE2ETest {
         assertThat(response.roastLevel).isEqualTo(RoastLevel.MEDIUM_ROAST)
         assertThat(response.description).isEqualTo("Updated description")
         assertThat(response.profile.body).isEqualTo(ProfileLevel.HIGH)
+    }
+
+    @Test
+    fun `addOptionToProduct returns 200 for ADMIN and persists to DB`() {
+        // Arrange
+        val created =
+            RestAssured.given()
+                .baseUri(baseUrl)
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer $token")
+                .body(validRequest())
+                .post("/api/admin/coffees")
+                .then()
+                .statusCode(201)
+                .extract()
+                .`as`(CoffeeDto::class.java)
+
+        val id = created.id
+        val newOption =
+            PackageOptionRequest(
+                quantity = 50,
+                weight = Grams.G500,
+                price = BigDecimal("7.50"),
+            )
+
+        // Given
+        val updated =
+            RestAssured.given()
+                .baseUri(baseUrl)
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer $token")
+                .body(newOption)
+                .post("/api/admin/coffees/add/option/{id}", id)
+                .then()
+                .statusCode(200)
+                .extract()
+                .`as`(CoffeeDto::class.java)
+
+        // Assert
+        assertThat(updated.options.size).isEqualTo(created.options.size + 1)
+        assertThat(updated.options.any { it.weight == Grams.G500 && it.quantity == 50 }).isTrue()
+        val inDb = optionJpaRepository.findAllByCoffeeId(updated.id)
+        assertThat(inDb.size).isEqualTo(created.options.size + 1)
+        val saved = inDb.firstOrNull { it.weight == Grams.G500 && it.quantity == 50 }
+        assertThat(saved).isNotNull
+        assertThat(saved!!.price).isEqualTo(BigDecimal("7.50"))
     }
 }

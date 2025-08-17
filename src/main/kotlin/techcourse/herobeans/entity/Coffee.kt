@@ -68,7 +68,7 @@ class Coffee(
     fun addOption(option: PackageOption) {
         require(options.none { it.weight == option.weight }) { "option already has ${option.weight.value}" }
         options.add(option)
-        // TODO: maybe updater stamp manually
+        option.coffee = this
     }
 
     // TODO: do we need removeOption() method? e.g. admin wants to remove option

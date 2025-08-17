@@ -15,6 +15,7 @@ import techcourse.herobeans.dto.CoffeeDto
 import techcourse.herobeans.dto.CoffeePatchRequest
 import techcourse.herobeans.dto.CoffeeRequest
 import techcourse.herobeans.dto.MemberDto
+import techcourse.herobeans.dto.PackageOptionRequest
 import techcourse.herobeans.service.CoffeeService
 
 @RestController
@@ -47,6 +48,16 @@ class AdminCaffeController(
         @AdminOnly member: MemberDto,
     ): ResponseEntity<CoffeeDto> {
         val updatedProduct = coffeeService.updateProduct(id, coffee)
+        return ResponseEntity.ok(updatedProduct)
+    }
+
+    @PostMapping("/add/option/{id}")
+    fun addOptionToProduct(
+        @PathVariable id: Long,
+        @AdminOnly member: MemberDto,
+        @RequestBody option: PackageOptionRequest,
+    ): ResponseEntity<CoffeeDto> {
+        val updatedProduct = coffeeService.addOptionToCoffe(id, option)
         return ResponseEntity.ok(updatedProduct)
     }
 }

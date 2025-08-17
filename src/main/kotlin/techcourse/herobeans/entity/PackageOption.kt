@@ -21,7 +21,7 @@ class PackageOption(
     val weight: Grams,
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "coffee_id")
-    val coffee: Coffee? = null,
+    var coffee: Coffee? = null,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
