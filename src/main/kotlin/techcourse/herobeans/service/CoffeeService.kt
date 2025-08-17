@@ -4,9 +4,11 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.dto.CoffeeDto
 import techcourse.herobeans.dto.CoffeeRequest
+import techcourse.herobeans.exception.NotFoundException
 import techcourse.herobeans.mapper.CoffeeMapper.toDto
 import techcourse.herobeans.mapper.CoffeeMapper.toEntity
 import techcourse.herobeans.repository.CoffeeJpaRepository
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class CoffeeService(
@@ -35,5 +37,11 @@ class CoffeeService(
         val coffee = request.toEntity()
         val saved = coffeeJpaRepository.save(coffee)
         return saved.toDto()
+    }
+
+    @Transactional
+    fun deleteProduct(id: Long) {
+        coffeeJpaRepository.findById(id).getOrNull() ?: throw NotFoundException("Product with id $id not found")
+        coffeeJpaRepository.deleteById(id)
     }
 }

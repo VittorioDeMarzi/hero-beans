@@ -179,4 +179,33 @@ class AdminCaffeControllerE2ETest {
             .then()
             .statusCode(400)
     }
+
+    @Test
+    fun `deleteProduct returns 204 for ADMIN`() {
+        // when
+        val created =
+            RestAssured.given()
+                .baseUri(baseUrl)
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer $token")
+                .body(validRequest())
+                .post("/api/admin/coffees")
+                .then()
+                .statusCode(201)
+                .extract()
+                .`as`(CoffeeDto::class.java)
+
+        val id = created.id
+
+        // given
+        RestAssured.given()
+            .baseUri(baseUrl)
+            .header("Authorization", "Bearer $token")
+            .delete("/api/admin/coffees/{id}", id)
+            .then()
+            .statusCode(204)
+
+        // then
+        assertThat(coffeeJpaRepository.existsById(id)).isFalse()
+    }
 }
