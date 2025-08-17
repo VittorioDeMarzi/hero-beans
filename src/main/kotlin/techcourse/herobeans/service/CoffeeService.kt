@@ -3,7 +3,9 @@ package techcourse.herobeans.service
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.dto.CoffeeDto
+import techcourse.herobeans.dto.CoffeeRequest
 import techcourse.herobeans.mapper.CoffeeMapper.toDto
+import techcourse.herobeans.mapper.CoffeeMapper.toEntity
 import techcourse.herobeans.repository.CoffeeJpaRepository
 
 @Service
@@ -26,5 +28,12 @@ class CoffeeService(
             .findById(id)
             .orElseThrow { RuntimeException("Coffee with id $id not found") }
             .toDto()
+    }
+
+    @Transactional
+    fun createCoffee(request: CoffeeRequest): CoffeeDto {
+        val coffee = request.toEntity()
+        val saved = coffeeJpaRepository.save(coffee)
+        return saved.toDto()
     }
 }

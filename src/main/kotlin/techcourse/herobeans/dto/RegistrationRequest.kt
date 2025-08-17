@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 
-data class RegistrationRequest(
+class RegistrationRequest(
     @field:NotBlank(message = "Name must not be blank")
     @field:Pattern(
         regexp = "^[A-Za-zÀ-ÿ'\\-\\s]+$",
