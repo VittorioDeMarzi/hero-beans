@@ -31,6 +31,11 @@ class GlobalExceptionHandler {
     @ExceptionHandler(NotFoundException::class)
     fun handleNotFound(ex: NotFoundException) = buildErrorResponse(HttpStatus.NOT_FOUND, ex)
 
+    @ExceptionHandler(
+        value = [MaxAddressesExceededException::class],
+    )
+    fun handleBadRequest(ex: RuntimeException) = buildErrorResponse(HttpStatus.BAD_REQUEST, ex)
+
     fun buildErrorResponse(
         status: HttpStatus,
         ex: RuntimeException,

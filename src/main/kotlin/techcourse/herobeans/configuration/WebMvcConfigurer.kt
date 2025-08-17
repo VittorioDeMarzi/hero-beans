@@ -18,6 +18,7 @@ class WebMvcConfigurer(
                 "/api/admin/**",
                 "api/admin/stats/**",
                 "/api/payments/**",
+                "/api/address/**",
             )
     }
 
