@@ -208,4 +208,53 @@ class AdminCaffeControllerE2ETest {
         // then
         assertThat(coffeeJpaRepository.existsById(id)).isFalse()
     }
+
+    @Test
+    fun ` should returns 200 with the updated coffee when ADMIN call the patch function`() {
+        // when
+        val created =
+            RestAssured.given()
+                .baseUri(baseUrl)
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer $token")
+                .body(validRequest())
+                .post("/api/admin/coffees")
+                .then()
+                .statusCode(201)
+                .extract()
+                .`as`(CoffeeDto::class.java)
+
+        val id = created.id
+
+        val patchBody =
+            mapOf(
+                "name" to "Ethiopian Patched",
+                "roastLevel" to "MEDIUM_ROAST",
+                "description" to "Updated description",
+                "profile" to
+                    mapOf(
+                        "body" to "HIGH",
+                    ),
+            )
+
+        // Given
+        val response =
+            RestAssured.given()
+                .baseUri(baseUrl)
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer $token")
+                .body(patchBody)
+                .patch("/api/admin/coffees/{id}", id)
+                .then()
+                .statusCode(200)
+                .extract()
+                .`as`(CoffeeDto::class.java)
+
+        // Assert
+        assertThat(response.id).isEqualTo(id)
+        assertThat(response.name).isEqualTo("Ethiopian Patched")
+        assertThat(response.roastLevel).isEqualTo(RoastLevel.MEDIUM_ROAST)
+        assertThat(response.description).isEqualTo("Updated description")
+        assertThat(response.profile.body).isEqualTo(ProfileLevel.HIGH)
+    }
 }
