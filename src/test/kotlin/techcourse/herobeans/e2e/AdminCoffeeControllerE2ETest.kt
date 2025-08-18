@@ -32,7 +32,7 @@ import java.math.BigDecimal
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class AdminCaffeControllerE2ETest {
+class AdminCoffeeControllerE2ETest {
     @Autowired
     private lateinit var authenticationService: AuthenticationService
 
