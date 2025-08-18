@@ -17,13 +17,14 @@ import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import techcourse.herobeans.enums.OrderStatus
 import techcourse.herobeans.enums.ShippingMethod
+import techcourse.herobeans.mapper.CartItemMapper.toOrderItems
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @Entity
 @Table(name = "orders")
 @EntityListeners(AuditingEntityListener::class)
-class Order(
+class Order private constructor(
     @Column(nullable = false)
     val memberId: Long,
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
@@ -72,4 +73,23 @@ class Order(
     @Column(nullable = false)
     final lateinit var lastUpdatedAt: LocalDateTime
         private set
+
+    private fun addItemsFromCart(cart: Cart): Order {
+        require(cart.items.isNotEmpty()) { "Items must not be empty" }
+
+        this.orderItems.addAll(cart.items.toOrderItems(this))
+        coffeeSubTotal = this.orderItems.sumOf { it.price }
+        return this
+    }
+
+    fun markAs(status: OrderStatus) {
+        this.status = status
+    }
+
+    companion object {
+        fun fromCart(cart: Cart): Order {
+            val order = Order(memberId = cart.member.id!!)
+            return order.addItemsFromCart(cart)
+        }
+    }
 }

@@ -5,7 +5,6 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
 import techcourse.herobeans.config.StripeProperties
-import techcourse.herobeans.dto.FinalizePaymentResponse
 import techcourse.herobeans.dto.PaymentIntent
 import techcourse.herobeans.dto.StartCheckoutRequest
 
@@ -42,15 +41,15 @@ class StripeClient(private val stripeProperties: StripeProperties) {
         }
     }
 
-    fun confirmPaymentIntent(paymentIntentId: String): FinalizePaymentResponse {
+    fun confirmPaymentIntent(paymentIntentId: String): PaymentIntent {
         return try {
             val response =
                 restClient.post()
-                    .uri("") // TODO: URI logic?
+                    .uri("/v1/payment_intents/$paymentIntentId/confirm")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer ${stripeProperties.secretKey}")
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .retrieve()
-                    .toEntity(FinalizePaymentResponse::class.java)
+                    .toEntity(PaymentIntent::class.java)
 
             val responseBody = requireNotNull(response.body) { "PaymentIntent confirmation failed" }
 
