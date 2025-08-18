@@ -40,8 +40,9 @@ class GlobalExceptionHandler {
     )
     fun handleBadRequest(ex: RuntimeException) = buildErrorResponse(HttpStatus.BAD_REQUEST, ex)
 
-    @ExceptionHandler(Exception::class)
-    fun handleGenericException(ex: Exception) = buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex)
+//    TODO: uncomment once we add validation exception handler
+//    @ExceptionHandler(Exception::class)
+//    fun handleGenericException(ex: Exception) = buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex)
 
     fun buildErrorResponse(
         status: HttpStatus,
