@@ -36,10 +36,10 @@ class GuestControllerIntegrationTest() {
     @Test
     fun `should return all coffees`() {
         // TODO: extract to data.sql or DataBase.Fixtures
-        val espresso =
+        (1..20).forEach { i ->
             coffeeJpaRepository.save(
                 Coffee(
-                    name = "Espresso",
+                    name = "Espresso$i",
                     profile =
                         Profile(
                             body = ProfileLevel.MEDIUM,
@@ -56,13 +56,18 @@ class GuestControllerIntegrationTest() {
                     id = 0L,
                 ),
             )
+        }
 
         mockMvc.get("/api/product")
             .andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.size()") { value(1) }
-                jsonPath("$[0].name") { value("Espresso") }
+                jsonPath("$.content") { isArray() }
+                jsonPath("$.content[0].name") { value("Espresso1") }
+                jsonPath("$.content[1].name") { value("Espresso2") }
+                jsonPath("$.content[7].name") { value("Espresso8") }
+                jsonPath("$.totalElements") { value(20) }
+                jsonPath("$.size") { value(8) }
             }
     }
 

@@ -1,5 +1,7 @@
 package techcourse.herobeans.service
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.dto.CoffeeDto
@@ -18,8 +20,12 @@ class CoffeeService(
     private val coffeeJpaRepository: CoffeeJpaRepository,
 ) {
     @Transactional(readOnly = true)
-    fun getAllProducts(): List<CoffeeDto> {
-        return coffeeJpaRepository.findAll().map {
+    fun getAllProducts(
+        page: Int,
+        size: Int,
+    ): Page<CoffeeDto> {
+        val pageable = PageRequest.of(page, size)
+        return coffeeJpaRepository.findAll(pageable).map {
             it.toDto()
             // TODO: possible to implement filtering by isAvailable, but showing even unavailable products is also a good strategy
             // TODO: filter by isVisible
