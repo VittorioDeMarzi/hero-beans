@@ -62,6 +62,7 @@ class CoffeeService(
         patch.roastLevel?.let { coffee.roastLevel = it }
         patch.description?.let { coffee.description = it }
         patch.imageUrl?.let { coffee.imageUrl = it.trim() }
+        patch.certificates?.let { coffee.certificates = it.toMutableList() }
 
         patch.profile?.let { p ->
             p.body?.let { coffee.profile.body = it }

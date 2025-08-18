@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import techcourse.herobeans.enums.BrewRecommendation
+import techcourse.herobeans.enums.Certificate
 import techcourse.herobeans.enums.OriginCountry
 import techcourse.herobeans.enums.ProcessingMethod
 import techcourse.herobeans.enums.ProfileLevel
@@ -26,6 +27,7 @@ data class CoffeeRequest(
     val processingMethod: ProcessingMethod,
     @field:NotNull(message = "Roast level is required")
     val roastLevel: RoastLevel,
+    val certificates: List<Certificate> = listOf(),
     @field:NotBlank(message = "Description is required")
     @field:Size(max = 200, message = "Name must be at most 200 characters")
     val description: String,
