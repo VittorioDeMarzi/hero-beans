@@ -14,6 +14,7 @@ import jakarta.persistence.PrePersist
 import jakarta.persistence.PreUpdate
 import jakarta.persistence.Table
 import techcourse.herobeans.enums.OrderStatus
+import techcourse.herobeans.enums.ShippingMethod
 import java.math.BigDecimal
 import java.time.LocalDateTime
 

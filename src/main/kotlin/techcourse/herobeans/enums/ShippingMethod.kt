@@ -1,4 +1,4 @@
-package techcourse.herobeans.entity
+package techcourse.herobeans.enums
 
 import java.math.BigDecimal
 
