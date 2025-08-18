@@ -53,7 +53,7 @@ class GuestControllerIntegrationTest() {
                     roastLevel = RoastLevel.DARK_ROAST,
                     description = "Rich and bold",
                     imageUrl = "http://img/espresso.jpg",
-                    id = null,
+                    id = 0L,
                 ),
             )
 
@@ -85,7 +85,7 @@ class GuestControllerIntegrationTest() {
                     roastLevel = RoastLevel.MEDIUM_ROAST,
                     description = "Smooth and creamy",
                     imageUrl = "http://img/cappuccino.jpg",
-                    id = null,
+                    id = 0L,
                 ),
             )
 

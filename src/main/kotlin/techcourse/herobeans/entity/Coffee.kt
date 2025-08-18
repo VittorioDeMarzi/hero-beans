@@ -60,7 +60,7 @@ class Coffee(
     @Column(nullable = false)
     var imageUrl: String,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long?,
+    val id: Long = 0L,
 ) {
     val isAvailable: Boolean
         get() = options.sumOf { it.quantity } > 0

@@ -25,7 +25,7 @@ class PackageOption(
     var coffee: Coffee? = null,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    val id: Long = 0L,
 ) {
     init {
         require(quantity in MIN_QUANTITY..MAX_QUANTITY) { "quantity must be between $MIN_QUANTITY..$MAX_QUANTITY" }
