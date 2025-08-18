@@ -7,16 +7,25 @@ import org.springframework.web.client.RestClient
 import techcourse.herobeans.config.StripeProperties
 import techcourse.herobeans.dto.PaymentIntent
 import techcourse.herobeans.dto.StartCheckoutRequest
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 @Component
 class StripeClient(private val stripeProperties: StripeProperties) {
     private val restClient = RestClient.create()
 
-    fun createPaymentIntent(request: StartCheckoutRequest): PaymentIntent {
+    fun createPaymentIntent(
+        request: StartCheckoutRequest,
+        amount: BigDecimal,
+    ): PaymentIntent {
+        val amountInCents =
+            amount.multiply(BigDecimal(100))
+                .setScale(0, RoundingMode.HALF_UP)
+                .toLong()
         val body =
             listOf(
-                "amount=${request.amount}",
-                "currency=${request.currency}",
+                "amount=$amountInCents",
+                "currency=EUR",
                 "payment_method=${request.paymentMethod}",
                 "automatic_payment_methods[enabled]=true",
                 "automatic_payment_methods[allow_redirects]=never",
