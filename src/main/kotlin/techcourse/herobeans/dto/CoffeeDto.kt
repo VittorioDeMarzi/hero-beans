@@ -1,6 +1,7 @@
 package techcourse.herobeans.dto
 
 import techcourse.herobeans.enums.BrewRecommendation
+import techcourse.herobeans.enums.Certificate
 import techcourse.herobeans.enums.OriginCountry
 import techcourse.herobeans.enums.ProcessingMethod
 import techcourse.herobeans.enums.ProfileLevel
@@ -17,9 +18,10 @@ class CoffeeDto(
     val processingMethod: ProcessingMethod,
     val options: List<PackageOptionDto> = listOf(),
     val roastLevel: RoastLevel,
+    val certificates: List<Certificate> = listOf(),
     val createdAt: LocalDateTime,
     var updatedAt: LocalDateTime,
-    val description: String? = null,
+    val description: String,
     val imageUrl: String,
     val id: Long = 0L,
 )
