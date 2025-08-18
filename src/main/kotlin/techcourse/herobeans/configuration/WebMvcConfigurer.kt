@@ -15,6 +15,7 @@ class WebMvcConfigurer(
         registry.addInterceptor(jwtAuthInterceptor)
             .addPathPatterns(
                 "/api/member/**",
+                "/api/members/me",
                 "/api/user/wishes/**",
                 "/api/admin/**",
                 "api/admin/stats/**",

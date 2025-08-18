@@ -1,5 +1,8 @@
 package techcourse.herobeans.controller
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -14,9 +17,12 @@ import techcourse.herobeans.dto.MessageResponseDto
 import techcourse.herobeans.service.CartService
 import java.net.URI
 
+@Tag(name = "Cart", description = "Member cart operations")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/member/cart")
 class CartController(private val cartService: CartService) {
+    @Operation(summary = "Get current cart")
     @GetMapping("")
     fun getCartItems(
         @LoginMember member: MemberDto,
@@ -25,6 +31,7 @@ class CartController(private val cartService: CartService) {
         return ResponseEntity.ok(products)
     }
 
+    @Operation(summary = "Add option to cart (increments if exists)")
     @PostMapping("/{id}")
     fun addProduct(
         @LoginMember member: MemberDto,
@@ -36,6 +43,7 @@ class CartController(private val cartService: CartService) {
             .body(MessageResponseDto("Product added to cart"))
     }
 
+    @Operation(summary = "Remove specific option from cart")
     @DeleteMapping("/{id}")
     fun removeProduct(
         @LoginMember member: MemberDto,
@@ -45,6 +53,7 @@ class CartController(private val cartService: CartService) {
         return ResponseEntity.noContent().build()
     }
 
+    @Operation(summary = "Clear the cart")
     @DeleteMapping("/clear")
     fun clearCart(
         @LoginMember member: MemberDto,
