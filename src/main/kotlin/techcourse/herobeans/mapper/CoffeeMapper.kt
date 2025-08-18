@@ -27,7 +27,7 @@ object CoffeeMapper {
             updatedAt = this.updatedAt,
             description = this.description,
             imageUrl = this.imageUrl,
-            id = this.id ?: 0L,
+            id = this.id,
         )
     }
 
@@ -45,7 +45,7 @@ object CoffeeMapper {
             quantity = this.quantity,
             price = this.price,
             weight = this.weight,
-            id = this.id ?: 0L,
+            id = this.id,
         )
     }
 
@@ -67,7 +67,7 @@ object CoffeeMapper {
                 description = description,
                 imageUrl = imageUrl,
                 options = mutableListOf(),
-                id = null,
+                id = 0L,
             )
 
         this.options.forEach {

@@ -8,5 +8,5 @@ class PackageOptionDto(
     val quantity: Int,
     val price: BigDecimal,
     val weight: Grams,
-    val id: Long = 0L,
+    val id: Long,
 )
