@@ -12,8 +12,8 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
-import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.annotations.UpdateTimestamp
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
 import techcourse.herobeans.enums.BrewRecommendation
 import techcourse.herobeans.enums.OriginCountry
 import techcourse.herobeans.enums.ProcessingMethod
@@ -51,10 +51,10 @@ class Coffee(
     @Enumerated(EnumType.STRING)
     var roastLevel: RoastLevel,
     @Column(nullable = false)
-    @CreationTimestamp
+    @CreatedDate
     val createdAt: LocalDateTime = LocalDateTime.now(),
     @Column(nullable = false)
-    @UpdateTimestamp
+    @LastModifiedDate
     var updatedAt: LocalDateTime = LocalDateTime.now(),
     @Column(nullable = false)
     var description: String,
