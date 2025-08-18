@@ -36,7 +36,7 @@ class AdminCoffeeController(
     fun deleteProduct(
         @PathVariable id: Long,
         @AdminOnly member: MemberDto,
-    ): ResponseEntity<Void> {
+    ): ResponseEntity<Unit> {
         coffeeService.deleteProduct(id)
         return ResponseEntity.noContent().build()
     }
