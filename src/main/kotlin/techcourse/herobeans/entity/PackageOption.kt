@@ -9,6 +9,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import techcourse.herobeans.enums.Grams
+import techcourse.herobeans.exception.InsufficientStockException
 import java.math.BigDecimal
 
 @Entity
@@ -49,6 +50,12 @@ class PackageOption(
         require(quantity >= 0) { "quantity must be positive" }
         require(quantity - minusQuantity <= MIN_QUANTITY) { "quantity must be between $MIN_QUANTITY and $MAX_QUANTITY" }
         quantity -= minusQuantity
+    }
+
+    fun checkAvailabilityInStock(value: Int) {
+        if (quantity < value) {
+            throw InsufficientStockException("Insufficient quantity of ${coffee?.name} ${weight.name}. Items available in stock: $quantity")
+        }
     }
 
     companion object {

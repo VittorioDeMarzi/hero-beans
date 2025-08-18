@@ -32,13 +32,20 @@ class GlobalExceptionHandler {
     fun handleNotFound(ex: NotFoundException) = buildErrorResponse(HttpStatus.NOT_FOUND, ex)
 
     @ExceptionHandler(
-        value = [MaxAddressesExceededException::class],
+        value = [
+            MaxAddressesExceededException::class,
+            InsufficientStockException::class,
+            IllegalArgumentException::class,
+        ],
     )
     fun handleBadRequest(ex: RuntimeException) = buildErrorResponse(HttpStatus.BAD_REQUEST, ex)
 
+    @ExceptionHandler(Exception::class)
+    fun handleGenericException(ex: Exception) = buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex)
+
     fun buildErrorResponse(
         status: HttpStatus,
-        ex: RuntimeException,
+        ex: Exception,
     ): ResponseEntity<ErrorMessageModel> {
         logger.error("Exception caught: ${ex.message}", ex)
         ex.cause?.let { cause ->
