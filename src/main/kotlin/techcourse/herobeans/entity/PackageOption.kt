@@ -41,16 +41,18 @@ class PackageOption(
                 else -> StockStatus.IN_STOCK
             }
 
-    fun increaseQuantity(plusQuantity: Int) {
+    fun increaseQuantity(plusQuantity: Int): PackageOption {
         require(quantity >= 0) { "quantity must be positive" }
         require(quantity + plusQuantity <= MAX_QUANTITY) { "quantity must be between $MIN_QUANTITY and $MAX_QUANTITY" }
         quantity += plusQuantity
+        return this
     }
 
-    fun decreaseQuantity(minusQuantity: Int) {
+    fun decreaseQuantity(minusQuantity: Int): PackageOption {
         require(quantity >= 0) { "quantity must be positive" }
         require(quantity - minusQuantity <= MIN_QUANTITY) { "quantity must be between $MIN_QUANTITY and $MAX_QUANTITY" }
         quantity -= minusQuantity
+        return this
     }
 
     fun checkAvailabilityInStock(value: Int) {
