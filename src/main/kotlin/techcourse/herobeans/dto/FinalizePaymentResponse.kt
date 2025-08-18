@@ -1,5 +1,6 @@
 package techcourse.herobeans.dto
 
 class FinalizePaymentResponse(
-    // TODO: implement class
+    val orderId: Long,
+    val paymentStatus: String,
 )

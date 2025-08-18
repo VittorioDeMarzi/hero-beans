@@ -1,6 +1,18 @@
 package techcourse.herobeans.enums
 
-enum class ShippingMethod {
-    STANDARD,
-    FREE,
+import java.math.BigDecimal
+
+enum class ShippingMethod(val shippingFee: BigDecimal) {
+    STANDARD(BigDecimal("5.99")),
+    FREE(BigDecimal.ZERO),
+    ;
+
+    companion object {
+        fun applyShippingPolicy(amount: BigDecimal): ShippingMethod {
+            return when {
+                amount >= BigDecimal("50") -> ShippingMethod.FREE
+                else -> ShippingMethod.STANDARD
+            }
+        }
+    }
 }
