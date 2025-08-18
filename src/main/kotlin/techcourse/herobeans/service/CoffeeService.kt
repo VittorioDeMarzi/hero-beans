@@ -73,7 +73,7 @@ class CoffeeService(
     }
 
     @Transactional
-    fun addOptionToCoffe(
+    fun addOptionToCoffee(
         id: Long,
         option: PackageOptionRequest,
     ): CoffeeDto {

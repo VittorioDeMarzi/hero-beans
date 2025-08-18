@@ -20,7 +20,7 @@ import techcourse.herobeans.service.CoffeeService
 
 @RestController
 @RequestMapping("/api/admin/coffees")
-class AdminCaffeController(
+class AdminCoffeeController(
     private val coffeeService: CoffeeService,
 ) {
     @PostMapping
@@ -57,7 +57,7 @@ class AdminCaffeController(
         @AdminOnly member: MemberDto,
         @Valid @RequestBody option: PackageOptionRequest,
     ): ResponseEntity<CoffeeDto> {
-        val updatedProduct = coffeeService.addOptionToCoffe(id, option)
+        val updatedProduct = coffeeService.addOptionToCoffee(id, option)
         return ResponseEntity.ok(updatedProduct)
     }
 }

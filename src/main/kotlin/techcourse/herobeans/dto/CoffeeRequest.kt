@@ -4,6 +4,7 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import techcourse.herobeans.enums.BrewRecommendation
 import techcourse.herobeans.enums.OriginCountry
@@ -25,9 +26,10 @@ data class CoffeeRequest(
     val processingMethod: ProcessingMethod,
     @field:NotNull(message = "Roast level is required")
     val roastLevel: RoastLevel,
-    @field:Size(max = 200, message = "Name must be at most 100 characters")
+    @field:Size(max = 200, message = "Name must be at most 200 characters")
     val description: String? = null,
     @field:NotBlank(message = "Image URL is required")
+    @field:Pattern(regexp = "^https?://.+", message = "Image URL must start with http or https")
     val imageUrl: String,
     @field:Valid
     @field:NotNull(message = "Profile is required")
