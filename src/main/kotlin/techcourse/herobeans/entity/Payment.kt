@@ -3,11 +3,14 @@ package techcourse.herobeans.entity
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.ManyToOne
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
+import techcourse.herobeans.enums.PaymentStatus
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
@@ -17,6 +20,8 @@ class Payment(
     @Enumerated(EnumType.STRING)
     val currency: String = "eur",
     val paymentMethod: String,
+    @ManyToOne(fetch = FetchType.LAZY)
+    val order: Order,
     val paymentIntentId: String? = null,
     @Enumerated(EnumType.STRING)
     var status: PaymentStatus = PaymentStatus.PENDING,
@@ -28,10 +33,3 @@ class Payment(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
 )
-
-enum class PaymentStatus {
-    PENDING,
-    COMPLETED,
-    FAILED,
-    CANCELLED,
-}
