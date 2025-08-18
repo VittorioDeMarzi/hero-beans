@@ -40,11 +40,6 @@ class Order(
     @Column(nullable = false, precision = 12, scale = 2)
     var shippingFee: BigDecimal = BigDecimal.ZERO,
     /**
-     * Final total = coffeeSubTotal + shippingFee.
-     */
-    @Column(nullable = false, precision = 12, scale = 2)
-    var totalAmount: BigDecimal = BigDecimal.ZERO,
-    /**
      * Payment provider intent ID (e.g., Stripe PaymentIntent).
      * Null until created.
      */
@@ -77,36 +72,4 @@ class Order(
     @Column(nullable = false)
     final lateinit var lastUpdatedAt: LocalDateTime
         private set
-
-    fun addItem(item: OrderItem) {
-        item.order = this
-        orderItems.add(item)
-        recalculateTotals()
-    }
-
-    fun removeItem(item: OrderItem) {
-        orderItems.remove(item)
-        recalculateTotals()
-    }
-
-    fun changeShippingMethod(method: ShippingMethod) {
-        shippingMethod = method
-        recalculateTotals()
-    }
-
-    /**
-     * Recalculate monetary totals:
-     * - coffeeSubTotal = sum(price * quantity) for all items
-     * - shippingFee = derived from shippingMethod and coffeeSubTotal
-     * - totalAmount = coffeeSubTotal + shippingFee
-     */
-    fun recalculateTotals() {
-        coffeeSubTotal =
-            orderItems
-                .map { it.price.multiply(BigDecimal(it.quantity)) }
-                .fold(BigDecimal.ZERO, BigDecimal::add)
-
-        shippingFee = shippingMethod.feeForSubtotal(coffeeSubTotal)
-        totalAmount = coffeeSubTotal.add(shippingFee)
-    }
 }
