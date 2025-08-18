@@ -1,7 +1,9 @@
 package techcourse.herobeans.mapper
 
 import techcourse.herobeans.dto.CoffeeDto
+import techcourse.herobeans.dto.CoffeeRequest
 import techcourse.herobeans.dto.PackageOptionDto
+import techcourse.herobeans.dto.PackageOptionRequest
 import techcourse.herobeans.dto.ProfileDto
 import techcourse.herobeans.entity.Coffee
 import techcourse.herobeans.entity.PackageOption
@@ -44,6 +46,43 @@ object CoffeeMapper {
             price = this.price,
             weight = this.weight,
             id = this.id ?: 0L,
+        )
+    }
+
+    fun CoffeeRequest.toEntity(): Coffee {
+        val coffee =
+            Coffee(
+                name = name,
+                profile =
+                    Profile(
+                        body = profile.body,
+                        sweetness = profile.sweetness,
+                        acidity = profile.acidity,
+                    ),
+                taste = taste,
+                brewRecommendation = brewRecommendation,
+                origin = origin,
+                processingMethod = processingMethod,
+                roastLevel = roastLevel,
+                description = description,
+                imageUrl = imageUrl,
+                options = mutableListOf(),
+                id = null,
+            )
+
+        this.options.forEach {
+            val option = it.toEntity()
+            coffee.addOption(option)
+        }
+
+        return coffee
+    }
+
+    fun PackageOptionRequest.toEntity(): PackageOption {
+        return PackageOption(
+            quantity = this.quantity,
+            price = this.price,
+            weight = this.weight,
         )
     }
 }

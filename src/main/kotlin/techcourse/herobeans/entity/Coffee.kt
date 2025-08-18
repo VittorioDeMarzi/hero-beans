@@ -26,20 +26,20 @@ import java.time.LocalDateTime
 @Entity
 class Coffee(
     @Column(unique = true, nullable = false)
-    val name: String,
+    var name: String,
     @Embedded
     val profile: Profile,
     @Column(nullable = false)
-    val taste: String,
+    var taste: String,
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    val brewRecommendation: BrewRecommendation,
+    var brewRecommendation: BrewRecommendation,
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    val origin: OriginCountry,
+    var origin: OriginCountry,
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    val processingMethod: ProcessingMethod,
+    var processingMethod: ProcessingMethod,
     @OneToMany(
         mappedBy = "coffee",
         cascade = [CascadeType.PERSIST, CascadeType.REMOVE],
@@ -49,14 +49,14 @@ class Coffee(
     val options: MutableList<PackageOption> = mutableListOf(),
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    val roastLevel: RoastLevel,
+    var roastLevel: RoastLevel,
     @Column(nullable = false)
     @CreationTimestamp
     val createdAt: LocalDateTime = LocalDateTime.now(),
     @Column(nullable = false)
     @UpdateTimestamp
     var updatedAt: LocalDateTime = LocalDateTime.now(),
-    val description: String?,
+    var description: String?,
     @Column(nullable = false)
     var imageUrl: String,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -68,7 +68,7 @@ class Coffee(
     fun addOption(option: PackageOption) {
         require(options.none { it.weight == option.weight }) { "option already has ${option.weight.value}" }
         options.add(option)
-        // TODO: maybe updater stamp manually
+        option.coffee = this
     }
 
     // TODO: do we need removeOption() method? e.g. admin wants to remove option
@@ -78,11 +78,11 @@ class Coffee(
 data class Profile(
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    val body: ProfileLevel,
+    var body: ProfileLevel,
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    val sweetness: ProfileLevel,
+    var sweetness: ProfileLevel,
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    val acidity: ProfileLevel,
+    var acidity: ProfileLevel,
 )
