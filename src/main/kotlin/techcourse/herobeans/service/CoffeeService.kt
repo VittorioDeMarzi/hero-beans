@@ -60,7 +60,7 @@ class CoffeeService(
         patch.origin?.let { coffee.origin = it }
         patch.processingMethod?.let { coffee.processingMethod = it }
         patch.roastLevel?.let { coffee.roastLevel = it }
-        patch.description?.let { coffee.description = it?.takeIf { s -> s.isNotBlank() } }
+        patch.description?.let { coffee.description = it }
         patch.imageUrl?.let { coffee.imageUrl = it.trim() }
 
         patch.profile?.let { p ->

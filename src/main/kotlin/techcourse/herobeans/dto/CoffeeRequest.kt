@@ -26,8 +26,9 @@ data class CoffeeRequest(
     val processingMethod: ProcessingMethod,
     @field:NotNull(message = "Roast level is required")
     val roastLevel: RoastLevel,
+    @field:NotBlank(message = "Description is required")
     @field:Size(max = 200, message = "Name must be at most 200 characters")
-    val description: String? = null,
+    val description: String,
     @field:NotBlank(message = "Image URL is required")
     @field:Pattern(regexp = "^https?://.+", message = "Image URL must start with http or https")
     val imageUrl: String,

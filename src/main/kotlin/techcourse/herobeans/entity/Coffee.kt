@@ -56,7 +56,8 @@ class Coffee(
     @Column(nullable = false)
     @UpdateTimestamp
     var updatedAt: LocalDateTime = LocalDateTime.now(),
-    var description: String?,
+    @Column(nullable = false)
+    var description: String,
     @Column(nullable = false)
     var imageUrl: String,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

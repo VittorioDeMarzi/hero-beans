@@ -19,7 +19,7 @@ class CoffeeDto(
     val roastLevel: RoastLevel,
     val createdAt: LocalDateTime,
     var updatedAt: LocalDateTime,
-    val description: String? = null,
+    val description: String,
     val imageUrl: String,
     val id: Long = 0L,
 )
