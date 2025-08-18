@@ -1,7 +1,9 @@
 package techcourse.herobeans.entity
 
 import jakarta.persistence.CascadeType
+import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
+import jakarta.persistence.ElementCollection
 import jakarta.persistence.Embeddable
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
@@ -11,10 +13,12 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
-import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.annotations.UpdateTimestamp
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
 import techcourse.herobeans.enums.BrewRecommendation
+import techcourse.herobeans.enums.Certificate
 import techcourse.herobeans.enums.OriginCountry
 import techcourse.herobeans.enums.ProcessingMethod
 import techcourse.herobeans.enums.ProfileLevel
@@ -50,13 +54,19 @@ class Coffee(
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     var roastLevel: RoastLevel,
+    @ElementCollection(targetClass = Certificate::class)
+    @CollectionTable(name = "coffee_certificates", joinColumns = [JoinColumn(name = "coffee_id")])
+    @Column(name = "certificate")
+    @Enumerated(EnumType.STRING)
+    var certificates: MutableList<Certificate> = mutableListOf(),
     @Column(nullable = false)
-    @CreationTimestamp
+    @CreatedDate
     val createdAt: LocalDateTime = LocalDateTime.now(),
     @Column(nullable = false)
-    @UpdateTimestamp
+    @LastModifiedDate
     var updatedAt: LocalDateTime = LocalDateTime.now(),
-    var description: String?,
+    @Column(nullable = false)
+    var description: String,
     @Column(nullable = false)
     var imageUrl: String,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -70,8 +80,6 @@ class Coffee(
         options.add(option)
         option.coffee = this
     }
-
-    // TODO: do we need removeOption() method? e.g. admin wants to remove option
 }
 
 @Embeddable

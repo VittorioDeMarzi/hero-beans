@@ -9,6 +9,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import techcourse.herobeans.enums.Grams
+import techcourse.herobeans.enums.StockStatus
 import techcourse.herobeans.exception.InsufficientStockException
 import java.math.BigDecimal
 
@@ -32,12 +33,12 @@ class PackageOption(
         require(price >= MIN_PRICE.toBigDecimal()) { "price must be greater than " }
     }
 
-    val stockStatus: String
+    val stockStatus: StockStatus
         get() =
             when (quantity) {
-                0 -> "out of stock" // TODO: return Enum??
-                in 1..10 -> "low stock"
-                else -> ""
+                0 -> StockStatus.OUT_OF_STOCK
+                in 1..20 -> StockStatus.LOW_STOCK
+                else -> StockStatus.IN_STOCK
             }
 
     fun increaseQuantity(plusQuantity: Int) {
