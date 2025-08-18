@@ -71,8 +71,6 @@ class Coffee(
         options.add(option)
         option.coffee = this
     }
-
-    // TODO: do we need removeOption() method? e.g. admin wants to remove option
 }
 
 @Embeddable
