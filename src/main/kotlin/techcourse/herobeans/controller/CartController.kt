@@ -1,6 +1,5 @@
 package techcourse.herobeans.controller
 
-import ecommerce.annotation.LoginMember
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -8,9 +7,10 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import techcourse.herobeans.annotation.LoginMember
 import techcourse.herobeans.dto.CartProductResponse
+import techcourse.herobeans.dto.MemberDto
 import techcourse.herobeans.dto.MessageResponseDto
-import techcourse.herobeans.entity.Member
 import techcourse.herobeans.service.CartService
 import java.net.URI
 
@@ -19,7 +19,7 @@ import java.net.URI
 class CartController(private val cartService: CartService) {
     @GetMapping("")
     fun getCartItems(
-        @LoginMember member: Member,
+        @LoginMember member: MemberDto,
     ): ResponseEntity<CartProductResponse> {
         val products = cartService.getCartProducts(member)
         return ResponseEntity.ok(products)
@@ -27,7 +27,7 @@ class CartController(private val cartService: CartService) {
 
     @PostMapping("/{id}")
     fun addProduct(
-        @LoginMember member: Member,
+        @LoginMember member: MemberDto,
         @PathVariable("id") optionId: Long,
     ): ResponseEntity<MessageResponseDto> {
         val id = cartService.addProductToCart(member, optionId)
@@ -38,7 +38,7 @@ class CartController(private val cartService: CartService) {
 
     @DeleteMapping("/{id}")
     fun removeProduct(
-        @LoginMember member: Member,
+        @LoginMember member: MemberDto,
         @PathVariable("id") optionId: Long,
     ): ResponseEntity<Void> {
         cartService.removeProductFromCart(member, optionId)
@@ -47,7 +47,7 @@ class CartController(private val cartService: CartService) {
 
     @DeleteMapping("/clear")
     fun clearCart(
-        @LoginMember member: Member,
+        @LoginMember member: MemberDto,
     ): ResponseEntity<Void> {
         cartService.clearCart(member)
         return ResponseEntity.noContent().build()
