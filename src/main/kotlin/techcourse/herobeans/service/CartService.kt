@@ -3,9 +3,9 @@ package techcourse.herobeans.service
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.dto.CartProductResponse
+import techcourse.herobeans.dto.MemberDto
 import techcourse.herobeans.entity.Cart
 import techcourse.herobeans.entity.CartItem
-import techcourse.herobeans.entity.Member
 import techcourse.herobeans.exception.NotFoundException
 import techcourse.herobeans.mapper.CartMapper
 import techcourse.herobeans.repository.CartJpaRepository
@@ -19,16 +19,16 @@ class CartService(
     private val memberRepository: MemberJpaRepository,
     private val optionRepository: PackageOptionJpaRepository,
 ) {
-    fun getCartProducts(member: Member): CartProductResponse {
-        val cart = getOrCreateCart(member)
+    fun getCartProducts(member: MemberDto): CartProductResponse {
+        val cart = getOrCreateCart(requireNotNull(member.id))
         return CartMapper.toResponse(cart)
     }
 
     fun addProductToCart(
-        member: Member,
+        member: MemberDto,
         optionId: Long,
     ): Long {
-        val cart = getOrCreateCart(member)
+        val cart = getOrCreateCart(requireNotNull(member.id))
         val option =
             optionRepository.findById(optionId)
                 .orElseThrow { IllegalArgumentException("Package option not found: $optionId") }
@@ -47,16 +47,16 @@ class CartService(
     }
 
     fun removeProductFromCart(
-        member: Member,
+        member: MemberDto,
         optionId: Long,
     ) {
-        val cart = getOrCreateCart(member)
+        val cart = getOrCreateCart(requireNotNull(member.id))
         cart.removeItem(optionId)
         cartRepository.save(cart)
     }
 
-    fun clearCart(member: Member) {
-        val cart = getOrCreateCart(member)
+    fun clearCart(member: MemberDto) {
+        val cart = getOrCreateCart(requireNotNull(member.id))
         cart.clear()
         cartRepository.save(cart)
     }
@@ -70,14 +70,11 @@ class CartService(
         return cart
     }
 
-    private fun getOrCreateCart(member: Member): Cart {
-        val memberId = member.id
+    private fun getOrCreateCart(memberId: Long): Cart {
         cartRepository.findByMemberId(memberId)?.let { return it }
-
         val member =
             memberRepository.findById(memberId)
                 .orElseThrow { IllegalArgumentException("Member not found: $memberId") }
-
         return cartRepository.save(Cart(member))
     }
 }

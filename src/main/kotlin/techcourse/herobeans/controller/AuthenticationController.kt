@@ -1,6 +1,5 @@
 package techcourse.herobeans.controller
 
-import ecommerce.annotation.LoginMember
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -9,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import techcourse.herobeans.annotation.LoginMember
 import techcourse.herobeans.dto.LoginRequest
 import techcourse.herobeans.dto.MemberDto
 import techcourse.herobeans.dto.RegistrationRequest
