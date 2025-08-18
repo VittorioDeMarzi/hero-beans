@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
+import org.springframework.test.context.ActiveProfiles
 import techcourse.herobeans.dto.AddressDto
 import techcourse.herobeans.dto.AddressRequest
 import techcourse.herobeans.dto.RegistrationRequest
@@ -20,6 +21,7 @@ import techcourse.herobeans.repository.MemberJpaRepository
 import java.awt.List
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 class AddressControllerTest {
     @Autowired
     private lateinit var memberRepository: MemberJpaRepository
