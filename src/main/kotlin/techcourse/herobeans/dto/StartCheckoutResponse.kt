@@ -1,6 +1,6 @@
 package techcourse.herobeans.dto
 
-import techcourse.herobeans.entity.PaymentStatus
+import techcourse.herobeans.enums.PaymentStatus
 import java.math.BigDecimal
 
 class StartCheckoutResponse(

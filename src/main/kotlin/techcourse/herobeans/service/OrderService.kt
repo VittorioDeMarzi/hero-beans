@@ -21,7 +21,7 @@ class OrderService(
      */
     fun processOrderWithStockReduction(cart: Cart): Order {
         val lockedOptions = getOptionsWithLock(cart)
-        val shipping = ShippingMethod.applyShippingPolicy(cart.totalAmount)
+        val shipping = ShippingMethod.getShippingPolicy(cart.totalAmount)
 
         val order =
             Order(

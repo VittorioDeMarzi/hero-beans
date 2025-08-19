@@ -8,7 +8,7 @@ enum class ShippingMethod(val shippingFee: BigDecimal) {
     ;
 
     companion object {
-        fun applyShippingPolicy(amount: BigDecimal): ShippingMethod {
+        fun getShippingPolicy(amount: BigDecimal): ShippingMethod {
             return when {
                 amount >= BigDecimal("50") -> ShippingMethod.FREE
                 else -> ShippingMethod.STANDARD
