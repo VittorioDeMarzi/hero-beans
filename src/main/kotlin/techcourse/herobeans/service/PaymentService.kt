@@ -8,6 +8,7 @@ import techcourse.herobeans.dto.StartCheckoutRequest
 import techcourse.herobeans.entity.Order
 import techcourse.herobeans.entity.Payment
 import techcourse.herobeans.enums.PaymentStatus
+import techcourse.herobeans.exception.NotFoundException
 import techcourse.herobeans.repository.PaymentJpaRepository
 import java.math.BigDecimal
 
@@ -25,6 +26,10 @@ class PaymentService(
     }
 
     fun confirmPaymentIntent(request: FinalizePaymentRequest): PaymentIntent {
+
+       require(paymentRepository.existsByPaymentIntentId(request.paymentIntentId)) {
+           throw NotFoundException("payment intent with id ${request.paymentIntentId} not found")
+       }
         val paymentIntent = stripeClient.confirmPaymentIntent(request.paymentIntentId)
         return paymentIntent
     }
@@ -46,7 +51,6 @@ class PaymentService(
                 order = order,
                 status = PaymentStatus.PENDING,
             )
-
         return paymentRepository.save(payment)
     }
 }
