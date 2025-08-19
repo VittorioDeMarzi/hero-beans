@@ -26,7 +26,7 @@ import java.time.LocalDateTime
 class Order(
     @Column(nullable = false)
     val memberId: Long,
-    @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     val orderItems: MutableList<OrderItem> = mutableListOf(),
     /**
      * Sum of all item (price * quantity), excluding shipping.
