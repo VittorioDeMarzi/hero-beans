@@ -1,6 +1,8 @@
 package techcourse.herobeans.controller
 
 import org.springframework.data.domain.Page
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -16,11 +18,13 @@ import techcourse.herobeans.enums.ProcessingMethod
 import techcourse.herobeans.enums.RoastLevel
 import techcourse.herobeans.service.CoffeeService
 
+@Tag(name = "Catalog", description = "Public product catalog")
 @RestController
 @RequestMapping("/api/product")
 class GuestController(
     private val coffeeService: CoffeeService,
 ) {
+    @Operation(summary = "List all coffees")
     @GetMapping()
     fun getAll(
         // Pagination parameters
@@ -49,6 +53,7 @@ class GuestController(
         return ResponseEntity.ok(products)
     }
 
+    @Operation(summary = "Get coffee by id")
     @GetMapping("/{productId}")
     fun getProductById(
         @PathVariable productId: Long,
