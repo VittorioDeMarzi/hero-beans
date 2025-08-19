@@ -17,8 +17,7 @@ import java.time.LocalDateTime
 @Entity
 class Payment(
     val amount: BigDecimal,
-    @Enumerated(EnumType.STRING)
-    val currency: String = "eur",
+    val currency: String = "EUR",
     val paymentMethod: String,
     @ManyToOne(fetch = FetchType.LAZY)
     val order: Order,
