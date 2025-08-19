@@ -86,7 +86,7 @@ class AdminCoffeeControllerE2ETest {
             origin = OriginCountry.ETHIOPIA,
             processingMethod = ProcessingMethod.HONEY_PROCESS,
             roastLevel = RoastLevel.LIGHT_ROAST,
-            description = null,
+            description = "Delicate and floral",
             imageUrl = "https://example.jpg",
             profile =
                 ProfileRequest(
