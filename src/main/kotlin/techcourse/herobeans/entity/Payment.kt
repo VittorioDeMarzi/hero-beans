@@ -1,5 +1,6 @@
 package techcourse.herobeans.entity
 
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -17,10 +18,11 @@ import java.time.LocalDateTime
 @Entity
 class Payment(
     val amount: BigDecimal,
-    val currency: String = "EUR",
+    val currency: String = "eur",
     val paymentMethod: String,
     @ManyToOne(fetch = FetchType.LAZY)
     val order: Order,
+    @Column(unique = true)
     val paymentIntentId: String? = null,
     @Enumerated(EnumType.STRING)
     var status: PaymentStatus = PaymentStatus.PENDING,

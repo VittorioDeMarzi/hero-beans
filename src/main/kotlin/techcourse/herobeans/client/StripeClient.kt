@@ -27,7 +27,7 @@ class StripeClient(private val stripeProperties: StripeProperties) {
         val body =
             listOf(
                 "amount=$amountInCents",
-                "currency=EUR",
+                "currency=eur",
                 "payment_method=${request.paymentMethod}",
                 "automatic_payment_methods[enabled]=true",
                 "automatic_payment_methods[allow_redirects]=never",
@@ -48,7 +48,7 @@ class StripeClient(private val stripeProperties: StripeProperties) {
             paymentIntent
         } catch (e: Exception) {
             throw StripeProcessingException("PaymentIntent creation failed", e)
-        }
+        } // TODO: server 5xx & client 4xx error
     }
 
     fun confirmPaymentIntent(paymentIntentId: String): PaymentIntent {
@@ -66,7 +66,7 @@ class StripeClient(private val stripeProperties: StripeProperties) {
             paymentIntent
         } catch (e: Exception) {
             throw StripeProcessingException("PaymentIntent confirmation failed", e)
-        }
+        } // TODO: server 5xx & client 4xx error
     }
 
     private fun validateResponse(response: ResponseEntity<PaymentIntent>): PaymentIntent {
@@ -77,6 +77,7 @@ class StripeClient(private val stripeProperties: StripeProperties) {
             require(paymentIntent.status.isNotBlank()) { "Payment intent status is missing" }
             require(paymentIntent.amount > 0) { "Payment amount must be positive: ${paymentIntent.amount}" }
             require(paymentIntent.currency == "eur") { "Unsupported currency:${paymentIntent.currency}" }
+            // TODO: "eur" magic string?
 
             return paymentIntent
         } catch (e: Exception) {

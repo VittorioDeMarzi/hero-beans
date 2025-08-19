@@ -5,4 +5,6 @@ import org.springframework.stereotype.Repository
 import techcourse.herobeans.entity.Payment
 
 @Repository
-interface PaymentJpaRepository : JpaRepository<Payment, Long>
+interface PaymentJpaRepository : JpaRepository<Payment, Long> {
+    fun existsByPaymentIntentId(paymentIntentId: String): Boolean
+}
