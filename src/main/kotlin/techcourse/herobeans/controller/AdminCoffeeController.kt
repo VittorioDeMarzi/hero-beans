@@ -1,6 +1,9 @@
 package techcourse.herobeans.controller
 
 import ecommerce.annotation.AdminOnly
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -18,11 +21,14 @@ import techcourse.herobeans.dto.MemberDto
 import techcourse.herobeans.dto.PackageOptionRequest
 import techcourse.herobeans.service.CoffeeService
 
+@Tag(name = "Admin: Coffee", description = "Admin operations for managing coffees")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/admin/coffees")
 class AdminCoffeeController(
     private val coffeeService: CoffeeService,
 ) {
+    @Operation(summary = "Create a coffee")
     @PostMapping
     fun createProduct(
         @Valid @RequestBody coffee: CoffeeRequest,
@@ -32,6 +38,7 @@ class AdminCoffeeController(
         return ResponseEntity.status(HttpStatus.CREATED).body(newProduct)
     }
 
+    @Operation(summary = "Delete a coffee")
     @DeleteMapping("/{id}")
     fun deleteProduct(
         @PathVariable id: Long,
@@ -41,6 +48,7 @@ class AdminCoffeeController(
         return ResponseEntity.noContent().build()
     }
 
+    @Operation(summary = "Patch a coffee")
     @PatchMapping("/{id}")
     fun updateProduct(
         @PathVariable id: Long,
@@ -51,6 +59,7 @@ class AdminCoffeeController(
         return ResponseEntity.ok(updatedProduct)
     }
 
+    @Operation(summary = "Add package option to coffee")
     @PostMapping("/add/option/{id}")
     fun addOptionToProduct(
         @PathVariable id: Long,
