@@ -29,7 +29,7 @@ class CheckoutService(
         request: StartCheckoutRequest,
     ): StartCheckoutResponse {
         // TODO: wait Ann's PR
-        //  val cart = cartService.getCartForOrder(member.id)
+//          val cart = cartService.getCartForOrder(memberDto.id)
         val member =
             memberJpaRepository.findById(memberDto.id)
                 .orElseThrow { NotFoundException("Exception") }
@@ -86,7 +86,7 @@ class CheckoutService(
         order: Order,
     ): OrderStatus {
         when (paymentIntentPayment) {
-            "canceled" -> order.markAsCancelled()
+            "canceled" -> order.markAsCancelled() // TODO: I need to check spelling of "canceled" in stripe
             else -> order.markAsPaymentFailed()
         }
         orderService.rollbackOptionsStock(order)
