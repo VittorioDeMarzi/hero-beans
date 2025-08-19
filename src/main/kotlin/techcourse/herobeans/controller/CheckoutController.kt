@@ -37,7 +37,7 @@ class CheckoutController(
         @PathVariable orderId: Long,
         @Valid @RequestBody request: FinalizePaymentRequest,
     ): ResponseEntity<FinalizePaymentResponse> {
-        val response = checkoutService.finalizeOrder(orderId, request)
+        val response = checkoutService.finalizeOrder(request)
         return ResponseEntity.ok(response)
     }
 }

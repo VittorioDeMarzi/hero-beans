@@ -19,6 +19,7 @@ import techcourse.herobeans.repository.OptionJpaRepository
 import techcourse.herobeans.repository.OrderJpaRepository
 import java.math.BigDecimal
 
+// TODO: overall, need to change all throw-exception or some logic to create exception
 @Service
 class CheckoutService(
     private val stripeClient: StripeClient,
@@ -49,6 +50,8 @@ class CheckoutService(
                 paymentIntentId = paymentIntent.id,
                 order = order,
             )
+        // TODO: save payment
+
         return StartCheckoutResponse(
             paymentIntentId = paymentIntent.id,
             orderId = order.id,
