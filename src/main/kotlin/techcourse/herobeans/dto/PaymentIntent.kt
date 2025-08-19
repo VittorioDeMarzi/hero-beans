@@ -6,5 +6,5 @@ class PaymentIntent(
     val status: String,
     val memberEmail: String,
     val clientSecret: String,
-    // TODO: implement class
+    val currency: String,
 )
