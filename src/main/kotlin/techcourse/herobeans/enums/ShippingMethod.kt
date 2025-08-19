@@ -14,5 +14,6 @@ enum class ShippingMethod(val shippingFee: BigDecimal) {
                 else -> ShippingMethod.STANDARD
             }
         }
+        //TODO: policy still need to be check
     }
 }
