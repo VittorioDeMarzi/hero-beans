@@ -2,11 +2,13 @@ package techcourse.herobeans.client
 
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
 import techcourse.herobeans.config.StripeProperties
 import techcourse.herobeans.dto.PaymentIntent
 import techcourse.herobeans.dto.StartCheckoutRequest
+import techcourse.herobeans.exception.StripeProcessingException
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -32,7 +34,7 @@ class StripeClient(private val stripeProperties: StripeProperties) {
             ).joinToString("&")
 
         return try {
-            val intent =
+            val response =
                 restClient.post()
                     .uri(stripeProperties.createPaymentIntentUrl)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer ${stripeProperties.secretKey}")
@@ -41,12 +43,11 @@ class StripeClient(private val stripeProperties: StripeProperties) {
                     .retrieve()
                     .toEntity(PaymentIntent::class.java)
 
-            val responseBody = requireNotNull(intent.body)
+            val paymentIntent = validateResponse(response)
 
-            responseBody
+            paymentIntent
         } catch (e: Exception) {
-            // TODO: implement exception
-            throw IllegalArgumentException("PaymentIntent creation failed", e)
+            throw StripeProcessingException("PaymentIntent creation failed", e)
         }
     }
 
@@ -60,12 +61,26 @@ class StripeClient(private val stripeProperties: StripeProperties) {
                     .retrieve()
                     .toEntity(PaymentIntent::class.java)
 
-            val responseBody = requireNotNull(response.body) { "PaymentIntent confirmation failed" }
+            val paymentIntent = validateResponse(response)
 
-            responseBody
+            paymentIntent
         } catch (e: Exception) {
-            // TODO: implement exception
-            throw IllegalArgumentException("PaymentIntent confirmation failed", e)
+            throw StripeProcessingException("PaymentIntent confirmation failed", e)
+        }
+    }
+
+    private fun validateResponse(response: ResponseEntity<PaymentIntent>): PaymentIntent {
+        try {
+            val paymentIntent = requireNotNull(response.body)
+            require(paymentIntent.id.isNotBlank()) { "Payment intent ID is invalid" }
+            require(paymentIntent.clientSecret.isNotBlank()) { "Payment intent client secret is invalid" }
+            require(paymentIntent.status.isNotBlank()) { "Payment intent status is missing" }
+            require(paymentIntent.amount > 0) { "Payment amount must be positive: ${paymentIntent.amount}" }
+            require(paymentIntent.currency == "eur") { "Unsupported currency:${paymentIntent.currency}" }
+
+            return paymentIntent
+        } catch (e: Exception) {
+            throw StripeProcessingException("validation: ${e.message}", e)
         }
     }
 }
