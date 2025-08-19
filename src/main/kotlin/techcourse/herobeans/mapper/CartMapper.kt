@@ -15,7 +15,7 @@ object CartMapper {
         )
     }
 
-    private fun toItem(ci: CartItem): CartProductItem {
+    fun toItem(ci: CartItem): CartProductItem {
         val unitPrice = ci.option.price
         return CartProductItem(
             cartItemId = ci.id,

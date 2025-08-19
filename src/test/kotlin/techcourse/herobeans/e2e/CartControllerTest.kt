@@ -11,7 +11,6 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 import techcourse.herobeans.dto.CartProductResponse
-import techcourse.herobeans.dto.MessageResponseDto
 import techcourse.herobeans.dto.RegistrationRequest
 import techcourse.herobeans.entity.PackageOption
 import techcourse.herobeans.enums.Grams
@@ -81,17 +80,12 @@ class CartControllerTest {
     fun `POST add product adds item to cart`() {
         val optionId = createOption(price = "9.90", quantity = 10)
 
-        val created =
-            RestAssured.given()
-                .baseUri(baseUrl)
-                .header("Authorization", "Bearer $token")
-                .post("/api/member/cart/$optionId")
-                .then()
-                .statusCode(HttpStatus.CREATED.value())
-                .extract()
-                .`as`(MessageResponseDto::class.java)
-
-        assertThat(created.message).isEqualTo("Product added to cart")
+        RestAssured.given()
+            .baseUri(baseUrl)
+            .header("Authorization", "Bearer $token")
+            .post("/api/member/cart/$optionId")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
 
         val cart =
             RestAssured.given()

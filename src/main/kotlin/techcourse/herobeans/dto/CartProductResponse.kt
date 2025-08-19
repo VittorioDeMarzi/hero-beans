@@ -8,7 +8,7 @@ class CartProductResponse(
 )
 
 class CartProductItem(
-    val cartItemId: Long?,
+    val cartItemId: Long = 0L,
     val optionId: Long,
     val productName: String,
     val optionName: String,

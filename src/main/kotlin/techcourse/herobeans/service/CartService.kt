@@ -20,45 +20,37 @@ class CartService(
     private val optionRepository: PackageOptionJpaRepository,
 ) {
     fun getCartProducts(member: MemberDto): CartProductResponse {
-        val cart = getOrCreateCart(requireNotNull(member.id))
+        val cart = getOrCreateCart(member.id)
         return CartMapper.toResponse(cart)
     }
 
     fun addProductToCart(
         member: MemberDto,
         optionId: Long,
-    ): Long {
+    ): CartItem {
         val cart = getOrCreateCart(requireNotNull(member.id))
         val option =
             optionRepository.findById(optionId)
-                .orElseThrow { IllegalArgumentException("Package option not found: $optionId") }
+                .orElseThrow { NotFoundException("Package option not found: $optionId") }
 
-        val newItem =
-            CartItem(
-                cart = cart,
-                option = option,
-                quantity = 1,
-            )
+        val newItem = CartItem(cart = cart, option = option, quantity = 1)
         cart.addOrIncrement(newItem)
 
         val saved = cartRepository.saveAndFlush(cart)
-        val updatedItem = saved.items.first { it.option.id == optionId }
-        return updatedItem.id
+        return saved.items.first { it.option.id == optionId }
     }
 
     fun removeProductFromCart(
         member: MemberDto,
         optionId: Long,
     ) {
-        val cart = getOrCreateCart(requireNotNull(member.id))
+        val cart = getOrCreateCart(member.id)
         cart.removeItem(optionId)
-        cartRepository.save(cart)
     }
 
     fun clearCart(member: MemberDto) {
-        val cart = getOrCreateCart(requireNotNull(member.id))
+        val cart = getOrCreateCart(member.id)
         cart.clear()
-        cartRepository.save(cart)
     }
 
     fun getCartForOrder(memberId: Long): Cart {
@@ -74,7 +66,7 @@ class CartService(
         cartRepository.findByMemberId(memberId)?.let { return it }
         val member =
             memberRepository.findById(memberId)
-                .orElseThrow { IllegalArgumentException("Member not found: $memberId") }
+                .orElseThrow { NotFoundException("Member not found: $memberId") }
         return cartRepository.save(Cart(member))
     }
 }
