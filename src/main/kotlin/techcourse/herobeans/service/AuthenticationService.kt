@@ -1,5 +1,6 @@
 package techcourse.herobeans.service
 
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.configuration.JwtTokenProvider
@@ -16,6 +17,8 @@ import techcourse.herobeans.exception.UnauthorizedAccessException
 import techcourse.herobeans.mapper.MemberMapper.toDto
 import techcourse.herobeans.repository.MemberJpaRepository
 
+private val log = KotlinLogging.logger {}
+
 @Transactional
 @Service
 class AuthenticationService(
@@ -28,8 +31,13 @@ class AuthenticationService(
             throw EmailAlreadyUsedException("Email already exists: ${request.email}")
         }
         val hashedPassword = passwordEncoder.encode(request.password)
-        memberJpaRepository.save(Member(request.name, request.email, hashedPassword))
-        val token = tokenService.createToken(request.email)
+        val saved =
+            memberJpaRepository.save(Member(request.name, request.email, hashedPassword))
+                .also { m -> log.info { "auth.registered memberId=${m.id}" } }
+
+        val token =
+            tokenService.createToken(saved.email)
+                .also { log.info { "auth.token.issued memberId=${saved.id}" } }
         return TokenResponse(token)
     }
 
@@ -39,7 +47,9 @@ class AuthenticationService(
         if (!passwordEncoder.matches(request.password, member.password)) {
             throw EmailOrPasswordIncorrectException("Invalid password for email")
         }
-        val token = tokenService.createToken(request.email)
+        val token =
+            tokenService.createToken(member.email)
+                .also { log.info { "auth.login.succeeded memberId=${member.id}" } }
         return TokenResponse(token)
     }
 
