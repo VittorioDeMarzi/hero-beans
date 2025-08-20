@@ -9,9 +9,12 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import techcourse.herobeans.client.StripeClient
+import techcourse.herobeans.dto.FinalizePaymentRequest
 import techcourse.herobeans.dto.PaymentIntent
 import techcourse.herobeans.dto.StartCheckoutRequest
+import techcourse.herobeans.exception.NotFoundException
 import techcourse.herobeans.exception.PaymentProcessingException
+import techcourse.herobeans.repository.PaymentJpaRepository
 import java.math.BigDecimal
 import kotlin.test.Test
 
@@ -19,6 +22,9 @@ import kotlin.test.Test
 class PaymentServiceTest {
     @Mock
     private lateinit var stripeClient: StripeClient
+
+    @Mock
+    private lateinit var paymentRepository: PaymentJpaRepository
 
     @InjectMocks
     private lateinit var paymentService: PaymentService
@@ -29,12 +35,12 @@ class PaymentServiceTest {
         val amount = BigDecimal("29.99")
         val expectedPaymentIntent =
             PaymentIntent(
-                id = "pi_test123",
+                id = PAYMENT_INTENT_ID,
                 currency = "eur",
                 amount = 2999,
                 status = "requires_payment_method",
                 memberEmail = "test@example.com",
-                clientSecret = "pi_test123_secret",
+                clientSecret = PAYMENT_INTENT_CLIENT_SECRET,
             )
 
         whenever(stripeClient.createPaymentIntent(request, amount))
@@ -42,9 +48,9 @@ class PaymentServiceTest {
 
         val result = paymentService.createPaymentIntent(request, amount)
 
-        assertThat(result.id).isEqualTo("pi_test123")
+        assertThat(result.id).isEqualTo(PAYMENT_INTENT_ID)
         assertThat(result.amount).isEqualTo(2999)
-        assertThat(result.clientSecret).isEqualTo("pi_test123_secret")
+        assertThat(result.clientSecret).isEqualTo(PAYMENT_INTENT_CLIENT_SECRET)
         verify(stripeClient).createPaymentIntent(request, amount)
     }
 
@@ -65,12 +71,12 @@ class PaymentServiceTest {
     fun `should identify successful payment correctly`() {
         val successfulPayment =
             PaymentIntent(
-                id = "pi_test123",
+                id = PAYMENT_INTENT_ID,
                 currency = "eur",
                 amount = 2999,
                 status = "succeeded",
                 memberEmail = "test@example.com",
-                clientSecret = "pi_test123_secret",
+                clientSecret = PAYMENT_INTENT_CLIENT_SECRET,
             )
 
         val isSucceeded = paymentService.isPaymentSucceeded(successfulPayment)
@@ -82,16 +88,54 @@ class PaymentServiceTest {
     fun `should identify failed payment correctly`() {
         val failedPayment =
             PaymentIntent(
-                id = "pi_test123",
+                id = PAYMENT_INTENT_ID,
                 currency = "eur",
                 amount = 2999,
                 status = "requires_payment_method",
                 memberEmail = "test@example.com",
-                clientSecret = "pi_test123_secret",
+                clientSecret = PAYMENT_INTENT_CLIENT_SECRET,
             )
 
         val isSucceeded = paymentService.isPaymentSucceeded(failedPayment)
 
         assertThat(isSucceeded).isFalse()
+    }
+
+    @Test
+    fun `should throw NotFoundException when payment intent does not exist in repository`() {
+        val request = FinalizePaymentRequest(paymentIntentId = "pi_missing", orderId = 1L)
+
+        whenever(paymentRepository.existsByPaymentIntentId("pi_missing")).thenReturn(false)
+
+        assertThrows<NotFoundException> {
+            paymentService.confirmPaymentIntent(request.paymentIntentId)
+        }
+    }
+
+    @Test
+    fun `should confirm payment intent successfully when exists in repository`() {
+        val request = FinalizePaymentRequest(paymentIntentId = PAYMENT_INTENT_ID, orderId = 1L)
+        val expectedPaymentIntent =
+            PaymentIntent(
+                id = PAYMENT_INTENT_ID,
+                currency = "eur",
+                amount = 2999,
+                status = "succeeded",
+                memberEmail = "test@example.com",
+                clientSecret = PAYMENT_INTENT_CLIENT_SECRET,
+            )
+
+        whenever(paymentRepository.existsByPaymentIntentId(PAYMENT_INTENT_ID)).thenReturn(true)
+        whenever(stripeClient.confirmPaymentIntent(PAYMENT_INTENT_ID)).thenReturn(expectedPaymentIntent)
+
+        val result = paymentService.confirmPaymentIntent(request.paymentIntentId)
+
+        assertThat(result).isEqualTo(expectedPaymentIntent)
+        verify(stripeClient).confirmPaymentIntent(PAYMENT_INTENT_ID)
+    }
+
+    companion object {
+        const val PAYMENT_INTENT_ID = "pi_test_guri_123"
+        const val PAYMENT_INTENT_CLIENT_SECRET = "pi_test_guri_123_secret"
     }
 }

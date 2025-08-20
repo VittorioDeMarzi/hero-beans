@@ -2,7 +2,6 @@ package techcourse.herobeans.service
 
 import org.springframework.stereotype.Service
 import techcourse.herobeans.client.StripeClient
-import techcourse.herobeans.dto.FinalizePaymentRequest
 import techcourse.herobeans.dto.PaymentIntent
 import techcourse.herobeans.dto.StartCheckoutRequest
 import techcourse.herobeans.entity.Order
@@ -25,12 +24,11 @@ class PaymentService(
         return paymentIntent
     }
 
-    fun confirmPaymentIntent(request: FinalizePaymentRequest): PaymentIntent {
-
-       require(paymentRepository.existsByPaymentIntentId(request.paymentIntentId)) {
-           throw NotFoundException("payment intent with id ${request.paymentIntentId} not found")
-       }
-        val paymentIntent = stripeClient.confirmPaymentIntent(request.paymentIntentId)
+    fun confirmPaymentIntent(paymentIntentId: String): PaymentIntent {
+        require(paymentRepository.existsByPaymentIntentId(paymentIntentId)) {
+            throw NotFoundException("payment intent with id $paymentIntentId not found")
+        }
+        val paymentIntent = stripeClient.confirmPaymentIntent(paymentIntentId)
         return paymentIntent
     }
 
