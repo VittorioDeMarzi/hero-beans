@@ -6,9 +6,11 @@ import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.test.context.ActiveProfiles
 import java.math.BigDecimal
 
 @DataJpaTest
+@ActiveProfiles("test")
 class CartTest {
     private fun member(): Member = mock()
 
