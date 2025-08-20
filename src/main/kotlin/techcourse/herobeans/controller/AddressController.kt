@@ -33,7 +33,7 @@ class AddressController(
         @LoginMember member: MemberDto,
         @RequestBody request: AddressRequest,
     ): ResponseEntity<AddressDto> {
-        val newAddress = addressService.createAddress(request, member.id!!)
+        val newAddress = addressService.createAddress(request, member.id)
         return ResponseEntity.status(HttpStatus.CREATED).body(newAddress)
     }
 
@@ -43,7 +43,7 @@ class AddressController(
         @LoginMember member: MemberDto,
         @PathVariable addressId: Long,
     ): ResponseEntity<Void> {
-        addressService.removeAddress(addressId, member.id!!)
+        addressService.removeAddress(addressId, member.id)
         return ResponseEntity.noContent().build()
     }
 
@@ -54,7 +54,7 @@ class AddressController(
         @RequestBody request: UpdateAddressRequest,
         @PathVariable addressId: Long,
     ): ResponseEntity<AddressDto> {
-        val updatedAddress = addressService.updateAddress(addressId, member.id!!, request)
+        val updatedAddress = addressService.updateAddress(addressId, member.id, request)
         return ResponseEntity.ok(updatedAddress)
     }
 
@@ -63,7 +63,7 @@ class AddressController(
     fun getAllAddresses(
         @LoginMember member: MemberDto,
     ): ResponseEntity<List<AddressDto>> {
-        val addresses = addressService.getAllAddresses(member.id!!)
+        val addresses = addressService.getAllAddresses(member.id)
         return ResponseEntity.ok(addresses)
     }
 }
