@@ -8,6 +8,7 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.test.context.ActiveProfiles
 import techcourse.herobeans.client.StripeClient
 import techcourse.herobeans.dto.FinalizePaymentRequest
 import techcourse.herobeans.dto.PaymentIntent
@@ -19,6 +20,7 @@ import java.math.BigDecimal
 import kotlin.test.Test
 
 @ExtendWith(MockitoExtension::class)
+@ActiveProfiles("test")
 class PaymentServiceTest {
     @Mock
     private lateinit var stripeClient: StripeClient

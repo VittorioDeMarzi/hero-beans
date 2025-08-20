@@ -8,10 +8,9 @@ import techcourse.herobeans.dto.MemberDto
 import techcourse.herobeans.dto.PaymentIntent
 import techcourse.herobeans.dto.StartCheckoutRequest
 import techcourse.herobeans.dto.StartCheckoutResponse
-import techcourse.herobeans.entity.Cart
 import techcourse.herobeans.entity.Order
 import techcourse.herobeans.enums.OrderStatus
-import techcourse.herobeans.exception.NotFoundException
+import techcourse.herobeans.exception.PaymentProcessingException
 import techcourse.herobeans.repository.MemberJpaRepository
 
 // TODO: overall, need to change all throw-exception or some logic to create exception
@@ -20,22 +19,16 @@ class CheckoutService(
     private val memberJpaRepository: MemberJpaRepository,
     private val orderService: OrderService,
     private val paymentService: PaymentService,
+    private val cartService: CartService,
 ) {
     // TODO: timeout setting
     //  @Transactional(rollbackFor = [Exception::class])
     @Transactional
-    fun startOrder(
+    fun startCheckout(
         memberDto: MemberDto,
         request: StartCheckoutRequest,
     ): StartCheckoutResponse {
-        // TODO: wait Ann's PR
-//          val cart = cartService.getCartForOrder(memberDto.id)
-        val member =
-            memberJpaRepository.findById(memberDto.id)
-                .orElseThrow { NotFoundException("Exception") }
-        val cart = Cart(member)
-        // TODO: delete line 38-39 if apply
-
+        val cart = cartService.getCartForOrder(memberDto.id)
         val order = orderService.processOrderWithStockReduction(cart)
         val paymentIntent = paymentService.createPaymentIntent(request, order.totalAmount)
         val payment = paymentService.createPayment(request, paymentIntent, order)
@@ -50,14 +43,17 @@ class CheckoutService(
     }
 
     @Transactional
-    fun finalizeOrder(request: FinalizePaymentRequest): FinalizePaymentResponse {
+    fun finalizeCheckout(
+        member: MemberDto,
+        request: FinalizePaymentRequest,
+    ): FinalizePaymentResponse {
         val order = orderService.findOrderByIdWithItems(request.orderId)
+        if (order.memberId != member.id) throw PaymentProcessingException("order found, but") // TODO: better message
         return try {
-            val paymentIntent = paymentService.confirmPaymentIntent(request)
+            val paymentIntent = paymentService.confirmPaymentIntent(request.paymentIntentId)
             val status = succeededOrRollback(order, paymentIntent)
             return FinalizePaymentResponse(order.id, paymentStatus = status.name)
-        } catch (e: Exception) {
-            // TODO: Should I throw something?
+        } catch (e: Exception) { // TODO: handle this exception
             orderService.rollbackOptionsStock(order)
             FinalizePaymentResponse(
                 request.orderId,
@@ -86,7 +82,8 @@ class CheckoutService(
         order: Order,
     ): OrderStatus {
         when (paymentIntentPayment) {
-            "canceled" -> order.markAsCancelled() // TODO: I need to check spelling of "canceled" in stripe
+            // TODO: I need to check spelling of "canceled" in stripe
+            "canceled" -> order.markAsCancelled()
             else -> order.markAsPaymentFailed()
         }
         orderService.rollbackOptionsStock(order)
