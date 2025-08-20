@@ -2,6 +2,7 @@ package techcourse.herobeans.configuration
 
 import ecommerce.annotation.AdminOnly
 import jakarta.servlet.http.HttpServletRequest
+import mu.KotlinLogging
 import org.springframework.core.MethodParameter
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.support.WebDataBinderFactory
@@ -13,6 +14,8 @@ import techcourse.herobeans.exception.ForbiddenAccessException
 import techcourse.herobeans.exception.UnauthorizedAccessException
 import techcourse.herobeans.mapper.MemberMapper.toDto
 import techcourse.herobeans.repository.MemberJpaRepository
+
+private val log = KotlinLogging.logger {}
 
 @Component
 class AdminOnlyResolver(
@@ -37,6 +40,7 @@ class AdminOnlyResolver(
         val member =
             memberRepository.findByEmail(email) ?: throw UnauthorizedAccessException("No authenticated member found 2")
         if (member.role != MemberRole.ADMIN) throw ForbiddenAccessException("Forbidden access. Admin only")
+        log.info { "admin.guard.passed memberId=${member.id} path=${request.requestURI}" }
         return member.toDto()
     }
 }
