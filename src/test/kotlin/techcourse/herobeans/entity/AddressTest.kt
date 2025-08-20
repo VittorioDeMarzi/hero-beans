@@ -3,7 +3,9 @@ package techcourse.herobeans.entity
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
+import org.springframework.test.context.ActiveProfiles
 
+@ActiveProfiles("test")
 class AddressTest {
     private val member = Member(name = "Test", email = "test@test.com", password = "12345678")
 
