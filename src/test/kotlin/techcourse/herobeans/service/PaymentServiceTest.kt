@@ -12,7 +12,7 @@ import org.springframework.test.context.ActiveProfiles
 import techcourse.herobeans.client.StripeClient
 import techcourse.herobeans.dto.FinalizePaymentRequest
 import techcourse.herobeans.dto.PaymentIntent
-import techcourse.herobeans.dto.StartCheckoutRequest
+import techcourse.herobeans.dto.CheckoutStartRequest
 import techcourse.herobeans.exception.NotFoundException
 import techcourse.herobeans.exception.PaymentProcessingException
 import techcourse.herobeans.repository.PaymentJpaRepository
@@ -33,7 +33,7 @@ class PaymentServiceTest {
 
     @Test
     fun `should create payment intent successfully`() {
-        val request = StartCheckoutRequest(paymentMethod = "card")
+        val request = CheckoutStartRequest(paymentMethod = "card")
         val amount = BigDecimal("29.99")
         val expectedPaymentIntent =
             PaymentIntent(
@@ -57,7 +57,7 @@ class PaymentServiceTest {
 
     @Test
     fun `should throw exception when payment intent creation fails`() {
-        val request = StartCheckoutRequest(paymentMethod = "card")
+        val request = CheckoutStartRequest(paymentMethod = "card")
         val amount = BigDecimal("29.99")
 
         whenever(stripeClient.createPaymentIntent(request, amount))
