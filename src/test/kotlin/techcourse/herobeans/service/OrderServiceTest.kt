@@ -5,13 +5,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.springframework.test.context.ActiveProfiles
 import techcourse.herobeans.entity.Cart
 import techcourse.herobeans.entity.CartItem
@@ -30,7 +30,6 @@ import techcourse.herobeans.enums.ProfileLevel
 import techcourse.herobeans.enums.RoastLevel
 import techcourse.herobeans.enums.ShippingMethod
 import techcourse.herobeans.repository.OrderJpaRepository
-import techcourse.herobeans.repository.PackageOptionJpaRepository
 import java.math.BigDecimal
 
 @ExtendWith(MockitoExtension::class)
@@ -40,7 +39,7 @@ class OrderServiceTest {
     private lateinit var orderRepository: OrderJpaRepository
 
     @Mock
-    private lateinit var optionRepository: PackageOptionJpaRepository
+    private lateinit var optionService: PackageOptionService
 
     @InjectMocks
     private lateinit var orderService: OrderService
@@ -147,11 +146,11 @@ class OrderServiceTest {
                 }
             }
 
-        `when`(optionRepository.findByIdsWithLock(testItems.map { it.optionId }))
+        whenever(optionService.findByIdsWithLock(testItems.map { it.optionId }))
             .thenReturn(options)
-        `when`(orderRepository.save(any(Order::class.java)))
+        whenever(orderRepository.save(any<Order>()))
             .thenAnswer { it.getArgument(0) }
-        `when`(optionRepository.saveAll(any<List<PackageOption>>()))
+        whenever(optionService.saveAll(any<List<PackageOption>>()))
             .thenReturn(options)
 
         val result = orderService.processOrderWithStockReduction(cart)
@@ -162,8 +161,8 @@ class OrderServiceTest {
                 .isEqualTo(item.expectedStockAfterOrder)
         }
 
-        verify(orderRepository, times(1)).save(any(Order::class.java))
-        verify(optionRepository, times(1)).saveAll(options)
+        verify(orderRepository, times(1)).save(any<Order>())
+        verify(optionService, times(1)).saveAll(any<List<PackageOption>>())
 
         assertThat(result.memberId).isEqualTo(member.id)
         assertThat(result.orderItems).hasSize(testItems.size)
@@ -187,10 +186,10 @@ class OrderServiceTest {
                 shippingMethod = ShippingMethod.FREE,
             )
 
-        `when`(optionRepository.findByIdsWithLock(testItems.map { it.optionId }))
+        whenever(optionService.findByIdsWithLock(testItems.map { it.optionId }))
             .thenReturn(options)
-        `when`(optionRepository.saveAll(options)).thenReturn(options)
-        `when`(orderRepository.save(order)).thenReturn(order)
+        whenever(optionService.saveAll(any<List<PackageOption>>())).thenReturn(options)
+        whenever(orderRepository.save(any<Order>())).thenReturn(order)
 
         orderService.rollbackOptionsStock(order)
 
@@ -204,8 +203,8 @@ class OrderServiceTest {
                 .isEqualTo(expectedStock)
         }
 
-        verify(optionRepository, times(1)).saveAll(options)
-        verify(orderRepository, times(1)).save(order)
+        verify(optionService, times(1)).saveAll(any<List<PackageOption>>())
+        verify(orderRepository, times(1)).save(any<Order>())
     }
 
     @Test
@@ -226,11 +225,11 @@ class OrderServiceTest {
                 addOrIncrement(CartItem(this, option, testItem.orderQuantity))
             }
 
-        `when`(optionRepository.findByIdsWithLock(listOf(testItem.optionId)))
+        whenever(optionService.findByIdsWithLock(listOf(testItem.optionId)))
             .thenReturn(listOf(option))
-        `when`(orderRepository.save(any(Order::class.java)))
+        whenever(orderRepository.save(any<Order>()))
             .thenAnswer { it.getArgument(0) }
-        `when`(optionRepository.saveAll(any<List<PackageOption>>()))
+        whenever(optionService.saveAll(any<List<PackageOption>>()))
             .thenReturn(listOf(option))
 
         orderService.processOrderWithStockReduction(cart)
@@ -262,11 +261,11 @@ class OrderServiceTest {
                 addOrIncrement(CartItem(this, option, testItem.orderQuantity))
             }
 
-        `when`(optionRepository.findByIdsWithLock(listOf(testItem.optionId)))
+        whenever(optionService.findByIdsWithLock(listOf(testItem.optionId)))
             .thenReturn(listOf(option))
-        `when`(orderRepository.save(any(Order::class.java)))
+        whenever(orderRepository.save(any<Order>()))
             .thenAnswer { it.getArgument(0) }
-        `when`(optionRepository.saveAll(any<List<PackageOption>>()))
+        whenever(optionService.saveAll(any<List<PackageOption>>()))
             .thenReturn(listOf(option))
 
         val result = orderService.processOrderWithStockReduction(cart)

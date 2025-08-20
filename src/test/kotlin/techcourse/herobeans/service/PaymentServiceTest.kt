@@ -10,10 +10,10 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.test.context.ActiveProfiles
 import techcourse.herobeans.client.StripeClient
+import techcourse.herobeans.dto.CheckoutStartRequest
 import techcourse.herobeans.dto.FinalizePaymentRequest
 import techcourse.herobeans.dto.PaymentIntent
-import techcourse.herobeans.dto.CheckoutStartRequest
-import techcourse.herobeans.exception.NotFoundException
+import techcourse.herobeans.exception.PaymentIntentNotFoundException
 import techcourse.herobeans.exception.PaymentProcessingException
 import techcourse.herobeans.repository.PaymentJpaRepository
 import java.math.BigDecimal
@@ -106,7 +106,7 @@ class PaymentServiceTest {
 
         whenever(paymentRepository.existsByPaymentIntentId("pi_missing")).thenReturn(false)
 
-        assertThrows<NotFoundException> {
+        assertThrows<PaymentIntentNotFoundException> {
             paymentService.confirmPaymentIntent(request.paymentIntentId)
         }
     }

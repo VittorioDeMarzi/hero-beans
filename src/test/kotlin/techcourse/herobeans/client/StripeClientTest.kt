@@ -16,15 +16,15 @@ import java.math.BigDecimal
 )
 @ActiveProfiles("test")
 class StripeClientTest {
-
     @Autowired
     private lateinit var stripeClient: StripeClient
 
     @Test
     fun createPaymentIntent() {
-        val request = CheckoutStartRequest(
-            paymentMethod = "pm_card_visa",
-        )
+        val request =
+            CheckoutStartRequest(
+                paymentMethod = "pm_card_visa",
+            )
 
         val amount = BigDecimal(10)
         val actual = stripeClient.createPaymentIntent(request, amount)
@@ -35,10 +35,10 @@ class StripeClientTest {
 
     @Test
     fun confirmPaymentIntent() {
-
-        val request = CheckoutStartRequest(
-            paymentMethod = "pm_card_visa"
-        )
+        val request =
+            CheckoutStartRequest(
+                paymentMethod = "pm_card_visa",
+            )
         val amount = BigDecimal(10)
         val createdPaymentIntent = stripeClient.createPaymentIntent(request, amount)
 
