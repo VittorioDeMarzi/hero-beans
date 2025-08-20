@@ -10,6 +10,8 @@ import org.springframework.web.client.RestClient
 import techcourse.herobeans.config.StripeProperties
 import techcourse.herobeans.dto.CheckoutStartRequest
 import techcourse.herobeans.dto.PaymentIntent
+import techcourse.herobeans.exception.IntentNotValidException
+import techcourse.herobeans.exception.PaymentSystemException
 import techcourse.herobeans.exception.StripeClientException
 import techcourse.herobeans.exception.StripeProcessingException
 import techcourse.herobeans.exception.StripeServerException
@@ -18,7 +20,6 @@ import java.math.RoundingMode
 
 @Component
 class StripeClient(private val stripeProperties: StripeProperties) {
-
     private val restClient = RestClient.create()
 
     companion object {
@@ -61,7 +62,10 @@ class StripeClient(private val stripeProperties: StripeProperties) {
             .toLong()
     }
 
-    private fun buildPaymentIntentBody(amountInCents: Long, paymentMethod: String): String {
+    private fun buildPaymentIntentBody(
+        amountInCents: Long,
+        paymentMethod: String,
+    ): String {
         return listOf(
             "amount=$amountInCents",
             "currency=$CURRENCY_EUR",
@@ -70,6 +74,7 @@ class StripeClient(private val stripeProperties: StripeProperties) {
             "automatic_payment_methods[allow_redirects]=never",
         ).joinToString("&")
     }
+
     private fun executeStripeRequest(request: () -> ResponseEntity<PaymentIntent>): PaymentIntent {
         return try {
             val response = request()
@@ -77,30 +82,31 @@ class StripeClient(private val stripeProperties: StripeProperties) {
         } catch (e: HttpClientErrorException) {
             throw StripeClientException(
                 "Stripe client error: status=${e.statusCode.value()}, message=${e.message}",
-                e
+                e,
             )
         } catch (e: HttpServerErrorException) {
             throw StripeServerException(
                 "Stripe server error: status=${e.statusCode.value()}, message=${e.message}",
-                e
+                e,
             )
         } catch (e: Exception) {
             throw StripeProcessingException("Stripe processing failed: ${e.message}", e)
         }
     }
 
-
     private fun validateResponse(response: ResponseEntity<PaymentIntent>): PaymentIntent {
         try {
-            val paymentIntent = requireNotNull(response.body)
+            val paymentIntent = requireNotNull(response.body) { "Payment intent body should contain data" }
             require(paymentIntent.id.isNotBlank()) { "Payment intent ID is invalid" }
             require(paymentIntent.status.isNotBlank()) { "Payment intent status is missing" }
             require(paymentIntent.amount > 0) { "Payment amount must be positive: ${paymentIntent.amount}" }
             require(paymentIntent.currency == "eur") { "Unsupported currency:${paymentIntent.currency}" }
 
             return paymentIntent
+        } catch (e: IllegalArgumentException) {
+            throw IntentNotValidException(e.message!!, e)
         } catch (e: Exception) {
-            throw IllegalArgumentException() //TODO: 422
+            throw PaymentSystemException(e.message ?: "Payment intent not valid")
         }
     }
 }

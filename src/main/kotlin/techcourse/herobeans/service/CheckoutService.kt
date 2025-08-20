@@ -44,48 +44,49 @@ class CheckoutService(
     fun finalizeCheckout(
         member: MemberDto,
         request: FinalizePaymentRequest,
-    ): FinalizePaymentResponse {
-        val order = orderService.findOrderByIdWithItems(request.orderId)
-        if (order.memberId != member.id) throw PaymentProcessingException("order found, but") // TODO: better message
+    ): PaymentResult {
+        val order = orderService.getValidatedPendingOrder(request.orderId, member.id)
         return try {
             val paymentIntent = paymentService.confirmPaymentIntent(request.paymentIntentId)
-            val status = succeededOrRollback(order, paymentIntent)
-            return FinalizePaymentResponse(order.id, paymentStatus = status.name)
-        } catch (e: Exception) {
-            // TODO: handle this exception
-            orderService.rollbackOptionsStock(order)
-            FinalizePaymentResponse(
-                request.orderId,
-                paymentStatus = "Payment failed",
-            ) // TODO: need to change payment status
-        } // TODO: PaymentProcessingException?
+            val status = updateOrderToPaid(order, paymentIntent)
+
+            PaymentResult.Success(orderId = order.id, paymentStatus = status.name)
+        } catch (exception: Exception) {
+            handleCheckoutFinalizeFailure(order, exception)
+        }
     }
 
-    private fun succeededOrRollback(
+    private fun handleCheckoutFinalizeFailure(
+        order: Order,
+        exception: Throwable,
+    ): PaymentResult.Failure {
+        orderService.rollbackOptionsStock(order)
+        val error = mapToPaymentError(exception)
+
+        return PaymentResult.Failure(order.id, error)
+    }
+
+    private fun mapToPaymentError(exception: Throwable): PaymentError {
+        return when (exception) {
+            is PaymentException -> PaymentError(PaymentErrorCode.PAYMENT_FAILED)
+            is StripeClientException -> PaymentError(PaymentErrorCode.STRIPE_CLIENT_ERROR)
+            is StripeServerException -> PaymentError(PaymentErrorCode.STRIPE_SERVER_ERROR)
+            is StripeProcessingException -> PaymentError(PaymentErrorCode.STRIPE_ERROR)
+            else -> PaymentError(PaymentErrorCode.SYSTEM_ERROR)
+        }.copy(message = exception.message)
+    }
+
+    private fun updateOrderToPaid(
         order: Order,
         paymentIntent: PaymentIntent,
     ): OrderStatus {
-        return when (paymentService.isPaymentSucceeded(paymentIntent)) {
-            true -> handleSucceededPayment(order)
-            false -> handleNotSucceededPayment(paymentIntent.status, order)
-        }
-    }
+        when (paymentService.isPaymentSucceeded(paymentIntent)) {
+            true -> {
+                orderService.markOrderAsPaid(order)
+                return order.status
+            }
 
-    private fun handleSucceededPayment(order: Order): OrderStatus {
-        orderService.markOrderAsPaid(order)
-        return order.status
-    }
-
-    private fun handleNotSucceededPayment(
-        paymentIntentPayment: String,
-        order: Order,
-    ): OrderStatus {
-        when (paymentIntentPayment) {
-            // TODO: I need to check spelling of "canceled" in stripe
-            "canceled" -> order.markAsCancelled()
-            else -> order.markAsPaymentFailed()
+            false -> throw PaymentStatusNotSuccessException("payment is not successful")
         }
-        orderService.rollbackOptionsStock(order)
-        return order.status
     }
 }

@@ -26,6 +26,7 @@ class GlobalExceptionHandler {
         value = [
             EmailAlreadyUsedException::class,
             CoffeeNameAlreadyExistsException::class,
+            OrderDataInconsistencyException::class,
         ],
     )
     fun handleConflict(ex: RuntimeException) = buildErrorResponse(HttpStatus.CONFLICT, ex)

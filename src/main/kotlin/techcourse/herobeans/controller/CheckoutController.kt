@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import techcourse.herobeans.annotation.LoginMember
+import techcourse.herobeans.dto.CheckoutStartRequest
+import techcourse.herobeans.dto.CheckoutStartResponse
 import techcourse.herobeans.dto.FinalizePaymentRequest
 import techcourse.herobeans.dto.FinalizePaymentResponse
 import techcourse.herobeans.dto.MemberDto
@@ -36,7 +38,7 @@ class CheckoutController(
         @LoginMember member: MemberDto,
         @Valid @RequestBody request: FinalizePaymentRequest,
     ): ResponseEntity<FinalizePaymentResponse> {
-        val response = checkoutService.finalizeCheckout(member, request)
-        return ResponseEntity.ok(response)
+        val paymentResult = checkoutService.finalizeCheckout(member, request)
+        return ResponseEntity.ok(paymentResult.response)
     }
 }
