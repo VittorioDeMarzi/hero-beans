@@ -5,4 +5,6 @@ import techcourse.herobeans.entity.Coupon
 
 interface CouponJpaRepository : JpaRepository<Coupon, Long> {
     fun findByCodeAndActiveTrue(code: String): Coupon?
+
+    fun findByUserMail(userMail: String): List<Coupon>
 }
