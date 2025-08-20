@@ -2,7 +2,6 @@ package techcourse.herobeans.service
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentCaptor
@@ -13,6 +12,7 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
+import org.springframework.test.context.ActiveProfiles
 import techcourse.herobeans.entity.Cart
 import techcourse.herobeans.entity.CartItem
 import techcourse.herobeans.entity.Coffee
@@ -34,6 +34,7 @@ import techcourse.herobeans.repository.OrderJpaRepository
 import java.math.BigDecimal
 
 @ExtendWith(MockitoExtension::class)
+@ActiveProfiles("test")
 class OrderServiceTest {
     @Mock
     private lateinit var orderRepository: OrderJpaRepository
@@ -77,7 +78,7 @@ class OrderServiceTest {
     fun TestOrderItem.toOrderItem() =
         OrderItem(
             optionId = this.optionId,
-            productName = "Test Coffee",
+            productName = coffee.name,
             optionName = this.weight.name,
             quantity = this.orderQuantity,
             price = this.price,
@@ -115,7 +116,6 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("should process order and reduce stock correctly")
     fun `should process order and reduce stock correctly`() {
         val testItems =
             listOf(
@@ -170,7 +170,6 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("should rollback stock correctly")
     fun `should rollback stock correctly`() {
         val testItems =
             listOf(
@@ -196,9 +195,12 @@ class OrderServiceTest {
         orderService.rollbackOptionsStock(order)
 
         testItems.forEachIndexed { index, item ->
-            val expectedStock = item.expectedStockAfterOrder
+            val expectedStock = item.orderQuantity + item.initialStock
             assertThat(options[index].quantity)
-                .withFailMessage("Option ${item.optionId} stock should be restored to $expectedStock")
+                .withFailMessage(
+                    "Option ${options[index].id}'s stock, actual: ${options[index].quantity}, " +
+                        "expect: $expectedStock",
+                )
                 .isEqualTo(expectedStock)
         }
 
@@ -207,7 +209,6 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("should apply shipping policy correctly")
     fun `should apply shipping policy correctly`() {
         val testItem =
             TestOrderItem(
@@ -239,19 +240,18 @@ class OrderServiceTest {
 
         val capturedOrder = orderCaptor.value
         assertThat(capturedOrder.shippingMethod).isEqualTo(ShippingMethod.STANDARD)
-        assertThat(capturedOrder.shippingFee).isEqualTo(BigDecimal("5.99"))
-        assertThat(capturedOrder.coffeeSubTotal).isEqualTo(BigDecimal("25.00"))
+        assertThat(capturedOrder.shippingFee).isEqualTo(STANDARD_SHIPPING_FEE)
+        assertThat(capturedOrder.coffeeSubTotal).isEqualTo(STANDARD_SHIPPING_AMOUNT)
     }
 
     @Test
-    @DisplayName("should handle single item order correctly")
     fun `should handle single item order correctly`() {
         val testItem =
             TestOrderItem(
                 optionId = 1L,
                 initialStock = 10,
                 orderQuantity = 3,
-                price = BigDecimal("25.00"),
+                price = STANDARD_SHIPPING_AMOUNT,
                 weight = Grams.G250,
             )
 

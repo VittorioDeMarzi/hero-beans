@@ -47,9 +47,6 @@ class Order(
     @Column(nullable = false)
     var shippingMethod: ShippingMethod = ShippingMethod.FREE,
     var paymentIntentId: String? = null,
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    var status: OrderStatus = OrderStatus.PENDING,
     /**
      * Entity timestamps.
      * - createdAt: when the order was first persisted
@@ -73,5 +70,33 @@ class Order(
     final lateinit var lastUpdatedAt: LocalDateTime
         private set
 
-    val totalAmount: BigDecimal = coffeeSubTotal + shippingFee
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
+    private var _status: OrderStatus = OrderStatus.PENDING
+
+    open val status: OrderStatus get() = _status
+
+    val totalAmount: BigDecimal
+        get() = coffeeSubTotal + shippingFee
+
+    fun markAsPaid() {
+        require(status == OrderStatus.PENDING) { "Invalid status for payment: $status" }
+        _status = OrderStatus.PAID
+    }
+
+    fun markAsPaymentFailed() {
+        require(status == OrderStatus.PENDING) { "Invalid status for payment failure: $status" }
+        _status = OrderStatus.PAYMENT_FAILED
+    }
+
+    fun markAsCancelled() {
+        require(status in listOf(OrderStatus.PENDING)) { "Invalid status for payment cancelled: $status" }
+        _status = OrderStatus.PAYMENT_FAILED
+    }
+
+    fun markAsShipped() {
+        require(status == OrderStatus.PAID) { "Invalid status for shipping: $status" }
+        _status = OrderStatus.SHIPPED
+        shippedAt = LocalDateTime.now()
+    }
 }

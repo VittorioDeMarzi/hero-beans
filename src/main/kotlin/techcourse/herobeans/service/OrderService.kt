@@ -23,7 +23,8 @@ class OrderService(
         val lockedOptions = getOptionsWithLock(cart)
         val shipping = ShippingMethod.getShippingPolicy(cart.totalAmount)
 
-        val order = Order(
+        val order =
+            Order(
                 cart.member.id,
                 orderItems = cart.items.toOrderItems().toMutableList(),
                 coffeeSubTotal = cart.totalAmount,
