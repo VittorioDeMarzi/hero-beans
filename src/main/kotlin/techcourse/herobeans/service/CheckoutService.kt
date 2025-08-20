@@ -53,7 +53,8 @@ class CheckoutService(
             val paymentIntent = paymentService.confirmPaymentIntent(request.paymentIntentId)
             val status = succeededOrRollback(order, paymentIntent)
             return FinalizePaymentResponse(order.id, paymentStatus = status.name)
-        } catch (e: Exception) { // TODO: handle this exception
+        } catch (e: Exception) {
+            // TODO: handle this exception
             orderService.rollbackOptionsStock(order)
             FinalizePaymentResponse(
                 request.orderId,
