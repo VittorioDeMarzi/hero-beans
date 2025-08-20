@@ -15,7 +15,6 @@ class CouponService(private val couponJpaRepository: CouponJpaRepository) {
     @Transactional(readOnly = true)
     fun validate(
         code: String,
-        orderTotal: BigDecimal,
         userMail: String,
     ): Coupon {
         val coupon =
@@ -29,7 +28,7 @@ class CouponService(private val couponJpaRepository: CouponJpaRepository) {
         }
 
         coupon.expiresAt?.let {
-            if (!it.isBefore(LocalDateTime.now())) {
+            if (it.isBefore(LocalDateTime.now())) {
                 throw InvalidCouponException("Coupon has expired")
             }
         }
@@ -61,5 +60,10 @@ class CouponService(private val couponJpaRepository: CouponJpaRepository) {
                 ),
             )
         return coupon
+    }
+
+    @Transactional
+    fun getAllCouponsForUser(email: String): List<Coupon> {
+        return couponJpaRepository.findAllByUserMail(email)
     }
 }

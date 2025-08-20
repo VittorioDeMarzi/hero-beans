@@ -37,7 +37,7 @@ class RegistrationEventCouponTest {
         )
             .andExpect(status().isCreated)
 
-        val coupons = couponRepository.findByUserMail("test@example.com")
+        val coupons = couponRepository.findAllByUserMail("test@example.com")
         assert(coupons.isNotEmpty()) { "Welcome coupon should be created" }
     }
 }

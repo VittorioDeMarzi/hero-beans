@@ -19,6 +19,7 @@ class WebMvcConfigurer(
                 "api/admin/stats/**",
                 "/api/payments/**",
                 "/api/address/**",
+                "/api/me/coupons/**",
             )
     }
 
