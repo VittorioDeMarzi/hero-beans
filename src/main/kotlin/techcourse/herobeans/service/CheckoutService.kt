@@ -2,15 +2,21 @@ package techcourse.herobeans.service
 
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
-import techcourse.herobeans.dto.FinalizePaymentRequest
-import techcourse.herobeans.dto.FinalizePaymentResponse
-import techcourse.herobeans.dto.MemberDto
-import techcourse.herobeans.dto.PaymentIntent
 import techcourse.herobeans.dto.CheckoutStartRequest
 import techcourse.herobeans.dto.CheckoutStartResponse
+import techcourse.herobeans.dto.FinalizePaymentRequest
+import techcourse.herobeans.dto.MemberDto
+import techcourse.herobeans.dto.PaymentError
+import techcourse.herobeans.dto.PaymentErrorCode
+import techcourse.herobeans.dto.PaymentIntent
+import techcourse.herobeans.dto.PaymentResult
 import techcourse.herobeans.entity.Order
 import techcourse.herobeans.enums.OrderStatus
-import techcourse.herobeans.exception.PaymentProcessingException
+import techcourse.herobeans.exception.PaymentException
+import techcourse.herobeans.exception.PaymentStatusNotSuccessException
+import techcourse.herobeans.exception.StripeClientException
+import techcourse.herobeans.exception.StripeProcessingException
+import techcourse.herobeans.exception.StripeServerException
 
 // TODO: overall, need to change all throw-exception or some logic to create exception
 @Service
@@ -28,16 +34,21 @@ class CheckoutService(
     ): CheckoutStartResponse {
         val cart = cartService.getCartForOrder(memberDto.id)
         val order = orderService.processOrderWithStockReduction(cart)
-        val paymentIntent = paymentService.createPaymentIntent(request, order.totalAmount)
-        val payment = paymentService.createPayment(request, paymentIntent, order)
+        return try {
+            val paymentIntent = paymentService.createPaymentIntent(request, order.totalAmount)
+            val payment = paymentService.createPayment(request, paymentIntent, order)
 
-        return CheckoutStartResponse(
-            paymentIntentId = paymentIntent.id,
-            orderId = order.id,
-            amount = payment.amount,
-            status = payment.status,
-            clientSecret = paymentIntent.clientSecret,
-        )
+            CheckoutStartResponse(
+                paymentIntentId = paymentIntent.id,
+                orderId = order.id,
+                amount = payment.amount,
+                status = payment.status,
+                clientSecret = paymentIntent.clientSecret,
+            )
+        } catch (exception: Exception) {
+            val error = mapToPaymentError(exception)
+            throw exception
+        }
     }
 
     @Transactional

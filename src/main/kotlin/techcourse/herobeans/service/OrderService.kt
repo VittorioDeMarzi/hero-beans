@@ -4,16 +4,20 @@ import org.springframework.stereotype.Service
 import techcourse.herobeans.entity.Cart
 import techcourse.herobeans.entity.Order
 import techcourse.herobeans.entity.PackageOption
+import techcourse.herobeans.enums.OrderStatus
 import techcourse.herobeans.enums.ShippingMethod
 import techcourse.herobeans.exception.NotFoundException
+import techcourse.herobeans.exception.OrderDataInconsistencyException
+import techcourse.herobeans.exception.OrderNotFoundException
+import techcourse.herobeans.exception.OrderNotProcessableException
+import techcourse.herobeans.exception.UnauthorizedAccessException
 import techcourse.herobeans.mapper.CartItemMapper.toOrderItems
 import techcourse.herobeans.repository.OrderJpaRepository
-import techcourse.herobeans.repository.PackageOptionJpaRepository
 
 @Service
 class OrderService(
     private val orderRepository: OrderJpaRepository,
-    private val optionRepository: PackageOptionJpaRepository,
+    private val optionService: PackageOptionService,
 ) {
     /**
      * Processes order with pessimistic lock to prevent stock concurrency issues.
@@ -33,7 +37,7 @@ class OrderService(
             )
         val savedOrder = orderRepository.save(order)
         val updatedOptions = decreaseOptionsStock(savedOrder, lockedOptions)
-        optionRepository.saveAll(updatedOptions)
+        optionService.saveAll(updatedOptions)
         return savedOrder
     }
 
@@ -41,9 +45,8 @@ class OrderService(
         val ids =
             cart.items.map { it.option.id }
                 .takeIf { it.isNotEmpty() }
-                ?: throw NotFoundException("Cart has no valid options")
-        return optionRepository.findByIdsWithLock(ids)
-            ?: throw NotFoundException("Option IDs don't match between request and cart")
+                ?: throw NotFoundException("Cart has no valid options") // TODO: throw Cart error
+        return optionService.findByIdsWithLock(ids)
     }
 
     private fun decreaseOptionsStock(
@@ -55,7 +58,10 @@ class OrderService(
         return order.orderItems.map { orderItem ->
             val liveOption =
                 optionMap[orderItem.optionId]
-                    ?: throw NotFoundException("Option ${orderItem.optionId} not found in locked options")
+                    ?: throw OrderDataInconsistencyException(
+                        "try to decease Option " +
+                            "${orderItem.optionId}, but not found in locked options",
+                    )
 
             liveOption.apply { decreaseQuantity(orderItem.quantity) }
         }
@@ -70,7 +76,10 @@ class OrderService(
         return order.orderItems.map { orderItem ->
             val liveOption =
                 optionMap[orderItem.optionId]
-                    ?: throw NotFoundException("Option ${orderItem.optionId} not found in locked options")
+                    ?: throw OrderDataInconsistencyException(
+                        "try to increase Option " +
+                            "${orderItem.optionId}, but not found in locked options",
+                    )
 
             liveOption.apply { increaseQuantity(orderItem.quantity) }
         }
@@ -78,22 +87,37 @@ class OrderService(
 
     fun rollbackOptionsStock(order: Order) {
         val optionIds = order.orderItems.map { it.optionId }
-        val lockedOptions = findByIdsWithLock(optionIds)
+        val lockedOptions = optionService.findByIdsWithLock(optionIds)
 
         increaseOptionsStock(order, lockedOptions)
 
-        optionRepository.saveAll(lockedOptions)
+        optionService.saveAll(lockedOptions)
+        order.markAsPaymentFailed()
         orderRepository.save(order)
     }
 
-    fun findOrderByIdWithItems(orderId: Long): Order {
-        return orderRepository.findByIdWithOrderItems(orderId)
-            .orElseThrow { NotFoundException("Order $orderId not found") }
+    fun getValidatedPendingOrder(
+        orderId: Long,
+        memberId: Long,
+    ): Order {
+        val order =
+            orderRepository.findByIdWithOrderItems(orderId)
+                .orElseThrow { OrderNotFoundException("Order $orderId not found") }
+        validateOrder(order, memberId)
+        return order
     }
 
-    fun findByIdsWithLock(ids: List<Long>): List<PackageOption> {
-        return optionRepository.findByIdsWithLock(ids)
-            ?: throw NotFoundException("Option IDs don't match between requested locked options")
+    private fun validateOrder(
+        order: Order,
+        memberId: Long,
+    ) {
+        when {
+            order.memberId != memberId ->
+                throw UnauthorizedAccessException("Member does not have authorization for this order")
+
+            order.status != OrderStatus.PENDING ->
+                throw OrderNotProcessableException("Invalid order status: ${order.status}")
+        }
     }
 
     fun markOrderAsPaid(order: Order) {
