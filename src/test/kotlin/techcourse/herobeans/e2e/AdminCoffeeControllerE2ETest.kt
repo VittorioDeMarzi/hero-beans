@@ -41,7 +41,7 @@ class AdminCoffeeControllerE2ETest {
     private lateinit var memberJpaRepository: MemberJpaRepository
 
     @Autowired
-    private lateinit var optionJpaRepository: PackageOptionJpaRepository
+    private lateinit var packageOptionJpaRepository: PackageOptionJpaRepository
 
     @LocalServerPort
     private var port: Int = 0
@@ -325,7 +325,7 @@ class AdminCoffeeControllerE2ETest {
         // Assert
         assertThat(updated.options.size).isEqualTo(created.options.size + 1)
         assertThat(updated.options.any { it.weight == Grams.G500 && it.quantity == 50 }).isTrue()
-        val inDb = optionJpaRepository.findAllByCoffeeId(updated.id)
+        val inDb = packageOptionJpaRepository.findAllByCoffeeId(updated.id)
         assertThat(inDb.size).isEqualTo(created.options.size + 1)
         val saved = inDb.firstOrNull { it.weight == Grams.G500 && it.quantity == 50 }
         assertThat(saved).isNotNull

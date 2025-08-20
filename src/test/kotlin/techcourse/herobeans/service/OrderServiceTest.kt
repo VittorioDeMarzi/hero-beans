@@ -29,8 +29,8 @@ import techcourse.herobeans.enums.ProcessingMethod
 import techcourse.herobeans.enums.ProfileLevel
 import techcourse.herobeans.enums.RoastLevel
 import techcourse.herobeans.enums.ShippingMethod
-import techcourse.herobeans.repository.OptionJpaRepository
 import techcourse.herobeans.repository.OrderJpaRepository
+import techcourse.herobeans.repository.PackageOptionJpaRepository
 import java.math.BigDecimal
 
 @ExtendWith(MockitoExtension::class)
@@ -40,7 +40,7 @@ class OrderServiceTest {
     private lateinit var orderRepository: OrderJpaRepository
 
     @Mock
-    private lateinit var optionRepository: OptionJpaRepository
+    private lateinit var optionRepository: PackageOptionJpaRepository
 
     @InjectMocks
     private lateinit var orderService: OrderService

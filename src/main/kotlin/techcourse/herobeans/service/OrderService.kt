@@ -7,13 +7,13 @@ import techcourse.herobeans.entity.PackageOption
 import techcourse.herobeans.enums.ShippingMethod
 import techcourse.herobeans.exception.NotFoundException
 import techcourse.herobeans.mapper.CartItemMapper.toOrderItems
-import techcourse.herobeans.repository.OptionJpaRepository
 import techcourse.herobeans.repository.OrderJpaRepository
+import techcourse.herobeans.repository.PackageOptionJpaRepository
 
 @Service
 class OrderService(
     private val orderRepository: OrderJpaRepository,
-    private val optionRepository: OptionJpaRepository,
+    private val optionRepository: PackageOptionJpaRepository,
 ) {
     /**
      * Processes order with pessimistic lock to prevent stock concurrency issues.
