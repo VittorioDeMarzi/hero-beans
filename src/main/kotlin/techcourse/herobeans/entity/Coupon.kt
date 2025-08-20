@@ -9,25 +9,33 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDateTime
 
+/**
+ * TODO:
+ * - userMail for welcome coupons
+ * - welcome coupons have the same code, but are tied to a user
+ * - deactivate or delete on usage
+ * - event handler for registration
+ */
 @Entity
-data class Coupon(
+class Coupon(
     @Column(unique = true, nullable = false)
     val code: String,
     val discountType: DiscountType,
     val discountValue: BigDecimal,
-    val minOrderValue: BigDecimal? = null,
-    val maxUse: Int? = null,
-    var usageCount: Int = 0,
+    @Column(nullable = true)
     val expiresAt: LocalDateTime? = null,
-    val active: Boolean = true,
+    @Column(nullable = true)
+    val userMail: String? = null,
+    var active: Boolean = true,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 ) {
+    // TODO: could be called in order when someone buys above 5 KGs e.g. 15%
     fun applyPercentageDiscount(
         orderTotal: BigDecimal,
         discountPercent: BigDecimal,
     ): BigDecimal {
-        // From percent to fraction: 10% -> 0.10
+        // e.g.: 10% -> 0.10
         val discountFraction = discountPercent.divide(BigDecimal(100), 4, RoundingMode.HALF_UP)
         // Discount: total * (1 - discountFraction)
         val discountedTotal = orderTotal.multiply(BigDecimal.ONE.subtract(discountFraction))
@@ -35,7 +43,7 @@ data class Coupon(
         return discountedTotal.setScale(2, RoundingMode.HALF_UP)
     }
 
-    fun calculateDiscountTotal(orderTotal: BigDecimal) =
+    fun calculateDiscountedTotal(orderTotal: BigDecimal) =
         when (this.discountType) {
             DiscountType.PERCENTAGE -> orderTotal * applyPercentageDiscount(orderTotal, this.discountValue)
             DiscountType.FIXED -> orderTotal - this.discountValue
@@ -46,3 +54,18 @@ enum class DiscountType {
     PERCENTAGE,
     FIXED,
 }
+
+// object CouponGenerator {
+//    private const val CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+//    private val random = SecureRandom()
+//
+//    fun generateCode(length: Int = 8): String =
+//        (1..length)
+//            .map { CHARACTERS[random.nextInt(CHARACTERS.length)] }
+//            .joinToString("")
+//
+//    fun generatePrefixedCoupon(prefix: String = "WELCOME", length: Int = 4): String {
+//        val randomPostfix = this.generateCode(length)
+//        return "$prefix-$randomPostfix"
+//    }
+// }
