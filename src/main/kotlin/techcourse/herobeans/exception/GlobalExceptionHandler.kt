@@ -1,11 +1,13 @@
 package techcourse.herobeans.exception
 
 import org.slf4j.LoggerFactory
+import org.springframework.core.convert.ConversionFailedException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -47,13 +49,14 @@ class GlobalExceptionHandler {
             MaxAddressesExceededException::class,
             InsufficientStockException::class,
             IllegalArgumentException::class,
+            ConversionFailedException::class,
+            MethodArgumentTypeMismatchException::class,
         ],
     )
     fun handleBadRequest(ex: RuntimeException) = buildErrorResponse(HttpStatus.BAD_REQUEST, ex)
 
-//    TODO: uncomment once we add validation exception handler
-//    @ExceptionHandler(Exception::class)
-//    fun handleGenericException(ex: Exception) = buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex)
+    @ExceptionHandler(Exception::class)
+    fun handleGenericException(ex: Exception) = buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex)
 
     fun buildErrorResponse(
         status: HttpStatus,

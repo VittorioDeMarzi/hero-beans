@@ -120,7 +120,7 @@ class GuestControllerIntegrationTest() {
             .andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
-                jsonPath("$.id") { value(cappuccino.id!!) }
+                jsonPath("$.id") { value(cappuccino.id) }
                 jsonPath("$.name") { value("Cappuccino") }
             }
     }
@@ -247,7 +247,7 @@ class GuestControllerIntegrationTest() {
         )
 
         mockMvc.get("/api/product") {
-            param("roastLevel", "light")
+            param("roastLevel", "strong")
         }.andExpect {
             status { isBadRequest() }
         }
