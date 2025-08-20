@@ -69,7 +69,7 @@ class GuestControllerIntegrationTest() {
     }
 
     @Test
-    fun `should return 8 coffe with pagination coffees`() {
+    fun `should return 8 coffee with pagination coffees`() {
         (1..20).forEach { i ->
             coffeeJpaRepository.save(
                 createCoffee(
@@ -160,7 +160,7 @@ class GuestControllerIntegrationTest() {
         )
 
         mockMvc.get("/api/product") {
-            param("sort", "NAME_DESC") // Adatta al tuo enum
+            param("sort", "NAME_DESC")
             param("size", "10")
         }.andExpect {
             status { isOk() }
@@ -235,6 +235,21 @@ class GuestControllerIntegrationTest() {
             status { isOk() }
             jsonPath("$.totalElements") { value(1) }
             jsonPath("$.content[0].name") { value("Mango") }
+        }
+    }
+
+    @Test
+    fun `should throw if wrong roast level is given`() {
+        saveAll(
+            createCoffee("Zeta", OriginCountry.COLOMBIA, RoastLevel.MEDIUM_ROAST, BrewRecommendation.FILTER),
+            createCoffee("Alpha", OriginCountry.BRAZIL, RoastLevel.DARK_ROAST, BrewRecommendation.ESPRESSO),
+            createCoffee("Mango", OriginCountry.ETHIOPIA, RoastLevel.LIGHT_ROAST, BrewRecommendation.FRENCH_PRESS),
+        )
+
+        mockMvc.get("/api/product") {
+            param("roastLevel", "light")
+        }.andExpect {
+            status { isBadRequest() }
         }
     }
 }
