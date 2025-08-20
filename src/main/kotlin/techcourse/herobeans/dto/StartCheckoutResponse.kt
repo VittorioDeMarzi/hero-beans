@@ -8,5 +8,5 @@ class StartCheckoutResponse(
     val orderId: Long,
     val amount: BigDecimal,
     val status: PaymentStatus,
-    val clientSecret: String,
+    val clientSecret: String?,
 )

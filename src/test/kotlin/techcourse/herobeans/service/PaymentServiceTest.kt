@@ -41,7 +41,6 @@ class PaymentServiceTest {
                 currency = "eur",
                 amount = 2999,
                 status = "requires_payment_method",
-                memberEmail = "test@example.com",
                 clientSecret = PAYMENT_INTENT_CLIENT_SECRET,
             )
 
@@ -77,7 +76,6 @@ class PaymentServiceTest {
                 currency = "eur",
                 amount = 2999,
                 status = "succeeded",
-                memberEmail = "test@example.com",
                 clientSecret = PAYMENT_INTENT_CLIENT_SECRET,
             )
 
@@ -94,7 +92,6 @@ class PaymentServiceTest {
                 currency = "eur",
                 amount = 2999,
                 status = "requires_payment_method",
-                memberEmail = "test@example.com",
                 clientSecret = PAYMENT_INTENT_CLIENT_SECRET,
             )
 
@@ -123,7 +120,6 @@ class PaymentServiceTest {
                 currency = "eur",
                 amount = 2999,
                 status = "succeeded",
-                memberEmail = "test@example.com",
                 clientSecret = PAYMENT_INTENT_CLIENT_SECRET,
             )
 

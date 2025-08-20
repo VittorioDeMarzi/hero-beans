@@ -25,7 +25,7 @@ class CheckoutController(
     @PostMapping("/start")
     fun start(
         @LoginMember member: MemberDto,
-        @Valid @RequestBody request: StartCheckoutRequest,
+        @RequestBody request: StartCheckoutRequest,
     ): ResponseEntity<StartCheckoutResponse> {
         val response = checkoutService.startCheckout(member, request)
         return ResponseEntity.ok(response)

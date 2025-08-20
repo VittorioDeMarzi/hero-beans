@@ -73,7 +73,6 @@ class StripeClient(private val stripeProperties: StripeProperties) {
         try {
             val paymentIntent = requireNotNull(response.body)
             require(paymentIntent.id.isNotBlank()) { "Payment intent ID is invalid" }
-            require(paymentIntent.clientSecret.isNotBlank()) { "Payment intent client secret is invalid" }
             require(paymentIntent.status.isNotBlank()) { "Payment intent status is missing" }
             require(paymentIntent.amount > 0) { "Payment amount must be positive: ${paymentIntent.amount}" }
             require(paymentIntent.currency == "eur") { "Unsupported currency:${paymentIntent.currency}" }

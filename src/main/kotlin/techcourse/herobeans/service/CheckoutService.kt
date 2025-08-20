@@ -55,6 +55,7 @@ class CheckoutService(
             return FinalizePaymentResponse(order.id, paymentStatus = status.name)
         } catch (e: Exception) {
             // TODO: handle this exception
+            println("error: ${e.message}")
             orderService.rollbackOptionsStock(order)
             FinalizePaymentResponse(
                 request.orderId,

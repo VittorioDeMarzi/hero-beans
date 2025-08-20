@@ -1,10 +1,14 @@
 package techcourse.herobeans.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 class PaymentIntent(
     val id: String,
     val amount: Int,
     val status: String,
-    val memberEmail: String,
+    @JsonProperty("client_secret")
     val clientSecret: String,
     val currency: String,
 )

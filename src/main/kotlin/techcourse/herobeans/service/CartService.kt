@@ -35,8 +35,7 @@ class CartService(
 
         val newItem = CartItem(cart = cart, option = option, quantity = 1)
         cart.addOrIncrement(newItem)
-
-        val saved = cartRepository.saveAndFlush(cart)
+        val saved = cartRepository.save(cart)
         return saved.items.first { it.option.id == optionId }
     }
 
