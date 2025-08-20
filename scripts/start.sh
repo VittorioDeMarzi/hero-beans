@@ -8,5 +8,6 @@ fi
 
 echo ">>> ####### Test #######"
 echo ">>> [ApplicationStart] Starting application: $JAR_FILE"
-nohup java -jar $JAR_FILE > /home/ubuntu/app/app.log 2>&1 &
+nohup java -jar "$JAR_FILE" \
+  --logging.config=classpath:logback-spring.xml > /dev/null 2>&1 &
 

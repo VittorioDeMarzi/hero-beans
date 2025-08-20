@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds">
+
+    <!-- Directory for logs -->
+    <property name="LOG_DIR" value="logs" />
+    <!-- For local run you can keep value="logs"; on server set an absolute path <property name="LOG_DIR" value="/home/ubuntu/app/logs" /> -->
+
+    <!-- Common log pattern -->
+    <property name="PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{correlationId}] %logger{36} - %msg%n"/>
+
+    <!-- application.log = INFO/WARN (but excluding ERROR) -->
+    <appender name="APP" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/application.log</file>
+        <encoder>
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+        <!-- Accept INFO and higher -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <!-- Explicitly deny ERROR to avoid duplication in both files -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>DENY</onMatch>
+            <onMismatch>NEUTRAL</onMismatch>
+        </filter>
+        <!-- Rotate daily and by size -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/application-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>14</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- general.errors.log = only ERROR -->
+    <appender name="ERR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/general.errors.log</file>
+        <encoder>
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+        <!-- Accept only ERROR level -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <!-- Rotate daily and by size -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/general.errors-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- Our application code -->
+    <logger name="techcourse.herobeans" level="INFO" additivity="false">
+        <appender-ref ref="APP"/>
+        <appender-ref ref="ERR"/>
+    </logger>
+
+    <!-- Other libraries / frameworks -->
+    <root level="WARN">
+        <appender-ref ref="APP"/>
+        <appender-ref ref="ERR"/>
+    </root>
+</configuration>
