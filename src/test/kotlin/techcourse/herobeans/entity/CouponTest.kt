@@ -38,20 +38,6 @@ class CouponTest {
     }
 
     @Test
-    fun `should throw exception if coupon is not active when created`() {
-        assertThrows<IllegalArgumentException> {
-            Coupon(
-                code = "WELCOME",
-                discountType = DiscountType.PERCENTAGE,
-                discountValue = BigDecimal("10"),
-                expiresAt = LocalDateTime.now().plusDays(1),
-                userMail = "test@mail.com",
-                active = false,
-            )
-        }
-    }
-
-    @Test
     fun `should throw exception if coupon does not to have percentage between 0 and 100`() {
         assertThrows<IllegalArgumentException> {
             Coupon(

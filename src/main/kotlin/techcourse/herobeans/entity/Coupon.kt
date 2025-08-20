@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.time.Duration
 import java.time.LocalDateTime
 
 // TODO: deactivate or delete on usage
@@ -26,17 +27,30 @@ class Coupon(
 ) {
     init {
         require(discountValue > BigDecimal.ZERO) { "discountValue must be positive" }
-        require(active) { "active must be true" }
         if (discountType == DiscountType.PERCENTAGE) {
-            require(discountValue in BigDecimal.ZERO..BigDecimal(100)) { "invalid discount percentage" }
+            require(discountValue > BigDecimal.ZERO && discountValue <= BigDecimal(100)) {
+                "invalid discount percentage"
+            }
         }
     }
 
     fun calculateDiscountedTotal(orderTotal: BigDecimal): BigDecimal {
         return when (this.discountType) {
-            DiscountType.PERCENTAGE -> orderTotal * applyPercentageDiscount(orderTotal, this.discountValue)
+            DiscountType.PERCENTAGE -> applyPercentageDiscount(orderTotal, this.discountValue)
             DiscountType.FIXED -> orderTotal - this.discountValue
         }.coerceAtLeast(0.0.toBigDecimal()).setScale(2, RoundingMode.HALF_UP)
+    }
+
+    companion object {
+        fun createWelcomeCoupon(userMail: String) =
+            Coupon(
+                code = "WELCOME@BEAN",
+                discountType = DiscountType.PERCENTAGE,
+                discountValue = BigDecimal("10.00"),
+                userMail = userMail,
+                expiresAt = LocalDateTime.now() + Duration.ofDays(30),
+                active = true,
+            )
     }
 }
 

@@ -3,11 +3,9 @@ package techcourse.herobeans.service
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.entity.Coupon
-import techcourse.herobeans.entity.DiscountType
 import techcourse.herobeans.exception.InvalidCouponException
 import techcourse.herobeans.repository.CouponJpaRepository
 import java.math.BigDecimal
-import java.time.Duration
 import java.time.LocalDateTime
 
 @Service
@@ -48,18 +46,7 @@ class CouponService(private val couponJpaRepository: CouponJpaRepository) {
 
     @Transactional
     fun createWelcomeCoupon(userMail: String): Coupon {
-        val coupon =
-            couponJpaRepository.save(
-                Coupon(
-                    code = "WELCOME@BEAN",
-                    discountType = DiscountType.PERCENTAGE,
-                    discountValue = BigDecimal("10.00"),
-                    userMail = userMail,
-                    expiresAt = LocalDateTime.now() + Duration.ofDays(30),
-                    active = true,
-                ),
-            )
-        return coupon
+        return couponJpaRepository.save(Coupon.createWelcomeCoupon(userMail))
     }
 
     @Transactional
