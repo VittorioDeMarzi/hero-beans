@@ -11,8 +11,8 @@ import techcourse.herobeans.annotation.LoginMember
 import techcourse.herobeans.dto.FinalizePaymentRequest
 import techcourse.herobeans.dto.FinalizePaymentResponse
 import techcourse.herobeans.dto.MemberDto
-import techcourse.herobeans.dto.StartCheckoutRequest
-import techcourse.herobeans.dto.StartCheckoutResponse
+import techcourse.herobeans.dto.CheckoutStartRequest
+import techcourse.herobeans.dto.CheckoutStartResponse
 import techcourse.herobeans.service.CheckoutService
 
 // TODO: address process need
@@ -25,8 +25,8 @@ class CheckoutController(
     @PostMapping("/start")
     fun start(
         @LoginMember member: MemberDto,
-        @RequestBody request: StartCheckoutRequest,
-    ): ResponseEntity<StartCheckoutResponse> {
+        @RequestBody request: CheckoutStartRequest,
+    ): ResponseEntity<CheckoutStartResponse> {
         val response = checkoutService.startCheckout(member, request)
         return ResponseEntity.ok(response)
     }

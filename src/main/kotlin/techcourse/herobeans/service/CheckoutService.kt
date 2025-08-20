@@ -6,17 +6,15 @@ import techcourse.herobeans.dto.FinalizePaymentRequest
 import techcourse.herobeans.dto.FinalizePaymentResponse
 import techcourse.herobeans.dto.MemberDto
 import techcourse.herobeans.dto.PaymentIntent
-import techcourse.herobeans.dto.StartCheckoutRequest
-import techcourse.herobeans.dto.StartCheckoutResponse
+import techcourse.herobeans.dto.CheckoutStartRequest
+import techcourse.herobeans.dto.CheckoutStartResponse
 import techcourse.herobeans.entity.Order
 import techcourse.herobeans.enums.OrderStatus
 import techcourse.herobeans.exception.PaymentProcessingException
-import techcourse.herobeans.repository.MemberJpaRepository
 
 // TODO: overall, need to change all throw-exception or some logic to create exception
 @Service
 class CheckoutService(
-    private val memberJpaRepository: MemberJpaRepository,
     private val orderService: OrderService,
     private val paymentService: PaymentService,
     private val cartService: CartService,
@@ -26,14 +24,14 @@ class CheckoutService(
     @Transactional
     fun startCheckout(
         memberDto: MemberDto,
-        request: StartCheckoutRequest,
-    ): StartCheckoutResponse {
+        request: CheckoutStartRequest,
+    ): CheckoutStartResponse {
         val cart = cartService.getCartForOrder(memberDto.id)
         val order = orderService.processOrderWithStockReduction(cart)
         val paymentIntent = paymentService.createPaymentIntent(request, order.totalAmount)
         val payment = paymentService.createPayment(request, paymentIntent, order)
 
-        return StartCheckoutResponse(
+        return CheckoutStartResponse(
             paymentIntentId = paymentIntent.id,
             orderId = order.id,
             amount = payment.amount,
@@ -55,7 +53,6 @@ class CheckoutService(
             return FinalizePaymentResponse(order.id, paymentStatus = status.name)
         } catch (e: Exception) {
             // TODO: handle this exception
-            println("error: ${e.message}")
             orderService.rollbackOptionsStock(order)
             FinalizePaymentResponse(
                 request.orderId,

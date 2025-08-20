@@ -1,3 +1,7 @@
 package techcourse.herobeans.exception
 
-class StripeProcessingException(message: String, override val cause: Throwable?) : RuntimeException(message, cause)
+open class StripeProcessingException(message: String, override val cause: Throwable?) : RuntimeException(message, cause)
+
+class StripeClientException(message: String, override val cause: Throwable?) :StripeProcessingException(message, cause)
+
+class StripeServerException(message: String, override val cause: Throwable?) :StripeProcessingException(message, cause)

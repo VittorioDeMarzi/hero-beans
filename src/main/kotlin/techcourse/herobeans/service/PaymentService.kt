@@ -3,7 +3,7 @@ package techcourse.herobeans.service
 import org.springframework.stereotype.Service
 import techcourse.herobeans.client.StripeClient
 import techcourse.herobeans.dto.PaymentIntent
-import techcourse.herobeans.dto.StartCheckoutRequest
+import techcourse.herobeans.dto.CheckoutStartRequest
 import techcourse.herobeans.entity.Order
 import techcourse.herobeans.entity.Payment
 import techcourse.herobeans.enums.PaymentStatus
@@ -17,7 +17,7 @@ class PaymentService(
     private val paymentRepository: PaymentJpaRepository,
 ) {
     fun createPaymentIntent(
-        request: StartCheckoutRequest,
+        request: CheckoutStartRequest,
         totalAmount: BigDecimal,
     ): PaymentIntent {
         val paymentIntent = stripeClient.createPaymentIntent(request, totalAmount)
@@ -37,7 +37,7 @@ class PaymentService(
     }
 
     fun createPayment(
-        request: StartCheckoutRequest,
+        request: CheckoutStartRequest,
         paymentIntent: PaymentIntent,
         order: Order,
     ): Payment {

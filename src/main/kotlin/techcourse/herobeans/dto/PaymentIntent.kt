@@ -11,4 +11,6 @@ class PaymentIntent(
     @JsonProperty("client_secret")
     val clientSecret: String,
     val currency: String,
+    @JsonProperty("object")
+    val objectType: String? = null,
 )
