@@ -46,7 +46,7 @@ class AuthenticationController(private val authenticationService: Authentication
     fun login(
         @LoginMember member: MemberDto,
     ): ResponseEntity<MemberDto> {
-        val info = authenticationService.findMyInfo(member.id ?: 0L)
+        val info = authenticationService.findMyInfo(member.id)
         return ResponseEntity.ok(info)
     }
 }

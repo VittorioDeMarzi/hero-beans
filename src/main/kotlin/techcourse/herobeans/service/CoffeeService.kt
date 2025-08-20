@@ -1,16 +1,22 @@
 package techcourse.herobeans.service
 
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.dto.CoffeeDto
+import techcourse.herobeans.dto.CoffeeFilterCriteria
 import techcourse.herobeans.dto.CoffeePatchRequest
 import techcourse.herobeans.dto.CoffeeRequest
 import techcourse.herobeans.dto.PackageOptionRequest
+import techcourse.herobeans.enums.CoffeeSorting
+import techcourse.herobeans.enums.toSpringSort
 import techcourse.herobeans.exception.NotFoundException
 import techcourse.herobeans.mapper.CoffeeMapper.toDto
 import techcourse.herobeans.mapper.CoffeeMapper.toEntity
 import techcourse.herobeans.repository.CoffeeJpaRepository
 import techcourse.herobeans.repository.requireDoesNotExistByName
+import techcourse.herobeans.specification.SpecificationBuilder
 import kotlin.jvm.optionals.getOrNull
 
 @Service
@@ -18,12 +24,16 @@ class CoffeeService(
     private val coffeeJpaRepository: CoffeeJpaRepository,
 ) {
     @Transactional(readOnly = true)
-    fun getAllProducts(): List<CoffeeDto> {
-        return coffeeJpaRepository.findAll().map {
-            it.toDto()
-            // TODO: possible to implement filtering by isAvailable, but showing even unavailable products is also a good strategy
-            // TODO: filter by isVisible
-        }
+    fun getAllProducts(
+        page: Int,
+        size: Int,
+        filterCriteria: CoffeeFilterCriteria,
+        sort: CoffeeSorting,
+    ): Page<CoffeeDto> {
+        val sort = toSpringSort(sort)
+        val pageable = PageRequest.of(page, size, sort)
+        val spec = SpecificationBuilder.buildSpecification(filterCriteria)
+        return coffeeJpaRepository.findAll(spec, pageable).map { it.toDto() }
     }
 
     @Transactional(readOnly = true)
