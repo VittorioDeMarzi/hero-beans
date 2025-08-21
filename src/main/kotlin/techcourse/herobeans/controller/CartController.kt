@@ -3,6 +3,7 @@ package techcourse.herobeans.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
+import mu.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -19,6 +20,8 @@ import techcourse.herobeans.entity.CartItem
 import techcourse.herobeans.mapper.CartMapper
 import techcourse.herobeans.service.CartService
 
+private val log = KotlinLogging.logger {}
+
 @Tag(name = "Cart", description = "Member cart operations")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
@@ -29,6 +32,7 @@ class CartController(private val cartService: CartService) {
     fun getCartItems(
         @LoginMember member: MemberDto,
     ): ResponseEntity<CartProductResponse> {
+        log.info { "api.cart.get requested memberId=${member.id}" }
         val products = cartService.getCartProducts(member)
         return ResponseEntity.ok(products)
     }
@@ -39,6 +43,7 @@ class CartController(private val cartService: CartService) {
         @LoginMember member: MemberDto,
         @PathVariable("id") optionId: Long,
     ): ResponseEntity<CartProductItem> {
+        log.info { "api.cart.add requested memberId=${member.id} optionId=$optionId" }
         val item: CartItem = cartService.addProductToCart(member, optionId)
         return ResponseEntity
             .status(HttpStatus.CREATED)
@@ -51,6 +56,7 @@ class CartController(private val cartService: CartService) {
         @LoginMember member: MemberDto,
         @PathVariable("id") optionId: Long,
     ): ResponseEntity<Void> {
+        log.info { "api.cart.remove requested memberId=${member.id} optionId=$optionId" }
         cartService.removeProductFromCart(member, optionId)
         return ResponseEntity.noContent().build()
     }
@@ -60,7 +66,8 @@ class CartController(private val cartService: CartService) {
     fun clearCart(
         @LoginMember member: MemberDto,
     ): ResponseEntity<Void> {
-        cartService.clearCart(member.id)
+        log.info { "api.cart.clear requested memberId=${member.id}" }
+        cartService.clearCart(member)
         return ResponseEntity.noContent().build()
     }
 }
