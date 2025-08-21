@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean
 import techcourse.herobeans.exception.GlobalExceptionHandler
 
+@ActiveProfiles("test")
 class GlobalExceptionHandlerWebMvcTest {
     private lateinit var mockMvc: MockMvc
 
