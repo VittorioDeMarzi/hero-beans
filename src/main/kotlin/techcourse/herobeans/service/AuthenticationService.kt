@@ -22,6 +22,7 @@ class AuthenticationService(
     private val tokenService: JwtTokenProvider,
     private val passwordEncoder: PasswordEncoder,
     private val memberJpaRepository: MemberJpaRepository,
+    private val emailService: EmailService,
 ) {
     fun register(request: RegistrationRequest): TokenResponse {
         if (memberJpaRepository.existsByEmail(request.email)) {
@@ -29,6 +30,7 @@ class AuthenticationService(
         }
         val hashedPassword = passwordEncoder.encode(request.password)
         memberJpaRepository.save(Member(request.name, request.email, hashedPassword))
+        emailService.sendRegistrationEmail(request.email, request.name)
         val token = tokenService.createToken(request.email)
         return TokenResponse(token)
     }
