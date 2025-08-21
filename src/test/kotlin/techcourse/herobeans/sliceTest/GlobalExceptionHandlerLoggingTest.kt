@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import techcourse.herobeans.exception.GlobalExceptionHandler
 
+@ActiveProfiles("test")
 class GlobalExceptionHandlerLoggingTest {
     private val mockMvc: MockMvc =
         MockMvcBuilders
