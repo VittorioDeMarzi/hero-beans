@@ -36,6 +36,7 @@ import techcourse.herobeans.enums.ProfileLevel
 import techcourse.herobeans.enums.RoastLevel
 import techcourse.herobeans.repository.CartJpaRepository
 import techcourse.herobeans.repository.CoffeeJpaRepository
+import techcourse.herobeans.repository.CouponJpaRepository
 import techcourse.herobeans.repository.MemberJpaRepository
 import techcourse.herobeans.repository.OrderJpaRepository
 import techcourse.herobeans.repository.PackageOptionJpaRepository
@@ -45,14 +46,21 @@ import java.math.BigDecimal
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 class CheckoutControllerTest {
-
     @Autowired private lateinit var memberRepository: MemberJpaRepository
+
     @Autowired private lateinit var coffeeRepository: CoffeeJpaRepository
+
     @Autowired private lateinit var packageOptionRepository: PackageOptionJpaRepository
+
     @Autowired private lateinit var cartRepository: CartJpaRepository
+
     @Autowired private lateinit var orderRepository: OrderJpaRepository
+
     @Autowired private lateinit var paymentRepository: PaymentJpaRepository
+
     @Autowired private lateinit var objectMapper: ObjectMapper
+
+    @Autowired private lateinit var couponRepository: CouponJpaRepository
 
     @MockitoBean private lateinit var stripeClient: StripeClient
 
@@ -69,50 +77,55 @@ class CheckoutControllerTest {
         paymentRepository.deleteAll()
         orderRepository.deleteAll()
         cartRepository.deleteAll()
+        memberRepository.deleteAll()
         packageOptionRepository.deleteAll()
         coffeeRepository.deleteAll()
-        memberRepository.deleteAll()
+        couponRepository.deleteAll()
 
         // Register user and get token
         val registrationRequest = RegistrationRequest("testuser", "test@test.com", "12345678")
-        val response = RestAssured.given()
-            .baseUri(baseUrl)
-            .contentType(ContentType.JSON)
-            .body(registrationRequest)
-            .post("/api/members/register")
-            .then()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract()
+        val response =
+            RestAssured.given()
+                .baseUri(baseUrl)
+                .contentType(ContentType.JSON)
+                .body(registrationRequest)
+                .post("/api/members/register")
+                .then()
+                .statusCode(HttpStatus.CREATED.value())
+                .extract()
 
         token = response.body().jsonPath().getString("token")
         assertThat(token).isNotEmpty()
 
         // Create test coffee
-        coffee = Coffee(
-            name = "Test Coffee",
-            profile = Profile(
-                body = ProfileLevel.MEDIUM,
-                sweetness = ProfileLevel.HIGH,
-                acidity = ProfileLevel.LOW
-            ),
-            taste = "Rich and smooth",
-            brewRecommendation = BrewRecommendation.ESPRESSO,
-            origin = OriginCountry.BRAZIL,
-            processingMethod = ProcessingMethod.WASHED_PROCESS,
-            roastLevel = RoastLevel.MEDIUM_ROAST,
-            description = "Perfect test coffee",
-            imageUrl = "https://example.com/test.jpg"
-        )
+        coffee =
+            Coffee(
+                name = "Test Coffee",
+                profile =
+                    Profile(
+                        body = ProfileLevel.MEDIUM,
+                        sweetness = ProfileLevel.HIGH,
+                        acidity = ProfileLevel.LOW,
+                    ),
+                taste = "Rich and smooth",
+                brewRecommendation = BrewRecommendation.ESPRESSO,
+                origin = OriginCountry.BRAZIL,
+                processingMethod = ProcessingMethod.WASHED_PROCESS,
+                roastLevel = RoastLevel.MEDIUM_ROAST,
+                description = "Perfect test coffee",
+                imageUrl = "https://example.com/test.jpg",
+            )
         coffee = coffeeRepository.save(coffee)
 
         // Create test package options
         packageOptions = mutableListOf()
-        val option = PackageOption(
-            quantity = 100,
-            price = BigDecimal("25.50"),
-            weight = Grams.G250,
-            coffee = coffee
-        )
+        val option =
+            PackageOption(
+                quantity = 100,
+                price = BigDecimal("25.50"),
+                weight = Grams.G250,
+                coffee = coffee,
+            )
         packageOptions.add(packageOptionRepository.save(option))
 
         // Add first item to cart
@@ -126,26 +139,28 @@ class CheckoutControllerTest {
 
     @Test
     fun `should start checkout successfully`() {
-        val paymentIntent = PaymentIntent(
-            id = "pi_test_12345",
-            amount = 2550,
-            status = "requires_payment_method",
-            clientSecret = "pi_test_12345_secret_abc123",
-            currency = "eur"
-        )
+        val paymentIntent =
+            PaymentIntent(
+                id = "pi_test_12345",
+                amount = 2550,
+                status = "requires_payment_method",
+                clientSecret = "pi_test_12345_secret_abc123",
+                currency = "eur",
+            )
         whenever(stripeClient.createPaymentIntent(any(), any())).thenReturn(paymentIntent)
 
         val request = CheckoutStartRequest(paymentMethod = "pm_card_visa")
-        val response = RestAssured.given()
-            .baseUri(baseUrl)
-            .header("Authorization", "Bearer $token")
-            .contentType(ContentType.JSON)
-            .body(request)
-            .post("/api/checkout/start")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .`as`(CheckoutStartResponse::class.java)
+        val response =
+            RestAssured.given()
+                .baseUri(baseUrl)
+                .header("Authorization", "Bearer $token")
+                .contentType(ContentType.JSON)
+                .body(request)
+                .post("/api/checkout/start")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .`as`(CheckoutStartResponse::class.java)
 
         assertThat(response.paymentIntentId).isEqualTo("pi_test_12345")
         assertThat(response.amount).isEqualByComparingTo(BigDecimal("25.50"))
@@ -163,65 +178,71 @@ class CheckoutControllerTest {
 
     @Test
     fun `should finalize checkout successfully with succeeded payment`() {
-        val startPaymentIntent = PaymentIntent(
-            id = "pi_test_67890",
-            amount = 2550,
-            status = "requires_payment_method",
-            clientSecret = "pi_test_67890_secret_def456",
-            currency = "eur"
-        )
+        val startPaymentIntent =
+            PaymentIntent(
+                id = "pi_test_67890",
+                amount = 2550,
+                status = "requires_payment_method",
+                clientSecret = "pi_test_67890_secret_def456",
+                currency = "eur",
+            )
         whenever(stripeClient.createPaymentIntent(any(), any())).thenReturn(startPaymentIntent)
 
         val startRequest = CheckoutStartRequest(paymentMethod = "pm_card_visa")
-        val startResponse = RestAssured.given()
-            .baseUri(baseUrl)
-            .header("Authorization", "Bearer $token")
-            .contentType(ContentType.JSON)
-            .body(startRequest)
-            .post("/api/checkout/start")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .`as`(CheckoutStartResponse::class.java)
+        val startResponse =
+            RestAssured.given()
+                .baseUri(baseUrl)
+                .header("Authorization", "Bearer $token")
+                .contentType(ContentType.JSON)
+                .body(startRequest)
+                .post("/api/checkout/start")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .`as`(CheckoutStartResponse::class.java)
 
-        val confirmedPaymentIntent = PaymentIntent(
-            id = "pi_test_67890",
-            amount = 2550,
-            status = "succeeded",
-            clientSecret = "pi_test_67890_secret_def456",
-            currency = "eur"
-        )
+        val confirmedPaymentIntent =
+            PaymentIntent(
+                id = "pi_test_67890",
+                amount = 2550,
+                status = "succeeded",
+                clientSecret = "pi_test_67890_secret_def456",
+                currency = "eur",
+            )
         whenever(stripeClient.confirmPaymentIntent("pi_test_67890")).thenReturn(confirmedPaymentIntent)
 
-        val finalizeRequest = FinalizePaymentRequest(
-            paymentIntentId = "pi_test_67890",
-            orderId = startResponse.orderId
-        )
+        val finalizeRequest =
+            FinalizePaymentRequest(
+                paymentIntentId = "pi_test_67890",
+                orderId = startResponse.orderId,
+            )
 
-        val finalizeResponse = RestAssured.given()
-            .baseUri(baseUrl)
-            .header("Authorization", "Bearer $token")
-            .contentType(ContentType.JSON)
-            .body(finalizeRequest)
-            .post("/api/checkout/finalize")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .body()
-            .asString()
+        val finalizeResponse =
+            RestAssured.given()
+                .baseUri(baseUrl)
+                .header("Authorization", "Bearer $token")
+                .contentType(ContentType.JSON)
+                .body(finalizeRequest)
+                .post("/api/checkout/finalize")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .asString()
 
         val jsonNode = objectMapper.readTree(finalizeResponse)
-        val result = if (jsonNode.has("paymentStatus") && !jsonNode.has("error")) {
-            PaymentResult.Success(
-                orderId = jsonNode.get("orderId").asLong(),
-                paymentStatus = jsonNode.get("paymentStatus").asText()
-            )
-        } else {
-            PaymentResult.Failure(
-                orderId = jsonNode.get("orderId")?.asLong(),
-                error = PaymentError(PaymentErrorCode.PAYMENT_FAILED, message = "Payment failed")
-            )
-        }
+        val result =
+            if (jsonNode.has("paymentStatus") && !jsonNode.has("error")) {
+                PaymentResult.Success(
+                    orderId = jsonNode.get("orderId").asLong(),
+                    paymentStatus = jsonNode.get("paymentStatus").asText(),
+                )
+            } else {
+                PaymentResult.Failure(
+                    orderId = jsonNode.get("orderId")?.asLong(),
+                    error = PaymentError(PaymentErrorCode.PAYMENT_FAILED, message = "Payment failed"),
+                )
+            }
 
         assertThat(result).isInstanceOf(PaymentResult.Success::class.java)
         val successResult = result as PaymentResult.Success
@@ -231,15 +252,16 @@ class CheckoutControllerTest {
         val order = orderRepository.findByIdWithOrderItems(startResponse.orderId).get()
         assertThat(order.status.name).isEqualTo("PAID")
 
-        val cartResponse = RestAssured.given()
-            .baseUri(baseUrl)
-            .header("Authorization", "Bearer $token")
-            .get("/api/member/cart")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .body()
-            .jsonPath()
+        val cartResponse =
+            RestAssured.given()
+                .baseUri(baseUrl)
+                .header("Authorization", "Bearer $token")
+                .get("/api/member/cart")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .jsonPath()
 
         assertThat(cartResponse.getList<Any>("items")).isEmpty()
     }
@@ -276,10 +298,11 @@ class CheckoutControllerTest {
 
     @Test
     fun `should return 404 when trying to finalize with invalid order`() {
-        val request = FinalizePaymentRequest(
-            paymentIntentId = "pi_invalid",
-            orderId = 99999L
-        )
+        val request =
+            FinalizePaymentRequest(
+                paymentIntentId = "pi_invalid",
+                orderId = 99999L,
+            )
 
         RestAssured.given()
             .baseUri(baseUrl)
@@ -306,13 +329,18 @@ class CheckoutControllerTest {
             .body("message", CoreMatchers.containsString("Insufficient quantity"))
     }
 
-    fun addPackageOption(weight: Grams, price: String, quantity: Int = 50): PackageOption {
-        val option = PackageOption(
-            quantity = quantity,
-            price = BigDecimal(price),
-            weight = weight,
-            coffee = coffee
-        )
+    fun addPackageOption(
+        weight: Grams,
+        price: String,
+        quantity: Int = 50,
+    ): PackageOption {
+        val option =
+            PackageOption(
+                quantity = quantity,
+                price = BigDecimal(price),
+                weight = weight,
+                coffee = coffee,
+            )
         val savedOption = packageOptionRepository.save(option)
         packageOptions.add(savedOption)
         return savedOption
@@ -321,15 +349,16 @@ class CheckoutControllerTest {
     fun createPaymentIntentAndStartCheckout(
         paymentIntentId: String = "pi_test_${System.currentTimeMillis()}",
         amount: Int = 2550,
-        status: String = "requires_payment_method"
+        status: String = "requires_payment_method",
     ): CheckoutStartResponse {
-        val paymentIntent = PaymentIntent(
-            id = paymentIntentId,
-            amount = amount,
-            status = status,
-            clientSecret = "${paymentIntentId}_secret",
-            currency = "eur"
-        )
+        val paymentIntent =
+            PaymentIntent(
+                id = paymentIntentId,
+                amount = amount,
+                status = status,
+                clientSecret = "${paymentIntentId}_secret",
+                currency = "eur",
+            )
         whenever(stripeClient.createPaymentIntent(any(), any())).thenReturn(paymentIntent)
 
         val request = CheckoutStartRequest(paymentMethod = "pm_card_visa")
@@ -348,68 +377,78 @@ class CheckoutControllerTest {
     fun finalizePayment(
         paymentIntentId: String,
         orderId: Long,
-        paymentStatus: String = "succeeded"
+        paymentStatus: String = "succeeded",
     ): PaymentResult {
-        val confirmedPaymentIntent = PaymentIntent(
-            id = paymentIntentId,
-            amount = 2550,
-            status = paymentStatus,
-            clientSecret = "${paymentIntentId}_secret",
-            currency = "eur"
-        )
+        val confirmedPaymentIntent =
+            PaymentIntent(
+                id = paymentIntentId,
+                amount = 2550,
+                status = paymentStatus,
+                clientSecret = "${paymentIntentId}_secret",
+                currency = "eur",
+            )
         whenever(stripeClient.confirmPaymentIntent(paymentIntentId)).thenReturn(confirmedPaymentIntent)
 
-        val finalizeRequest = FinalizePaymentRequest(
-            paymentIntentId = paymentIntentId,
-            orderId = orderId
-        )
+        val finalizeRequest =
+            FinalizePaymentRequest(
+                paymentIntentId = paymentIntentId,
+                orderId = orderId,
+            )
 
-        val finalizeResponse = RestAssured.given()
-            .baseUri(baseUrl)
-            .header("Authorization", "Bearer $token")
-            .contentType(ContentType.JSON)
-            .body(finalizeRequest)
-            .post("/api/checkout/finalize")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .body()
-            .asString()
+        val finalizeResponse =
+            RestAssured.given()
+                .baseUri(baseUrl)
+                .header("Authorization", "Bearer $token")
+                .contentType(ContentType.JSON)
+                .body(finalizeRequest)
+                .post("/api/checkout/finalize")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .asString()
 
         val jsonNode = objectMapper.readTree(finalizeResponse)
         return if (jsonNode.has("paymentStatus") && !jsonNode.has("error")) {
             PaymentResult.Success(
                 orderId = jsonNode.get("orderId").asLong(),
-                paymentStatus = jsonNode.get("paymentStatus").asText()
+                paymentStatus = jsonNode.get("paymentStatus").asText(),
             )
         } else {
             PaymentResult.Failure(
                 orderId = jsonNode.get("orderId")?.asLong(),
-                error = PaymentError(PaymentErrorCode.PAYMENT_FAILED, message = "Payment failed")
+                error = PaymentError(PaymentErrorCode.PAYMENT_FAILED, message = "Payment failed"),
             )
         }
     }
 
-    fun verifyOrderStatus(orderId: Long, expectedStatus: String) {
+    fun verifyOrderStatus(
+        orderId: Long,
+        expectedStatus: String,
+    ) {
         val order = orderRepository.findByIdWithOrderItems(orderId).get()
         assertThat(order.status.name).isEqualTo(expectedStatus)
     }
 
-    fun verifyStockQuantity(optionIndex: Int, expectedQuantity: Int) {
+    fun verifyStockQuantity(
+        optionIndex: Int,
+        expectedQuantity: Int,
+    ) {
         val option = packageOptionRepository.findById(packageOptions[optionIndex].id).get()
         assertThat(option.quantity).isEqualTo(expectedQuantity)
     }
 
     fun verifyCartIsEmpty() {
-        val cartResponse = RestAssured.given()
-            .baseUri(baseUrl)
-            .header("Authorization", "Bearer $token")
-            .get("/api/member/cart")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .body()
-            .jsonPath()
+        val cartResponse =
+            RestAssured.given()
+                .baseUri(baseUrl)
+                .header("Authorization", "Bearer $token")
+                .get("/api/member/cart")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .jsonPath()
 
         assertThat(cartResponse.getList<Any>("items")).isEmpty()
     }
@@ -432,10 +471,11 @@ class CheckoutControllerTest {
 
         val totalCents = 15050
 
-        val startResponse = createPaymentIntentAndStartCheckout(
-            paymentIntentId = "pi_test_multi_items",
-            amount = totalCents
-        )
+        val startResponse =
+            createPaymentIntentAndStartCheckout(
+                paymentIntentId = "pi_test_multi_items",
+                amount = totalCents,
+            )
 
         assertThat(startResponse.amount).isEqualByComparingTo(BigDecimal("150.50"))
 
@@ -464,42 +504,48 @@ class CheckoutControllerTest {
         verifyOrderStatus(startResponse.orderId, "PAYMENT_FAILED")
         verifyStockQuantity(0, 100)
 
-        val delayedSuccessIntent = PaymentIntent(
-            id = "pi_test_delayed_success",
-            amount = 2550,
-            status = "succeeded",
-            clientSecret = "pi_test_delayed_success_secret",
-            currency = "eur"
-        )
+        val delayedSuccessIntent =
+            PaymentIntent(
+                id = "pi_test_delayed_success",
+                amount = 2550,
+                status = "succeeded",
+                clientSecret = "pi_test_delayed_success_secret",
+                currency = "eur",
+            )
         whenever(stripeClient.confirmPaymentIntent("pi_test_delayed_success")).thenReturn(delayedSuccessIntent)
 
-        val webhookResponse = RestAssured.given()
-            .baseUri(baseUrl)
-            .header("Authorization", "Bearer $token")
-            .contentType(ContentType.JSON)
-            .body(FinalizePaymentRequest("pi_test_delayed_success", startResponse.orderId))
-            .post("/api/checkout/finalize")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .body()
-            .asString()
+        val webhookResponse =
+            RestAssured.given()
+                .baseUri(baseUrl)
+                .header("Authorization", "Bearer $token")
+                .contentType(ContentType.JSON)
+                .body(FinalizePaymentRequest("pi_test_delayed_success", startResponse.orderId))
+                .post("/api/checkout/finalize")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .body()
+                .asString()
 
         val jsonNode = objectMapper.readTree(webhookResponse)
-        val result = if (jsonNode.has("paymentStatus") && !jsonNode.has("error")) {
-            PaymentResult.Success(
-                orderId = jsonNode.get("orderId").asLong(),
-                paymentStatus = jsonNode.get("paymentStatus").asText()
-            )
-        } else {
-            PaymentResult.Failure(
-                orderId = jsonNode.get("orderId")?.asLong(),
-                error = PaymentError(PaymentErrorCode.PAYMENT_FAILED, message = "Payment failed")
-            )
-        }
+        val result =
+            if (jsonNode.has("paymentStatus") && !jsonNode.has("error")) {
+                PaymentResult.Success(
+                    orderId = jsonNode.get("orderId").asLong(),
+                    paymentStatus = jsonNode.get("paymentStatus").asText(),
+                )
+            } else {
+                PaymentResult.Failure(
+                    orderId = jsonNode.get("orderId")?.asLong(),
+                    error = PaymentError(PaymentErrorCode.PAYMENT_FAILED, message = "Payment failed"),
+                )
+            }
     }
 
-    private fun addItemsToCart(from: Int, to: Int) {
+    private fun addItemsToCart(
+        from: Int,
+        to: Int,
+    ) {
         for (i in from until to) {
             addItemToCartByIndex(i)
         }

@@ -44,9 +44,10 @@ class PaymentService(
     ): Payment {
         val payment =
             Payment(
-                amount = BigDecimal(paymentIntent.amount)
-                    .divide(BigDecimal(100))
-                    .setScale(2, RoundingMode.HALF_UP),
+                amount =
+                    BigDecimal(paymentIntent.amount)
+                        .divide(BigDecimal(100))
+                        .setScale(2, RoundingMode.HALF_UP),
                 paymentMethod = request.paymentMethod,
                 paymentIntentId = paymentIntent.id,
                 order = order,

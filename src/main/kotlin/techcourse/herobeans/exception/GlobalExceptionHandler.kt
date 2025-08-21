@@ -86,9 +86,6 @@ class GlobalExceptionHandler(private val env: Environment? = null) {
     ) = buildErrorResponse(HttpStatus.BAD_REQUEST, ex, request)
 
     @ExceptionHandler(Exception::class)
-    fun handleGenericException(ex: Exception): ResponseEntity<ErrorMessageModel> {
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex)
-    }
     fun handleGenericException(
         ex: Exception,
         request: HttpServletRequest,

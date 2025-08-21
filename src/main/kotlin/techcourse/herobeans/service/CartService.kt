@@ -42,8 +42,7 @@ class CartService(
 
         val saved =
             cartRepository.saveAndFlush(cart)
-                .also {
-                        c ->
+                .also { c ->
                     log.info { "cart.item.added memberId=${member.id} cartId=${c.id} optionId=$optionId totalItems=${c.items.size}" }
                 }
         return saved.items.first { it.option.id == optionId }
@@ -61,7 +60,7 @@ class CartService(
     fun clearCart(memberId: Long) {
         val cart = getOrCreateCart(memberId)
         cart.clear()
-        log.info { "cart.cleared memberId=${memberId} cartId=${cart.id} items=0" }
+        log.info { "cart.cleared memberId=$memberId cartId=${cart.id} items=0" }
     }
 
     fun getCartForOrder(memberId: Long): Cart {
