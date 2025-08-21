@@ -2,7 +2,7 @@
 <configuration scan="true" scanPeriod="60 seconds">
 
     <!-- Where to write logs -->
-    <property name="LOG_DIR" value="/home/ubuntu/app/logs"/>
+    <property name="LOG_DIR" value="logs"/>
     <!--For local run you can keep value="logs"; on server set an absolute path <property name="LOG_DIR" value="/home/ubuntu/app/logs" /> &ndash;&gt;-->
 
     <!-- baseline without stacktrace -->
