@@ -1,5 +1,6 @@
 package techcourse.herobeans.service
 
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.dto.CartProductResponse
@@ -12,6 +13,8 @@ import techcourse.herobeans.repository.CartJpaRepository
 import techcourse.herobeans.repository.MemberJpaRepository
 import techcourse.herobeans.repository.PackageOptionJpaRepository
 
+private val log = KotlinLogging.logger {}
+
 @Service
 @Transactional
 class CartService(
@@ -22,6 +25,7 @@ class CartService(
     fun getCartProducts(member: MemberDto): CartProductResponse {
         val cart = getOrCreateCart(member.id)
         return CartMapper.toResponse(cart)
+            .also { resp -> log.info { "cart.viewed memberId=${member.id} items=${cart.items.size}" } }
     }
 
     fun addProductToCart(
@@ -36,7 +40,12 @@ class CartService(
         val newItem = CartItem(cart = cart, option = option, quantity = 1)
         cart.addOrIncrement(newItem)
 
-        val saved = cartRepository.saveAndFlush(cart)
+        val saved =
+            cartRepository.saveAndFlush(cart)
+                .also {
+                        c ->
+                    log.info { "cart.item.added memberId=${member.id} cartId=${c.id} optionId=$optionId totalItems=${c.items.size}" }
+                }
         return saved.items.first { it.option.id == optionId }
     }
 
@@ -46,11 +55,13 @@ class CartService(
     ) {
         val cart = getOrCreateCart(member.id)
         cart.removeItem(optionId)
+        log.info { "cart.item.removed memberId=${member.id} cartId=${cart.id} optionId=$optionId totalItems=${cart.items.size}" }
     }
 
     fun clearCart(member: MemberDto) {
         val cart = getOrCreateCart(member.id)
         cart.clear()
+        log.info { "cart.cleared memberId=${member.id} cartId=${cart.id} items=0" }
     }
 
     fun getCartForOrder(memberId: Long): Cart {
@@ -63,10 +74,13 @@ class CartService(
     }
 
     private fun getOrCreateCart(memberId: Long): Cart {
-        cartRepository.findByMemberId(memberId)?.let { return it }
+        cartRepository.findByMemberId(memberId)?.let { existing ->
+            return existing.also { c -> log.info { "cart.loaded memberId=$memberId cartId=${c.id} items=${c.items.size}" } }
+        }
         val member =
             memberRepository.findById(memberId)
                 .orElseThrow { NotFoundException("Member not found: $memberId") }
         return cartRepository.save(Cart(member))
+            .also { c -> log.info { "cart.created memberId=$memberId cartId=${c.id}" } }
     }
 }

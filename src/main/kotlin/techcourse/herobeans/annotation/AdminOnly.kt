@@ -1,4 +1,4 @@
-package ecommerce.annotation
+package techcourse.herobeans.annotation
 
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)

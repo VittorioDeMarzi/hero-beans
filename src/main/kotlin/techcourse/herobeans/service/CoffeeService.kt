@@ -1,5 +1,6 @@
 package techcourse.herobeans.service
 
+import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -19,6 +20,8 @@ import techcourse.herobeans.repository.requireDoesNotExistByName
 import techcourse.herobeans.specification.SpecificationBuilder
 import kotlin.jvm.optionals.getOrNull
 
+private val log = KotlinLogging.logger {}
+
 @Service
 class CoffeeService(
     private val coffeeJpaRepository: CoffeeJpaRepository,
@@ -34,6 +37,7 @@ class CoffeeService(
         val pageable = PageRequest.of(page, size, sort)
         val spec = SpecificationBuilder.buildSpecification(filterCriteria)
         return coffeeJpaRepository.findAll(spec, pageable).map { it.toDto() }
+            .also { p -> log.info { "coffee.listed page=$page size=$size sort=$sort totalElements=${p.totalElements}" } }
     }
 
     @Transactional(readOnly = true)
@@ -42,6 +46,7 @@ class CoffeeService(
             .findById(id)
             .orElseThrow { NotFoundException("Coffee with id $id not found") }
             .toDto()
+            .also { log.info { "coffee.viewed id=$id" } }
     }
 
     @Transactional
@@ -50,12 +55,14 @@ class CoffeeService(
         coffeeJpaRepository.requireDoesNotExistByName(coffee.name)
         val saved = coffeeJpaRepository.save(coffee)
         return saved.toDto()
+            .also { dto -> log.info { "coffee.created id=${dto.id} name='${dto.name}'" } }
     }
 
     @Transactional
     fun deleteProduct(id: Long) {
         coffeeJpaRepository.findById(id).getOrNull() ?: throw NotFoundException("Product with id $id not found")
         coffeeJpaRepository.deleteById(id)
+        log.info { "coffee.deleted id=$id" }
     }
 
     @Transactional
@@ -81,6 +88,7 @@ class CoffeeService(
         }
 
         return coffee.toDto()
+            .also { dto -> log.info { "coffee.updated id=${dto.id}" } }
     }
 
     @Transactional
@@ -91,5 +99,6 @@ class CoffeeService(
         val coffee = coffeeJpaRepository.findById(id).getOrNull() ?: throw NotFoundException("Product with id $id not found")
         coffee.addOption(option.toEntity())
         return coffee.toDto()
+            .also { dto -> log.info { "coffee.option.added coffeeId=${dto.id} options=${dto.options.size}" } }
     }
 }

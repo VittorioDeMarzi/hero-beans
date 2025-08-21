@@ -9,6 +9,8 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import jakarta.persistence.OneToOne
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import java.math.BigDecimal
@@ -21,6 +23,7 @@ import kotlin.collections.sumOf
 class Cart(
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", nullable = false, unique = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     val member: Member,
     @OneToMany(
         cascade = [CascadeType.ALL],

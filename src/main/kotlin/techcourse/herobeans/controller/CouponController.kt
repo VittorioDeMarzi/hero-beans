@@ -1,9 +1,9 @@
 package techcourse.herobeans.controller
 
-import ecommerce.annotation.LoginMember
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
+import techcourse.herobeans.annotation.LoginMember
 import techcourse.herobeans.dto.CouponResponse
 import techcourse.herobeans.dto.MemberDto
 import techcourse.herobeans.mapper.CouponMapper.toResponse

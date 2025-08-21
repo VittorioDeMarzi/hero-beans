@@ -2,6 +2,7 @@ package techcourse.herobeans.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,6 +18,8 @@ import techcourse.herobeans.enums.OriginCountry
 import techcourse.herobeans.enums.ProcessingMethod
 import techcourse.herobeans.enums.RoastLevel
 import techcourse.herobeans.service.CoffeeService
+
+private val log = KotlinLogging.logger {}
 
 @Tag(name = "Catalog", description = "Public product catalog")
 @RestController
@@ -49,6 +52,7 @@ class GuestController(
                 processingMethod = processingMethod,
                 availableOnly = availableOnly,
             )
+        log.info { "api.catalog.list requested page=$page size=$size filters=$filterCriteria sort=$sort" }
         val products = coffeeService.getAllProducts(page, size, filterCriteria, sort)
         return ResponseEntity.ok(products)
     }
@@ -58,6 +62,7 @@ class GuestController(
     fun getProductById(
         @PathVariable productId: Long,
     ): ResponseEntity<CoffeeDto> {
+        log.info { "api.catalog.view requested productId=$productId" }
         val product = coffeeService.getProductById(productId)
         return ResponseEntity.ok(product)
     }
