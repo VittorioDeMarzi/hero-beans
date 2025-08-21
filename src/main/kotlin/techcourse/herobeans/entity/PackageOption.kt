@@ -54,7 +54,7 @@ class PackageOption(
 
     fun decreaseQuantity(minusQuantity: Int): PackageOption {
         require(minusQuantity > 0) { "quantity must be positive" }
-        require(quantity >= minusQuantity) { "out of stock: current stock $quantity, requested $minusQuantity" }
+        require(quantity >= minusQuantity) { "${coffee!!.name} ${weight.name} out of stock: requested $minusQuantity" }
         require(
             quantity - minusQuantity in MIN_QUANTITY..MAX_QUANTITY,
         ) { "expected quantity must be between $MIN_QUANTITY and $MAX_QUANTITY" }

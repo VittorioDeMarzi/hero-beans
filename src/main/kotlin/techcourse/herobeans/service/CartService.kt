@@ -47,8 +47,8 @@ class CartService(
         cart.removeItem(optionId)
     }
 
-    fun clearCart(member: MemberDto) {
-        val cart = getOrCreateCart(member.id)
+    fun clearCart(memberId: Long) {
+        val cart = getOrCreateCart(memberId)
         cart.clear()
     }
 

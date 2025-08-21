@@ -11,8 +11,8 @@ import techcourse.herobeans.annotation.LoginMember
 import techcourse.herobeans.dto.CheckoutStartRequest
 import techcourse.herobeans.dto.CheckoutStartResponse
 import techcourse.herobeans.dto.FinalizePaymentRequest
-import techcourse.herobeans.dto.FinalizePaymentResponse
 import techcourse.herobeans.dto.MemberDto
+import techcourse.herobeans.dto.PaymentResult
 import techcourse.herobeans.service.CheckoutService
 
 // TODO: address process need
@@ -35,8 +35,8 @@ class CheckoutController(
     fun finalize(
         @LoginMember member: MemberDto,
         @Valid @RequestBody request: FinalizePaymentRequest,
-    ): ResponseEntity<FinalizePaymentResponse> {
+    ): ResponseEntity<PaymentResult> {
         val paymentResult = checkoutService.finalizeCheckout(member, request)
-        return ResponseEntity.ok(paymentResult.response)
+        return ResponseEntity.ok(paymentResult)
     }
 }

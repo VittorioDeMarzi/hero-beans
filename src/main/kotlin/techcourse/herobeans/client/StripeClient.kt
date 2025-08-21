@@ -1,5 +1,6 @@
 package techcourse.herobeans.client
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -80,13 +81,15 @@ class StripeClient(private val stripeProperties: StripeProperties) {
             val response = request()
             validateResponse(response)
         } catch (e: HttpClientErrorException) {
+            val errorInfo = parseStripeError(e.responseBodyAsString)
             throw StripeClientException(
-                "Stripe client error: status=${e.statusCode.value()}, message=${e.message}",
+                "Stripe error: ${errorInfo.message} (code: ${errorInfo.code})",
                 e,
             )
         } catch (e: HttpServerErrorException) {
+            val errorInfo = parseStripeError(e.responseBodyAsString)
             throw StripeServerException(
-                "Stripe server error: status=${e.statusCode.value()}, message=${e.message}",
+                "Stripe error: ${errorInfo.message} (code: ${errorInfo.code})",
                 e,
             )
         } catch (e: Exception) {
@@ -107,6 +110,23 @@ class StripeClient(private val stripeProperties: StripeProperties) {
             throw IntentNotValidException(e.message!!, e)
         } catch (e: Exception) {
             throw PaymentSystemException(e.message ?: "Payment intent not valid")
+        }
+    }
+
+    data class StripeErrorInfo(
+        val message: String,
+        val code: String? = null,
+    )
+
+    fun parseStripeError(json: String?): StripeErrorInfo {
+        return try {
+            val obj = ObjectMapper().readTree(json)
+            StripeErrorInfo(
+                message = obj.get("error").get("message").asText(),
+                code = obj.get("error").get("code").asText(),
+            )
+        } catch (e: Exception) {
+            StripeErrorInfo(message = "Unable to parse Stripe error: ${e.message}")
         }
     }
 }

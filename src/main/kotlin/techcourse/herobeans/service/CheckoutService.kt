@@ -60,7 +60,7 @@ class CheckoutService(
         return try {
             val paymentIntent = paymentService.confirmPaymentIntent(request.paymentIntentId)
             val status = updateOrderToPaid(order, paymentIntent)
-
+            cartService.clearCart(member.id)
             PaymentResult.Success(orderId = order.id, paymentStatus = status.name)
         } catch (exception: Exception) {
             handleCheckoutFinalizeFailure(order, exception)

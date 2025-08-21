@@ -4,12 +4,10 @@ import org.springframework.stereotype.Service
 import techcourse.herobeans.entity.Cart
 import techcourse.herobeans.entity.Order
 import techcourse.herobeans.entity.PackageOption
-import techcourse.herobeans.enums.OrderStatus
 import techcourse.herobeans.enums.ShippingMethod
-import techcourse.herobeans.exception.NotFoundException
+import techcourse.herobeans.exception.CartEmptyException
 import techcourse.herobeans.exception.OrderDataInconsistencyException
 import techcourse.herobeans.exception.OrderNotFoundException
-import techcourse.herobeans.exception.OrderNotProcessableException
 import techcourse.herobeans.exception.UnauthorizedAccessException
 import techcourse.herobeans.mapper.CartItemMapper.toOrderItems
 import techcourse.herobeans.repository.OrderJpaRepository
@@ -45,7 +43,7 @@ class OrderService(
         val ids =
             cart.items.map { it.option.id }
                 .takeIf { it.isNotEmpty() }
-                ?: throw NotFoundException("Cart has no valid options") // TODO: throw Cart error
+                ?: throw CartEmptyException("Cart is empty")
         return optionService.findByIdsWithLock(ids)
     }
 
@@ -114,9 +112,6 @@ class OrderService(
         when {
             order.memberId != memberId ->
                 throw UnauthorizedAccessException("Member does not have authorization for this order")
-
-            order.status != OrderStatus.PENDING ->
-                throw OrderNotProcessableException("Invalid order status: ${order.status}")
         }
     }
 

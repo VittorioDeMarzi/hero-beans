@@ -46,7 +46,6 @@ class Order(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var shippingMethod: ShippingMethod = ShippingMethod.FREE,
-    var paymentIntentId: String? = null,
     /**
      * Entity timestamps.
      * - createdAt: when the order was first persisted
@@ -85,7 +84,6 @@ class Order(
     }
 
     fun markAsPaymentFailed() {
-        require(status == OrderStatus.PENDING) { "Invalid status for payment failure: $status" }
         _status = OrderStatus.PAYMENT_FAILED
     }
 

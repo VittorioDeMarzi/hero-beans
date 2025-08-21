@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import techcourse.herobeans.dto.CheckoutStartRequest
 import java.math.BigDecimal
+
 @Disabled("Stripe integration test - requires valid API key")
 @SpringBootTest(
     properties = [
