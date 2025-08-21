@@ -19,6 +19,7 @@ import techcourse.herobeans.exception.UnauthorizedAccessException
 @Validated
 @RestController
 @RequestMapping("/dummy")
+@ActiveProfiles("test")
 class FakeExceptionController {
     @GetMapping("/not-found/{id}")
     fun notFound(
