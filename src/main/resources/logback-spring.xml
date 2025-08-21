@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="60 seconds">
 
-    <!-- Where to write logs -->
-    <property name="LOG_DIR" value="/home/ubuntu/app/logs" />
-    <!--For local run you can keep value="logs"; on server set an absolute path <property name="LOG_DIR" value="/home/ubuntu/app/logs" /> &ndash;&gt;-->
+    <!-- Default: local logs folder -->
+    <property name="LOG_DIR" value="logs"/>
+
+    <!-- PROD overrides log dir -->
+    <springProfile name="prod">
+        <property name="LOG_DIR" value="/home/ubuntu/app/logs"/>
+    </springProfile>
 
     <!-- baseline without stacktrace -->
     <property name="PATTERN_BASE"
