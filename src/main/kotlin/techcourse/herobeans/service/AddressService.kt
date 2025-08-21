@@ -1,5 +1,6 @@
 package techcourse.herobeans.service
 
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.dto.AddressDto
@@ -12,6 +13,8 @@ import techcourse.herobeans.mapper.AddressMapper.toDto
 import techcourse.herobeans.mapper.AddressMapper.toEntity
 import techcourse.herobeans.repository.AddressJpaRepository
 import techcourse.herobeans.repository.MemberJpaRepository
+
+private val log = KotlinLogging.logger {}
 
 @Service
 @Transactional
@@ -27,8 +30,11 @@ class AddressService(
         if (addressRepository.findAllByMemberId(memberId).size >= 5) {
             throw MaxAddressesExceededException("Max 5 addresses allowed")
         }
-        val address = request.toEntity(member)
-        return addressRepository.save(address).toDto()
+
+        return addressRepository
+            .save(request.toEntity(member))
+            .also { saved -> log.info { "address.created memberId=$memberId addressId=${saved.id}" } }
+            .toDto()
     }
 
     fun removeAddress(
@@ -39,7 +45,9 @@ class AddressService(
         if (address.member.id != memberId) {
             throw ForbiddenAccessException("You are not allowed to delete this address")
         }
-        addressRepository.delete(address)
+        address
+            .apply { addressRepository.delete(this) }
+            .also { log.info { "address.removed memberId=$memberId addressId=$id" } }
     }
 
     fun updateAddress(
@@ -57,10 +65,15 @@ class AddressService(
         request.postalCode?.let { address.postalCode = it }
         request.label?.let { address.label = it }
 
-        return addressRepository.save(address).toDto()
+        return addressRepository
+            .save(address)
+            .also { log.info { "address.updated memberId=$memberId addressId=$id" } }
+            .toDto()
     }
 
     fun getAllAddresses(memberId: Long): List<AddressDto> {
-        return addressRepository.findAllByMemberId(memberId).map { it.toDto() }
+        return addressRepository.findAllByMemberId(memberId)
+            .map { it.toDto() }
+            .also { list -> log.info { "address.listed memberId=$memberId count=${list.size}" } }
     }
 }

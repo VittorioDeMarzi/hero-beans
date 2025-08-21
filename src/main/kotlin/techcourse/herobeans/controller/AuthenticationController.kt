@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import mu.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -18,6 +19,8 @@ import techcourse.herobeans.dto.RegistrationRequest
 import techcourse.herobeans.dto.TokenResponse
 import techcourse.herobeans.service.AuthenticationService
 
+private val log = KotlinLogging.logger {}
+
 @Tag(name = "Auth", description = "Member registration, login, and profile")
 @RestController
 @RequestMapping("/api/members")
@@ -27,6 +30,7 @@ class AuthenticationController(private val authenticationService: Authentication
     fun registerMember(
         @Valid @RequestBody request: RegistrationRequest,
     ): ResponseEntity<TokenResponse> {
+        log.info { "api.auth.register requested" }
         val token = authenticationService.register(request)
         return ResponseEntity.status(HttpStatus.CREATED).body(token)
     }
@@ -36,6 +40,7 @@ class AuthenticationController(private val authenticationService: Authentication
     fun login(
         @RequestBody request: LoginRequest,
     ): ResponseEntity<TokenResponse> {
+        log.info { "api.auth.login requested" }
         val token = authenticationService.login(request)
         return ResponseEntity.ok(token)
     }
@@ -43,9 +48,10 @@ class AuthenticationController(private val authenticationService: Authentication
     @Operation(summary = "Get my profile")
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/me")
-    fun login(
+    fun findMyInfo(
         @LoginMember member: MemberDto,
     ): ResponseEntity<MemberDto> {
+        log.info { "api.auth.me requested memberId=${member.id}" }
         val info = authenticationService.findMyInfo(member.id)
         return ResponseEntity.ok(info)
     }

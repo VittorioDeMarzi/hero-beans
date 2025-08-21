@@ -1,6 +1,10 @@
 package techcourse.herobeans.exception
 
-class ErrorMessageModel(
-    var status: Int? = null,
-    var message: String? = null,
+data class ErrorMessageModel(
+    val timestamp: String,
+    val status: Int,
+    val error: String,
+    val message: String?,
+    val path: String,
+    val correlationId: String?,
 )
