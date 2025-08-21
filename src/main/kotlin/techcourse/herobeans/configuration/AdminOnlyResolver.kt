@@ -1,6 +1,5 @@
 package techcourse.herobeans.configuration
 
-import ecommerce.annotation.AdminOnly
 import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import org.springframework.core.MethodParameter
@@ -9,6 +8,7 @@ import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
+import techcourse.herobeans.annotation.AdminOnly
 import techcourse.herobeans.enums.MemberRole
 import techcourse.herobeans.exception.ForbiddenAccessException
 import techcourse.herobeans.exception.UnauthorizedAccessException
