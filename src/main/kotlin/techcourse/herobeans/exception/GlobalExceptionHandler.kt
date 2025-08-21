@@ -47,6 +47,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(
         value = [
+            CartEmptyException::class,
             MaxAddressesExceededException::class,
             InsufficientStockException::class,
             IllegalArgumentException::class,

@@ -10,6 +10,7 @@ import techcourse.herobeans.enums.PaymentStatus
 import techcourse.herobeans.exception.PaymentIntentNotFoundException
 import techcourse.herobeans.repository.PaymentJpaRepository
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 @Service
 class PaymentService(
@@ -43,7 +44,9 @@ class PaymentService(
     ): Payment {
         val payment =
             Payment(
-                amount = BigDecimal(paymentIntent.amount),
+                amount = BigDecimal(paymentIntent.amount)
+                    .divide(BigDecimal(100))
+                    .setScale(2, RoundingMode.HALF_UP),
                 paymentMethod = request.paymentMethod,
                 paymentIntentId = paymentIntent.id,
                 order = order,
