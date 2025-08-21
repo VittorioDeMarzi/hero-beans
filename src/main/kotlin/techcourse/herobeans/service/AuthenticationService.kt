@@ -1,5 +1,6 @@
 package techcourse.herobeans.service
 
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.configuration.JwtTokenProvider
@@ -9,6 +10,7 @@ import techcourse.herobeans.dto.MemberDto
 import techcourse.herobeans.dto.RegistrationRequest
 import techcourse.herobeans.dto.TokenResponse
 import techcourse.herobeans.entity.Member
+import techcourse.herobeans.event.UserRegisteredEvent
 import techcourse.herobeans.exception.EmailAlreadyUsedException
 import techcourse.herobeans.exception.EmailOrPasswordIncorrectException
 import techcourse.herobeans.exception.NotFoundException
@@ -22,6 +24,7 @@ class AuthenticationService(
     private val tokenService: JwtTokenProvider,
     private val passwordEncoder: PasswordEncoder,
     private val memberJpaRepository: MemberJpaRepository,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
     fun register(request: RegistrationRequest): TokenResponse {
         if (memberJpaRepository.existsByEmail(request.email)) {
@@ -30,6 +33,8 @@ class AuthenticationService(
         val hashedPassword = passwordEncoder.encode(request.password)
         memberJpaRepository.save(Member(request.name, request.email, hashedPassword))
         val token = tokenService.createToken(request.email)
+        // publish event for WelcomeCouponListener
+        applicationEventPublisher.publishEvent(UserRegisteredEvent(request.email))
         return TokenResponse(token)
     }
 
