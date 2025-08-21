@@ -26,7 +26,7 @@ class EmailService(
 
             helper.setFrom(fromEmail, "HeroBeans Ecommerce")
             helper.setTo(userEmail)
-            helper.setSubject("Benvenuto nel nostro store!")
+            helper.setSubject("Welcome to our coffe store!")
 
             val htmlContent =
                 """
@@ -65,41 +65,41 @@ class EmailService(
 
             helper.setFrom(fromEmail, "HeroBeans Ecommerce")
             helper.setTo(userEmail)
-            helper.setSubject("Conferma Ordine #$orderId")
+            helper.setSubject("Order confirmation #$orderId")
 
             val itemsList = items.joinToString("") { "<li>$it</li>" }
 
             val htmlContent =
                 """
                 <html>
-                <body>
-                    <h2>Ciao $userName!</h2>
-                    <p>Grazie per il tuo ordine!</p>
-                    
-                    <div style="border: 1px solid #ccc; padding: 15px; margin: 20px 0;">
-                        <h3>Dettagli Ordine</h3>
-                        <p><strong>Numero Ordine:</strong> #$orderId</p>
-                        <p><strong>Totale:</strong> €${String.format("%.2f", orderTotal)}</p>
+                    <body>
+                        <h2>Hi ${'$'}userName!</h2>
+                        <p>Thanks for your order!</p>
                         
-                        <h4>Prodotti ordinati:</h4>
-                        <ul>$itemsList</ul>
-                    </div>
-                    
-                    <p>Riceverai un'email di tracking quando l'ordine verrà spedito.</p>
-                    
-                    <p>Grazie per aver scelto il nostro store!</p>
-                    <p><strong>Il Team Ecommerce</strong></p>
-                </body>
-                </html>
+                        <div style="border: 1px solid #ccc; padding: 15px; margin: 20px 0;">
+                            <h3>Order Details</h3>
+                            <p><strong>Order Number:</strong> #${'$'}orderId</p>
+                            <p><strong>Total:</strong> €${'$'}{String.format("%.2f", orderTotal)}</p>
+                            
+                            <h4>Items ordered:</h4>
+                            <ul>${'$'}itemsList</ul>
+                        </div>
+                        
+                        <p>You'll receive a tracking email once your order has shipped.</p>
+                        
+                        <p>Thank you for choosing our store!</p>
+                        <p><strong>The Ecommerce Team</strong></p>
+                    </body>
+                </html
                 """.trimIndent()
 
             helper.setText(htmlContent, true)
             mailSender.send(message)
 
-            logger.info("Email conferma ordine inviata a: $userEmail per ordine: $orderId")
+            logger.info("Confirmation email sent: $userEmail order: $orderId")
         } catch (e: Exception) {
-            logger.error("Errore invio email ordine $orderId a $userEmail", e)
-            throw RuntimeException("Errore invio email", e)
+            logger.error("Error sending email $orderId a $userEmail", e)
+            throw RuntimeException("Email confirmation failed", e)
         }
     }
 
