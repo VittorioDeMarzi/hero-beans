@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import org.slf4j.MDC
 import org.springframework.core.convert.ConversionFailedException
+import org.springframework.core.env.Environment
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -16,7 +17,9 @@ import java.time.Instant
 private val log = KotlinLogging.logger {}
 
 @RestControllerAdvice
-class GlobalExceptionHandler {
+class GlobalExceptionHandler(private val env: Environment? = null) {
+    private val isDev get() = env?.activeProfiles?.any { it.equals("dev", true) } == true
+
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationError(
         ex: MethodArgumentNotValidException,
@@ -90,13 +93,16 @@ class GlobalExceptionHandler {
         status: HttpStatus,
         ex: Exception,
         request: HttpServletRequest,
-    ): ResponseEntity<ErrorMessageModel> =
-        createErrorMessage(
-            status,
-            ex.also { log.error(it) { "Exception at ${request.method} ${request.requestURI}: ${it.message}" } },
-            request,
-        )
-            .let { ResponseEntity.status(status).body(it) }
+    ): ResponseEntity<ErrorMessageModel> {
+        if (isDev) {
+            log.error(ex) { "Exception at ${request.method} ${request.requestURI}: ${ex.message}" }
+        } else {
+            log.error { "Exception at ${request.method} ${request.requestURI}: ${ex.message}" }
+        }
+
+        val body = createErrorMessage(status, ex, request)
+        return ResponseEntity.status(status).body(body)
+    }
 
     private fun createErrorMessage(
         status: HttpStatus,
