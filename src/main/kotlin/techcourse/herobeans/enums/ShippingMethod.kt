@@ -3,10 +3,10 @@ package techcourse.herobeans.enums
 import java.math.BigDecimal
 
 // TODO: move somewhere related
-val STANDARD_SHOPPING_FEE = BigDecimal("5.99")
+val STANDARD_SHIPPING_FEE = BigDecimal("5.99")
 
 enum class ShippingMethod(val shippingFee: BigDecimal) {
-    STANDARD(STANDARD_SHOPPING_FEE),
+    STANDARD(STANDARD_SHIPPING_FEE),
     FREE(BigDecimal.ZERO),
     ;
 
