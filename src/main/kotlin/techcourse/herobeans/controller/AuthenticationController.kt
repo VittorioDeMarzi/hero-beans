@@ -48,7 +48,7 @@ class AuthenticationController(private val authenticationService: Authentication
     @Operation(summary = "Get my profile")
     @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/me")
-    fun login(
+    fun findMyInfo(
         @LoginMember member: MemberDto,
     ): ResponseEntity<MemberDto> {
         log.info { "api.auth.me requested memberId=${member.id}" }
