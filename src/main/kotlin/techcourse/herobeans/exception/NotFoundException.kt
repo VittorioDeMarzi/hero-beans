@@ -1,3 +1,5 @@
 package techcourse.herobeans.exception
 
-class NotFoundException(message: String) : RuntimeException(message)
+open class NotFoundException(message: String, override val cause: Throwable? = null) : RuntimeException(message, cause)
+
+class OrderNotFoundException(message: String, override val cause: Throwable? = null) : NotFoundException(message, cause)

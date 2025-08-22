@@ -26,7 +26,7 @@ import java.time.LocalDateTime
 class Order(
     @Column(nullable = false)
     val memberId: Long,
-    @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @OneToMany(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     val orderItems: MutableList<OrderItem> = mutableListOf(),
     /**
      * Sum of all item (price * quantity), excluding shipping.
@@ -43,13 +43,9 @@ class Order(
      * Payment provider intent ID (e.g., Stripe PaymentIntent).
      * Null until created.
      */
-    var paymentIntentId: String? = null,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    var status: OrderStatus = OrderStatus.PENDING,
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    var shippingMethod: ShippingMethod = ShippingMethod.STANDARD,
+    var shippingMethod: ShippingMethod = ShippingMethod.FREE,
     /**
      * Entity timestamps.
      * - createdAt: when the order was first persisted
@@ -72,4 +68,33 @@ class Order(
     @Column(nullable = false)
     final lateinit var lastUpdatedAt: LocalDateTime
         private set
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
+    private var _status: OrderStatus = OrderStatus.PENDING
+
+    open val status: OrderStatus get() = _status
+
+    val totalAmount: BigDecimal
+        get() = coffeeSubTotal + shippingFee
+
+    fun markAsPaid() {
+        require(status == OrderStatus.PENDING) { "Invalid status for payment: $status" }
+        _status = OrderStatus.PAID
+    }
+
+    fun markAsPaymentFailed() {
+        _status = OrderStatus.PAYMENT_FAILED
+    }
+
+    fun markAsCancelled() {
+        require(status in listOf(OrderStatus.PENDING)) { "Invalid status for payment cancelled: $status" }
+        _status = OrderStatus.PAYMENT_FAILED
+    }
+
+    fun markAsShipped() {
+        require(status == OrderStatus.PAID) { "Invalid status for shipping: $status" }
+        _status = OrderStatus.SHIPPED
+        shippedAt = LocalDateTime.now()
+    }
 }

@@ -22,6 +22,7 @@ class WebMvcConfigurer(
                 "/api/payments/**",
                 "/api/address/**",
                 "/api/me/coupons/**",
+                "/api/checkout/**",
             )
     }
 
