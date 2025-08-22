@@ -40,7 +40,8 @@ class CouponControllerTest() {
 
     @BeforeEach
     fun setUp() {
-        memberJpaRepository.deleteAll()
+        couponJpaRepository.deleteAll()
+
         token = authenticationService.register(RegistrationRequest("user", userMail, "12345678")).token
     }
 

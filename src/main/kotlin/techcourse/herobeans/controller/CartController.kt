@@ -67,7 +67,7 @@ class CartController(private val cartService: CartService) {
         @LoginMember member: MemberDto,
     ): ResponseEntity<Void> {
         log.info { "api.cart.clear requested memberId=${member.id}" }
-        cartService.clearCart(member)
+        cartService.clearCart(member.id)
         return ResponseEntity.noContent().build()
     }
 }

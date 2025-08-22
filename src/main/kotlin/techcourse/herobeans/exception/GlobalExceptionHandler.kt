@@ -38,6 +38,7 @@ class GlobalExceptionHandler(private val env: Environment? = null) {
         value = [
             EmailAlreadyUsedException::class,
             CoffeeNameAlreadyExistsException::class,
+            OrderDataInconsistencyException::class,
         ],
     )
     fun handleConflict(
@@ -70,6 +71,7 @@ class GlobalExceptionHandler(private val env: Environment? = null) {
 
     @ExceptionHandler(
         value = [
+            CartEmptyException::class,
             MaxAddressesExceededException::class,
             InsufficientStockException::class,
             IllegalArgumentException::class,
