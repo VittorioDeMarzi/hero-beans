@@ -35,7 +35,7 @@ class CouponService(private val couponJpaRepository: CouponJpaRepository) {
     }
 
     @Transactional
-    fun apply(
+    fun applyCoupon(
         coupon: Coupon,
         orderTotal: BigDecimal,
     ): BigDecimal {

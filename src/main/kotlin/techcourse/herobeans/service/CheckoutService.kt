@@ -12,6 +12,7 @@ import techcourse.herobeans.dto.PaymentIntent
 import techcourse.herobeans.dto.PaymentResult
 import techcourse.herobeans.entity.Order
 import techcourse.herobeans.enums.OrderStatus
+import techcourse.herobeans.exception.InvalidCouponException
 import techcourse.herobeans.exception.PaymentException
 import techcourse.herobeans.exception.PaymentStatusNotSuccessException
 import techcourse.herobeans.exception.StripeClientException
@@ -24,6 +25,7 @@ class CheckoutService(
     private val orderService: OrderService,
     private val paymentService: PaymentService,
     private val cartService: CartService,
+    private val couponService: CouponService,
 ) {
     // TODO: timeout setting
     //  @Transactional(rollbackFor = [Exception::class])
@@ -34,8 +36,16 @@ class CheckoutService(
     ): CheckoutStartResponse {
         val cart = cartService.getCartForOrder(memberDto.id)
         val order = orderService.processOrderWithStockReduction(cart)
+        var totalAmount = order.totalAmount
+        try {
+            request.couponCode?.let {
+                val coupon = couponService.validate(it, memberDto.email)
+                totalAmount = couponService.applyCoupon(coupon, order.totalAmount)
+            }
+        } catch (ex: InvalidCouponException) {
+        }
         return try {
-            val paymentIntent = paymentService.createPaymentIntent(request, order.totalAmount)
+            val paymentIntent = paymentService.createPaymentIntent(request, totalAmount)
             val payment = paymentService.createPayment(request, paymentIntent, order)
 
             CheckoutStartResponse(
