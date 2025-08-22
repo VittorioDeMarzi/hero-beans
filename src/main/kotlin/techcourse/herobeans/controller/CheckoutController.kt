@@ -1,5 +1,8 @@
 package techcourse.herobeans.controller
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping
@@ -15,12 +18,15 @@ import techcourse.herobeans.dto.PaymentResult
 import techcourse.herobeans.service.CheckoutService
 
 // TODO: address process need
+@Tag(name = "Checkout", description = "Checkout and payment flow")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/checkout")
 @Validated
 class CheckoutController(
     private val checkoutService: CheckoutService,
 ) {
+    @Operation(summary = "Start checkout")
     @PostMapping("/start")
     fun start(
         @LoginMember member: MemberDto,
@@ -30,6 +36,7 @@ class CheckoutController(
         return ResponseEntity.ok(response)
     }
 
+    @Operation(summary = "Finalize payment")
     @PostMapping("/finalize")
     fun finalize(
         @LoginMember member: MemberDto,
