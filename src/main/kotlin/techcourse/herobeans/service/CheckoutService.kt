@@ -43,6 +43,7 @@ class CheckoutService(
                 totalAmount = couponService.applyCoupon(coupon, order.totalAmount)
             }
         } catch (ex: InvalidCouponException) {
+            throw ex // TODO: please handle coupon
         }
         return try {
             val paymentIntent = paymentService.createPaymentIntent(request, totalAmount)
