@@ -34,7 +34,7 @@ class CheckoutController(
     @PostMapping("/finalize")
     fun finalize(
         @LoginMember member: MemberDto,
-        @Valid @RequestBody request: FinalizePaymentRequest,
+        @RequestBody request: FinalizePaymentRequest,
     ): ResponseEntity<PaymentResult> {
         val paymentResult = checkoutService.finalizeCheckout(member, request)
         return ResponseEntity.ok(paymentResult)
