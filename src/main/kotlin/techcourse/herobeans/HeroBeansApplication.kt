@@ -10,4 +10,5 @@ class HeroBeansApplication
 
 fun main(args: Array<String>) {
     runApplication<HeroBeansApplication>(*args)
+    println("hello world")
 }
