@@ -41,8 +41,7 @@ class AuthenticationService(
         val token =
             tokenService.createToken(saved.email)
                 .also { log.info { "auth.token.issued memberId=${saved.id}" } }
-        applicationEventPublisher.publishEvent(UserRegisteredEvent(request.email))
-        emailService.sendRegistrationEmail(request.email, request.name)
+        applicationEventPublisher.publishEvent(UserRegisteredEvent(request.email, request.name))
         return TokenResponse(token)
     }
 
