@@ -35,7 +35,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.mindrot:jbcrypt:0.4")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
     runtimeOnly("com.h2database:h2")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
@@ -45,6 +44,8 @@ dependencies {
     testImplementation("io.rest-assured:rest-assured:5.3.1")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1")
     testImplementation("io.mockk:mockk:1.13.11")
+    implementation("mysql:mysql-connector-java:8.0.33")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 }
 
 kotlin {
