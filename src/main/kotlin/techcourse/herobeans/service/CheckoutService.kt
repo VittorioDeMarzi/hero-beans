@@ -1,6 +1,6 @@
 package techcourse.herobeans.service
 
-import jakarta.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.stereotype.Service
 import techcourse.herobeans.dto.CheckoutStartRequest
 import techcourse.herobeans.dto.CheckoutStartResponse
@@ -13,13 +13,14 @@ import techcourse.herobeans.dto.PaymentResult
 import techcourse.herobeans.entity.Order
 import techcourse.herobeans.enums.OrderStatus
 import techcourse.herobeans.exception.InvalidCouponException
+import techcourse.herobeans.exception.OrderNotProcessableException
 import techcourse.herobeans.exception.PaymentException
 import techcourse.herobeans.exception.PaymentStatusNotSuccessException
 import techcourse.herobeans.exception.StripeClientException
 import techcourse.herobeans.exception.StripeProcessingException
 import techcourse.herobeans.exception.StripeServerException
+import java.math.BigDecimal
 
-// TODO: overall, need to change all throw-exception or some logic to create exception
 @Service
 class CheckoutService(
     private val orderService: OrderService,
@@ -27,24 +28,18 @@ class CheckoutService(
     private val cartService: CartService,
     private val couponService: CouponService,
 ) {
-    // TODO: timeout setting
-    //  @Transactional(rollbackFor = [Exception::class])
-    @Transactional
+    @Transactional(
+        rollbackFor = [Exception::class],
+        timeout = 30
+    )
     fun startCheckout(
         memberDto: MemberDto,
         request: CheckoutStartRequest,
     ): CheckoutStartResponse {
         val cart = cartService.getCartForOrder(memberDto.id)
         val order = orderService.processOrderWithStockReduction(cart)
-        var totalAmount = order.totalAmount
-        try {
-            request.couponCode?.let {
-                val coupon = couponService.validate(it, memberDto.email)
-                totalAmount = couponService.applyCoupon(coupon, order.totalAmount)
-            }
-        } catch (ex: InvalidCouponException) {
-            throw ex // TODO: please handle coupon
-        }
+        val totalAmount = calculateFinalAmount(order, request.couponCode, memberDto.email)
+
         return try {
             val paymentIntent = paymentService.createPaymentIntent(request, totalAmount)
             val payment = paymentService.createPayment(request, paymentIntent, order)
@@ -62,7 +57,24 @@ class CheckoutService(
         }
     }
 
-    @Transactional
+    private fun calculateFinalAmount(order: Order, couponCode: String?, email: String): BigDecimal {
+        var totalAmount = order.totalAmount
+
+        couponCode?.let { couponCode ->
+            try {
+                val coupon = couponService.validate(couponCode, email)
+                totalAmount = couponService.applyCoupon(coupon, order.totalAmount)
+            } catch (exception: InvalidCouponException) {
+                throw OrderNotProcessableException("can not apply coupon: ${exception.message}")
+            }
+        }
+        return totalAmount
+    }
+
+    @Transactional(
+        rollbackFor = [Exception::class],
+        timeout = 30
+    )
     fun finalizeCheckout(
         member: MemberDto,
         request: FinalizePaymentRequest,
