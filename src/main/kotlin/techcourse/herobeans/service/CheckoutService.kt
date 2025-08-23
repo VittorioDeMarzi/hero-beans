@@ -1,7 +1,7 @@
 package techcourse.herobeans.service
 
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.dto.CheckoutStartRequest
 import techcourse.herobeans.dto.CheckoutStartResponse
 import techcourse.herobeans.dto.FinalizePaymentRequest
@@ -19,6 +19,7 @@ import techcourse.herobeans.exception.PaymentStatusNotSuccessException
 import techcourse.herobeans.exception.StripeClientException
 import techcourse.herobeans.exception.StripeProcessingException
 import techcourse.herobeans.exception.StripeServerException
+import techcourse.herobeans.repository.MemberJpaRepository
 import java.math.BigDecimal
 
 @Service
@@ -30,7 +31,7 @@ class CheckoutService(
 ) {
     @Transactional(
         rollbackFor = [Exception::class],
-        timeout = 30
+        timeout = 30,
     )
     fun startCheckout(
         memberDto: MemberDto,
@@ -38,7 +39,7 @@ class CheckoutService(
     ): CheckoutStartResponse {
         val cart = cartService.getCartForOrder(memberDto.id)
         val order = orderService.processOrderWithStockReduction(cart)
-        val totalAmount = calculateFinalAmount(order, request.couponCode, memberDto.email)
+        val totalAmount = applyCouponAndCalculateAmount(order, request.couponCode, memberDto.email)
 
         return try {
             val paymentIntent = paymentService.createPaymentIntent(request, totalAmount)
@@ -50,6 +51,7 @@ class CheckoutService(
                 amount = payment.amount,
                 status = payment.status,
                 clientSecret = paymentIntent.clientSecret,
+                couponCode = request.couponCode,
             )
         } catch (exception: Exception) {
             val error = mapToPaymentError(exception)
@@ -57,7 +59,11 @@ class CheckoutService(
         }
     }
 
-    private fun calculateFinalAmount(order: Order, couponCode: String?, email: String): BigDecimal {
+    private fun applyCouponAndCalculateAmount(
+        order: Order,
+        couponCode: String?,
+        email: String,
+    ): BigDecimal {
         var totalAmount = order.totalAmount
 
         couponCode?.let { couponCode ->
@@ -73,7 +79,7 @@ class CheckoutService(
 
     @Transactional(
         rollbackFor = [Exception::class],
-        timeout = 30
+        timeout = 30,
     )
     fun finalizeCheckout(
         member: MemberDto,
@@ -86,15 +92,18 @@ class CheckoutService(
             cartService.clearCart(member.id)
             PaymentResult.Success(orderId = order.id, paymentStatus = status.name)
         } catch (exception: Exception) {
-            handleCheckoutFinalizeFailure(order, exception)
+            handleCheckoutFinalizeFailure(order, exception, member.id, request.couponKey)
         }
     }
 
     private fun handleCheckoutFinalizeFailure(
         order: Order,
         exception: Throwable,
+        memberId: Long,
+        couponCode: String?,
     ): PaymentResult.Failure {
         orderService.rollbackOptionsStock(order)
+        couponService.rollbackCouponIfApplied(memberId, couponCode)
         val error = mapToPaymentError(exception)
 
         return PaymentResult.Failure(order.id, error)

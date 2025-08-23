@@ -7,4 +7,4 @@ class OrderDataInconsistencyException(message: String, override val cause: Throw
     OrderException(message, cause) // TODO: 422 Unprocessable Entity
 
 class OrderNotProcessableException(message: String, override val cause: Throwable? = null) :
-    OrderException(message, cause) // TODO: 5xx Server Error
+    OrderException(message, cause)
