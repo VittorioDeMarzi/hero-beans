@@ -59,11 +59,11 @@ class Coffee(
     @Column(name = "certificate")
     @Enumerated(EnumType.STRING)
     var certificates: MutableList<Certificate> = mutableListOf(),
-    @Column(nullable = false, updatable = false)
     @CreatedDate
+    @Column(nullable = false, updatable = false)
     val createdAt: LocalDateTime = LocalDateTime.now(),
-    @Column(nullable = false)
     @LastModifiedDate
+    @Column(nullable = false)
     var updatedAt: LocalDateTime = LocalDateTime.now(),
     @Column(nullable = false)
     var description: String,
