@@ -11,7 +11,7 @@ import org.thymeleaf.context.Context
 
 @Service
 class EmailService(
-    @Suppress("SpringJavaInjectionPointsAutowiringInspection") private val mailSender: JavaMailSender,
+    private val mailSender: JavaMailSender,
     private val templateEngine: TemplateEngine,
 ) {
     @Value("\${spring.mail.username}")
