@@ -61,13 +61,11 @@ class Order(
 ) {
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    final lateinit var createdAt: LocalDateTime
-        private set
+    var createdAt: LocalDateTime = LocalDateTime.now()
 
     @LastModifiedDate
     @Column(nullable = false)
-    final lateinit var lastUpdatedAt: LocalDateTime
-        private set
+    var lastUpdatedAt: LocalDateTime = LocalDateTime.now()
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)

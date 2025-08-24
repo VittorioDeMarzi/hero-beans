@@ -7,8 +7,8 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.annotations.UpdateTimestamp
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
 import techcourse.herobeans.enums.MemberRole
 import java.time.LocalDateTime
 
@@ -22,10 +22,12 @@ class Member(
     val password: String,
     @Enumerated(EnumType.STRING)
     val role: MemberRole = MemberRole.USER,
-    @CreationTimestamp
-    var createdAt: LocalDateTime? = null,
-    @UpdateTimestamp
-    var lastUpdatedAt: LocalDateTime? = null,
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    var createdAt: LocalDateTime = LocalDateTime.now(),
+    @LastModifiedDate
+    @Column(nullable = false)
+    var lastUpdatedAt: LocalDateTime = LocalDateTime.now(),
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
