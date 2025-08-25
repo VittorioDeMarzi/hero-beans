@@ -86,15 +86,4 @@ class Order(
     fun markAsPaymentFailed() {
         _status = OrderStatus.PAYMENT_FAILED
     }
-
-    fun markAsCancelled() {
-        require(status in listOf(OrderStatus.PENDING)) { "Invalid status for payment cancelled: $status" }
-        _status = OrderStatus.PAYMENT_FAILED
-    }
-
-    fun markAsShipped() {
-        require(status == OrderStatus.PAID) { "Invalid status for shipping: $status" }
-        _status = OrderStatus.SHIPPED
-        shippedAt = LocalDateTime.now()
-    }
 }

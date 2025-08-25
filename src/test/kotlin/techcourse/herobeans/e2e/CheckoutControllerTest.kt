@@ -247,7 +247,7 @@ class CheckoutControllerTest {
         assertThat(result).isInstanceOf(PaymentResult.Success::class.java)
         val successResult = result as PaymentResult.Success
         assertThat(successResult.orderId).isEqualTo(startResponse.orderId)
-        assertThat(successResult.paymentStatus).isEqualTo("PAID")
+        assertThat(successResult.paymentStatus).isEqualTo("COMPLETED")
 
         val order = orderRepository.findByIdWithOrderItems(startResponse.orderId).get()
         assertThat(order.status.name).isEqualTo("PAID")

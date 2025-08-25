@@ -11,7 +11,6 @@ import techcourse.herobeans.dto.PaymentErrorCode
 import techcourse.herobeans.dto.PaymentIntent
 import techcourse.herobeans.dto.PaymentResult
 import techcourse.herobeans.entity.Order
-import techcourse.herobeans.enums.OrderStatus
 import techcourse.herobeans.exception.InvalidCouponException
 import techcourse.herobeans.exception.OrderNotProcessableException
 import techcourse.herobeans.exception.PaymentException
@@ -19,7 +18,6 @@ import techcourse.herobeans.exception.PaymentStatusNotSuccessException
 import techcourse.herobeans.exception.StripeClientException
 import techcourse.herobeans.exception.StripeProcessingException
 import techcourse.herobeans.exception.StripeServerException
-import techcourse.herobeans.repository.MemberJpaRepository
 import java.math.BigDecimal
 
 @Service
@@ -89,9 +87,11 @@ class CheckoutService(
         return try {
             val paymentIntent = paymentService.confirmPaymentIntent(request.paymentIntentId)
             val status = updateOrderToPaid(order, paymentIntent)
+
             cartService.clearCart(member.id)
-            PaymentResult.Success(orderId = order.id, paymentStatus = status.name)
+            PaymentResult.Success(orderId = order.id, paymentStatus = status)
         } catch (exception: Exception) {
+            paymentService.markAsFailed(request.paymentIntentId)
             handleCheckoutFinalizeFailure(order, exception, member.id, request.couponKey)
         }
     }
@@ -122,13 +122,13 @@ class CheckoutService(
     private fun updateOrderToPaid(
         order: Order,
         paymentIntent: PaymentIntent,
-    ): OrderStatus {
+    ): String {
         when (paymentService.isPaymentSucceeded(paymentIntent)) {
             true -> {
                 orderService.markOrderAsPaid(order)
-                return order.status
+                val payment = paymentService.markAsCompleted(paymentIntent.id)
+                return payment.status.name
             }
-
             false -> throw PaymentStatusNotSuccessException("payment is not successful")
         }
     }
