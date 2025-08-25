@@ -3,6 +3,7 @@ package techcourse.herobeans.entity
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EntityListeners
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -14,6 +15,7 @@ import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import kotlin.collections.firstOrNull
@@ -21,6 +23,7 @@ import kotlin.collections.forEach
 import kotlin.collections.sumOf
 
 @Entity
+@EntityListeners(AuditingEntityListener::class)
 class Cart(
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", nullable = false, unique = true)

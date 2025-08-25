@@ -25,15 +25,13 @@ class OrderItem(
     val quantity: Int,
     @Column(nullable = false, precision = 12, scale = 2)
     val price: BigDecimal,
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    var createdAt: LocalDateTime = LocalDateTime.now(),
+    @LastModifiedDate
+    @Column(nullable = false)
+    var lastUpdatedAt: LocalDateTime = LocalDateTime.now(),
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0L,
-) {
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    var createdAt: LocalDateTime = LocalDateTime.now()
-
-    @LastModifiedDate
-    @Column(nullable = false)
-    var lastUpdatedAt: LocalDateTime = LocalDateTime.now()
-}
+)

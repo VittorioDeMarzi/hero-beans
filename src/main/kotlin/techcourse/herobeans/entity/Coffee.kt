@@ -7,6 +7,7 @@ import jakarta.persistence.ElementCollection
 import jakarta.persistence.Embeddable
 import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
+import jakarta.persistence.EntityListeners
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
@@ -17,6 +18,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import techcourse.herobeans.enums.BrewRecommendation
 import techcourse.herobeans.enums.Certificate
 import techcourse.herobeans.enums.OriginCountry
@@ -25,9 +27,8 @@ import techcourse.herobeans.enums.ProfileLevel
 import techcourse.herobeans.enums.RoastLevel
 import java.time.LocalDateTime
 
-// TODO: check CreationTimeStamp and UpdateTimestamp annotations?
-// TODO: decide if we want to have a isVisible flag to denote if a product is currently visible in our webshop
 @Entity
+@EntityListeners(AuditingEntityListener::class)
 class Coffee(
     @Column(unique = true, nullable = false)
     var name: String,
