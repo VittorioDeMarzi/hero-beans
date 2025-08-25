@@ -7,4 +7,5 @@
     <include file="/db/changelog/2025/08/24-01-changelog-init-schema.xml"/>
     <include file="/db/changelog/2025/08/24-03-changelog-add-default-timestamp-values.xml"/>
     <include file="/db/changelog/2025/08/24-02-changelog-seed-initial-data.xml"/>
+    <include file="/db/changelog/2025/08/25-04-changelog-initial-members.xml"/>
 </databaseChangeLog>
