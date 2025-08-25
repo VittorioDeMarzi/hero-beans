@@ -4,9 +4,6 @@ files:
   - source: /
     destination: /home/ubuntu/app
 
-  - source: .env
-    destination: /home/ubuntu/app
-
 hooks:
   BeforeInstall:
     - location: scripts/before_install.sh
