@@ -24,6 +24,7 @@ import techcourse.herobeans.dto.PaymentErrorCode
 import techcourse.herobeans.dto.PaymentIntent
 import techcourse.herobeans.dto.PaymentResult
 import techcourse.herobeans.dto.RegistrationRequest
+import techcourse.herobeans.entity.Address
 import techcourse.herobeans.entity.Coffee
 import techcourse.herobeans.entity.Coupon
 import techcourse.herobeans.entity.DiscountType
@@ -36,6 +37,8 @@ import techcourse.herobeans.enums.OriginCountry
 import techcourse.herobeans.enums.ProcessingMethod
 import techcourse.herobeans.enums.ProfileLevel
 import techcourse.herobeans.enums.RoastLevel
+import techcourse.herobeans.mapper.AddressMapper.toDto
+import techcourse.herobeans.repository.AddressJpaRepository
 import techcourse.herobeans.repository.CartJpaRepository
 import techcourse.herobeans.repository.CoffeeJpaRepository
 import techcourse.herobeans.repository.CouponJpaRepository
@@ -81,6 +84,9 @@ class CheckoutCouponIntegrationTest {
     @MockitoBean
     private lateinit var stripeClient: StripeClient
 
+    @Autowired
+    private lateinit var addressRepository: AddressJpaRepository
+
     @LocalServerPort
     private var port: Int = 0
     val baseUrl get() = "http://localhost:$port"
@@ -96,6 +102,7 @@ class CheckoutCouponIntegrationTest {
     private lateinit var member: Member
     private lateinit var coffee: Coffee
     private lateinit var packageOptions: MutableList<PackageOption>
+    private lateinit var address: Address
 
     @BeforeEach
     fun setUp() {
@@ -103,6 +110,7 @@ class CheckoutCouponIntegrationTest {
         paymentRepository.deleteAll()
         orderRepository.deleteAll()
         cartRepository.deleteAll()
+        addressRepository.deleteAll()
         memberRepository.deleteAll()
         packageOptionRepository.deleteAll()
         coffeeRepository.deleteAll()
@@ -125,6 +133,17 @@ class CheckoutCouponIntegrationTest {
 
         // Init var member
         member = memberRepository.findByEmail("test@test.com")!!
+
+        address =
+            Address(
+                street = "Oranienburger Str.",
+                number = "70",
+                city = "Berlin",
+                postalCode = "10117",
+                countryCode = "DE",
+                member = member,
+            )
+        addressRepository.save(address)
 
         // Create test validate Coupon
         val testCouponsList =
@@ -223,6 +242,7 @@ class CheckoutCouponIntegrationTest {
             CheckoutStartRequest(
                 paymentMethod = "pm_card_visa",
                 couponCode = coupons[COUPON_VALID]?.code,
+                addressDto = address.toDto(),
             )
 
         val response =
@@ -252,6 +272,7 @@ class CheckoutCouponIntegrationTest {
             CheckoutStartRequest(
                 paymentMethod = "pm_card_visa",
                 couponCode = COUPON_EXPIRED,
+                addressDto = address.toDto(),
             )
 
         RestAssured.given()
@@ -275,6 +296,7 @@ class CheckoutCouponIntegrationTest {
             CheckoutStartRequest(
                 paymentMethod = "pm_card_visa",
                 couponCode = COUPON_OTHER_USER,
+                addressDto = address.toDto(),
             )
 
         RestAssured.given()
@@ -320,7 +342,7 @@ class CheckoutCouponIntegrationTest {
             )
         whenever(stripeClient.createPaymentIntent(any(), any())).thenReturn(paymentIntent)
 
-        val request = CheckoutStartRequest(paymentMethod = "pm_card_visa")
+        val request = CheckoutStartRequest(paymentMethod = "pm_card_visa", addressDto = address.toDto())
         return RestAssured.given()
             .baseUri(baseUrl)
             .header("Authorization", "Bearer $token")
@@ -372,6 +394,7 @@ class CheckoutCouponIntegrationTest {
             PaymentResult.Success(
                 orderId = jsonNode.get("orderId").asLong(),
                 paymentStatus = jsonNode.get("paymentStatus").asText(),
+                addressDto = address.toDto(),
             )
         } else {
             PaymentResult.Failure(

@@ -18,6 +18,7 @@ import techcourse.herobeans.exception.PaymentStatusNotSuccessException
 import techcourse.herobeans.exception.StripeClientException
 import techcourse.herobeans.exception.StripeProcessingException
 import techcourse.herobeans.exception.StripeServerException
+import techcourse.herobeans.mapper.AddressMapper.toDto
 import java.math.BigDecimal
 
 @Service
@@ -26,6 +27,7 @@ class CheckoutService(
     private val paymentService: PaymentService,
     private val cartService: CartService,
     private val couponService: CouponService,
+    private val addressService: AddressService,
 ) {
     @Transactional(
         rollbackFor = [Exception::class],
@@ -35,6 +37,8 @@ class CheckoutService(
         memberDto: MemberDto,
         request: CheckoutStartRequest,
     ): CheckoutStartResponse {
+        // TODO: address do nothing!
+        val address = addressService.findMemberAddress(addressId = request.addressDto.id, memberId = memberDto.id)
         val cart = cartService.getCartForOrder(memberDto.id)
         val order = orderService.processOrderWithStockReduction(cart)
         val totalAmount = applyCouponAndCalculateAmount(order, request.couponCode, memberDto.email)
@@ -89,7 +93,8 @@ class CheckoutService(
             val status = updateOrderToPaid(order, paymentIntent)
 
             cartService.clearCart(member.id)
-            PaymentResult.Success(orderId = order.id, paymentStatus = status)
+            val address = addressService.findAddressByMemberId(member.id)
+            PaymentResult.Success(orderId = order.id, paymentStatus = status, addressDto = address.toDto())
         } catch (exception: Exception) {
             paymentService.markAsFailed(request.paymentIntentId)
             handleCheckoutFinalizeFailure(order, exception, member.id, request.couponKey)
@@ -129,6 +134,7 @@ class CheckoutService(
                 val payment = paymentService.markAsCompleted(paymentIntent.id)
                 return payment.status.name
             }
+
             false -> throw PaymentStatusNotSuccessException("payment is not successful")
         }
     }

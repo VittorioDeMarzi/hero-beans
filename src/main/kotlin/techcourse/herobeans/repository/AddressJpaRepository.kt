@@ -5,4 +5,6 @@ import techcourse.herobeans.entity.Address
 
 interface AddressJpaRepository : JpaRepository<Address, Long> {
     fun findAllByMemberId(memberId: Long): List<Address>
+
+    fun findByMemberId(memberId: Long): Address
 }

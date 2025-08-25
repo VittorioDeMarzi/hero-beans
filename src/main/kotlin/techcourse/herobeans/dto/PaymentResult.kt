@@ -1,7 +1,7 @@
 package techcourse.herobeans.dto
 
 sealed class PaymentResult() {
-    data class Success(val orderId: Long, val paymentStatus: String) : PaymentResult()
+    data class Success(val orderId: Long, val paymentStatus: String, val addressDto: AddressDto) : PaymentResult()
 
     data class Failure(val orderId: Long?, val error: PaymentError) : PaymentResult()
 }
