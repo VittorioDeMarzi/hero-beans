@@ -38,12 +38,26 @@ This document defines the coding standards, Git workflow, commit conventions, an
 
 ## 2. Branching Strategy
 
-We use **Gitflow**:
+We use **Gitflow** with slight modifications:
 
 - `main` → Production-ready code only.
 - `dev` → Integration branch for next release.
-- `feat/*` → New features (branched from `dev`).
-- `fix/*` → Fixes in development (branched from `dev`).
+- `release` → For release versions.
+- `hotfix` → For critical bugs.
+- Feature branches:
+  - `feat/*` → New features (branched from `dev`).
+  - `refactor/*` → Refactor (branched from `dev`).
+  - `fix/*` → Fixes in development (branched from `dev`).
+- `docs/*` → README documentation update (branched from `main` and merged into `main`)
+
+Flow as described by [Atlassian](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow#:~:text=Gitflow%20is%20an%20alternative%20Git,lived%20branches%20and%20larger%20commits.):
+1. A `dev` branch is created from `main`
+2. A `release` branch is created from `dev`
+3. Feature branches are created from `dev`
+4. When a feature is complete it is merged into the `dev` branch
+5. When the `release` branch is done it is merged into `dev` and `main`
+6. If an issue in `main` is detected a `hotfix` branch is created from `main`
+7. Once the `hotfix` is complete it is merged to both `dev` and `main`
 
 **Example:**
 ```bash
@@ -107,29 +121,33 @@ Access first name parameter correctly from request payload // body
 
 ---
 
-## 4. Pull Request Guidelines
+## 4. Pull Request Guidelines & Code Review Process
+- See: [Template](PULL_REQUEST_TEMPLATE.md)
 - PRs must be small, focused, and linked to an issue/task.
 - Include a clear description of changes and motivation.
-- Must pass all tests before merging.
-- At least 1 approval from 1-2 other developers required.
-- See: [Template](PULL_REQUEST_TEMPLATE.md)
-
----
-
-## 5. Code Review Process
-- Checklist for reviewers:
-  - [ ] Code follows conventions and is readable.
-  - [ ] No unused imports or dead code.
-  - [ ] All tests pass locally.
-  - [ ] No sensitive data in logs or commits.
-  - [ ] SOLID principles and DRY are applied.
+- `-> dev`: At least 1 approval from 1 other developer required.
+- `-> main`: At least 2 approvals from 2 other developers required.
+- Reviewers can also self-assign themselves.
+- Checklist for PRs and reviewers:
+  - [ ] I have performed a self-review of my code
+  - [ ] My code is readable
+  - [ ] I have run `ktlintFormat`
+  - [ ] No wildcard imports or dead code
+  - [ ] No sensitive data in logs or commits
+  - [ ] The application runs
+  - [ ] My changes generate no new warnings
+  - [ ] I have added tests that prove my fix is effective or that my feature works
+  - [ ] New and existing unit tests pass locally with my changes
+  - [ ] I have made corresponding changes to the documentation
+  - [ ] SOLID principles and DRY are applied
   
 ---
 
-## 6. Environment Setup
+## 5. Environment Setup
 - Kotlin 21
 - Gradle
 - MySQL
+- .env to store sensitive information
 - IDE: IntelliJ IDEA
 
 
