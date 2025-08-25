@@ -34,11 +34,20 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    runtimeOnly("org.postgresql:postgresql")
+    implementation("org.mindrot:jbcrypt:0.4")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
     runtimeOnly("com.h2database:h2")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("io.rest-assured:rest-assured:5.3.1")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1")
+    testImplementation("io.mockk:mockk:1.13.11")
+    implementation("mysql:mysql-connector-java:8.0.33")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+    implementation("org.liquibase:liquibase-core:4.31.1")
 }
 
 kotlin {
@@ -47,12 +56,7 @@ kotlin {
     }
 }
 
-allOpen {
-    annotation("jakarta.persistence.Entity")
-    annotation("jakarta.persistence.MappedSuperclass")
-    annotation("jakarta.persistence.Embeddable")
-}
-
 tasks.withType<Test> {
     useJUnitPlatform()
+    systemProperty("spring.profiles.active", "test")
 }
