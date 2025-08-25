@@ -22,7 +22,7 @@ if [ -z "$JAR_FILE" ]; then
 fi
 
 echo ">>> [ApplicationStart] Starting: $JAR_FILE (profile=${PROFILE})"
-nohup java $JAVA_OPTS -jar "$JAR_FILE" $SPRING_OPTS > /home/ubuntu/app/logs/app.log 2>&1 &
+nohup java -jar "$JAR_FILE" $SPRING_OPTS > /home/ubuntu/app/logs/app.log 2>&1 &
 
 # Save PID
 echo $! > /home/ubuntu/app/app.pid
