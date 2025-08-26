@@ -1,6 +1,5 @@
 package techcourse.herobeans.service
 
-import jakarta.transaction.Transactional
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -46,10 +45,11 @@ class CheckoutService(
         val order = orderService.processOrderWithStockReduction(cart)
         val totalAmount = calculateFinalAmount(order, request.couponCode, memberDto.email)
 
-        return processPaymentSession(request, order, totalAmount)
+        return processPaymentSession(memberDto.id, request, order, totalAmount)
     }
 
     private fun processPaymentSession(
+        memberId: Long,
         request: CheckoutStartRequest,
         order: Order,
         totalAmount: BigDecimal,
@@ -57,7 +57,7 @@ class CheckoutService(
         return try {
             val paymentIntent = paymentService.createPaymentIntent(request, totalAmount)
             val payment = paymentService.createPayment(request, paymentIntent, order)
-            log.info { "checkout.payment.created memberId=${memberDto.id} orderId=${order.id} paymentIntentId=${paymentIntent.id}" }
+            log.info { "checkout.payment.created memberId=${memberId} orderId=${order.id} paymentIntentId=${paymentIntent.id}" }
             CheckoutStartResponse(
                 paymentIntentId = paymentIntent.id,
                 orderId = order.id,
@@ -106,7 +106,7 @@ class CheckoutService(
 
             cartService.clearCart(member.id)
             val address = addressService.findAddressByMemberId(member.id)
-            log.info { "checkout.finalize.success memberId=${member.id} orderId=${order.id} paymentStatus=${status.name}" }
+            log.info { "checkout.finalize.success memberId=${member.id} orderId=${order.id} paymentStatus=${status}" }
             PaymentResult.Success(orderId = order.id, paymentStatus = status, addressDto = address.toDto())
         } catch (exception: Exception) {
             paymentService.markAsFailed(request.paymentIntentId)
