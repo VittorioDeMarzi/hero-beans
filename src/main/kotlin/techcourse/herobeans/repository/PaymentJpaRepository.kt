@@ -7,4 +7,6 @@ import techcourse.herobeans.entity.Payment
 @Repository
 interface PaymentJpaRepository : JpaRepository<Payment, Long> {
     fun existsByPaymentIntentId(paymentIntentId: String): Boolean
+
+    fun findByPaymentIntentId(paymentIntentId: String): Payment?
 }

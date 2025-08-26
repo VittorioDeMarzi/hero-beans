@@ -1,7 +1,7 @@
 package techcourse.herobeans.dto
 
 class CheckoutStartRequest(
+    val addressId: Long,
     val paymentMethod: String,
-    // TODO: implement class
-    //  - address
+    val couponCode: String? = null,
 )
