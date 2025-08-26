@@ -182,7 +182,7 @@ class CheckoutControllerTest {
                 currency = "eur",
             )
         whenever(stripeClient.createPaymentIntent(any(), any())).thenReturn(paymentIntent)
-        val request = CheckoutStartRequest(paymentMethod = "pm_card_visa", addressDto = address.toDto())
+        val request = CheckoutStartRequest(paymentMethod = "pm_card_visa", addressId = address.id)
         val response =
             RestAssured.given()
                 .baseUri(baseUrl)
@@ -221,7 +221,7 @@ class CheckoutControllerTest {
             )
         whenever(stripeClient.createPaymentIntent(any(), any())).thenReturn(startPaymentIntent)
 
-        val startRequest = CheckoutStartRequest(paymentMethod = "pm_card_visa", addressDto = address.toDto())
+        val startRequest = CheckoutStartRequest(paymentMethod = "pm_card_visa", addressId = address.id)
         val startResponse =
             RestAssured.given()
                 .baseUri(baseUrl)
@@ -317,7 +317,7 @@ class CheckoutControllerTest {
     fun `should return 400 when trying to checkout with empty cart`() {
         clearCart()
 
-        val request = CheckoutStartRequest(paymentMethod = "pm_card_visa", addressDto = address.toDto())
+        val request = CheckoutStartRequest(paymentMethod = "pm_card_visa", addressId = address.id)
 
         RestAssured.given()
             .baseUri(baseUrl)
@@ -395,7 +395,7 @@ class CheckoutControllerTest {
             )
         whenever(stripeClient.createPaymentIntent(any(), any())).thenReturn(paymentIntent)
 
-        val request = CheckoutStartRequest(paymentMethod = "pm_card_visa", addressDto = address.toDto())
+        val request = CheckoutStartRequest(paymentMethod = "pm_card_visa", addressId = address.id)
         return RestAssured.given()
             .baseUri(baseUrl)
             .header("Authorization", "Bearer $token")

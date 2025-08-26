@@ -242,7 +242,7 @@ class CheckoutCouponIntegrationTest {
             CheckoutStartRequest(
                 paymentMethod = "pm_card_visa",
                 couponCode = coupons[COUPON_VALID]?.code,
-                addressDto = address.toDto(),
+                addressId = address.id,
             )
 
         val response =
@@ -272,7 +272,7 @@ class CheckoutCouponIntegrationTest {
             CheckoutStartRequest(
                 paymentMethod = "pm_card_visa",
                 couponCode = COUPON_EXPIRED,
-                addressDto = address.toDto(),
+                addressId = 1L,
             )
 
         RestAssured.given()
@@ -296,7 +296,7 @@ class CheckoutCouponIntegrationTest {
             CheckoutStartRequest(
                 paymentMethod = "pm_card_visa",
                 couponCode = COUPON_OTHER_USER,
-                addressDto = address.toDto(),
+                addressId = address.id,
             )
 
         RestAssured.given()
@@ -342,7 +342,7 @@ class CheckoutCouponIntegrationTest {
             )
         whenever(stripeClient.createPaymentIntent(any(), any())).thenReturn(paymentIntent)
 
-        val request = CheckoutStartRequest(paymentMethod = "pm_card_visa", addressDto = address.toDto())
+        val request = CheckoutStartRequest(paymentMethod = "pm_card_visa", addressId = 1L)
         return RestAssured.given()
             .baseUri(baseUrl)
             .header("Authorization", "Bearer $token")

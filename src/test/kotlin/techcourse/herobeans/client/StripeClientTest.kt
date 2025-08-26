@@ -7,10 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import techcourse.herobeans.dto.CheckoutStartRequest
-import techcourse.herobeans.entity.Address
 import techcourse.herobeans.entity.Member
 import techcourse.herobeans.enums.MemberRole
-import techcourse.herobeans.mapper.AddressMapper.toDto
 import java.math.BigDecimal
 
 @Disabled("Stripe integration test - requires valid API key")
@@ -38,16 +36,7 @@ class StripeClientTest {
         val request =
             CheckoutStartRequest(
                 paymentMethod = "pm_card_visa",
-                addressDto =
-                    Address(
-                        street = "Oranienburger Str.",
-                        number = "70",
-                        city = "Berlin",
-                        postalCode = "10117",
-                        countryCode = "DE",
-                        member = guri,
-                        id = 1L,
-                    ).toDto(),
+                addressId = 1L,
             )
 
         val amount = BigDecimal(10)
@@ -70,16 +59,7 @@ class StripeClientTest {
         val request =
             CheckoutStartRequest(
                 paymentMethod = "pm_card_visa",
-                addressDto =
-                    Address(
-                        street = "Oranienburger Str.",
-                        number = "70",
-                        city = "Berlin",
-                        postalCode = "10117",
-                        countryCode = "DE",
-                        member = guri,
-                        id = 1L,
-                    ).toDto(),
+                addressId = 1L,
             )
 
         val amount = BigDecimal(10)

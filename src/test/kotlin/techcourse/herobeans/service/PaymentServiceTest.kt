@@ -18,7 +18,6 @@ import techcourse.herobeans.entity.Member
 import techcourse.herobeans.enums.MemberRole
 import techcourse.herobeans.exception.PaymentIntentNotFoundException
 import techcourse.herobeans.exception.PaymentProcessingException
-import techcourse.herobeans.mapper.AddressMapper.toDto
 import techcourse.herobeans.repository.PaymentJpaRepository
 import java.math.BigDecimal
 import kotlin.test.Test
@@ -56,7 +55,7 @@ class PaymentServiceTest {
                 member = member,
                 id = 1L,
             )
-        val request = CheckoutStartRequest(paymentMethod = "card", addressDto = address.toDto())
+        val request = CheckoutStartRequest(paymentMethod = "card", addressId = 1L)
         val amount = BigDecimal("29.99")
         val expectedPaymentIntent =
             PaymentIntent(
@@ -99,7 +98,7 @@ class PaymentServiceTest {
                 member = member,
                 id = 1L,
             )
-        val request = CheckoutStartRequest(paymentMethod = "card", addressDto = address.toDto())
+        val request = CheckoutStartRequest(paymentMethod = "card", addressId = 1L)
         val amount = BigDecimal("29.99")
 
         whenever(stripeClient.createPaymentIntent(request, amount))
