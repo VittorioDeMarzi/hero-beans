@@ -38,7 +38,7 @@ class CheckoutService(
         request: CheckoutStartRequest,
     ): CheckoutStartResponse {
         // TODO: address do nothing!
-        val address = addressService.findMemberAddress(addressId = request.addressDto.id, memberId = memberDto.id)
+        val address = addressService.findMemberAddress(addressId = request.addressId, memberId = memberDto.id)
         val cart = cartService.getCartForOrder(memberDto.id)
         val order = orderService.processOrderWithStockReduction(cart)
         val totalAmount = calculateFinalAmount(order, request.couponCode, memberDto.email)
