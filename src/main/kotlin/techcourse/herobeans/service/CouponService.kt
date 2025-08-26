@@ -60,25 +60,15 @@ class CouponService(
     }
 
     fun rollbackCouponIfApplied(
-        memberId: Long,
+        memberEmail: String,
         couponCode: String?,
     ) {
         couponCode?.let { couponCode ->
-            val member =
-                memberJpaRepository.findById(memberId)
-                    .orElseThrow { NotFoundException("Member not found with id: $memberId") }
-            rollbackCoupon(member.email, couponCode)
+            val coupon =
+                couponJpaRepository.findByCodeAndUserMail(memberEmail, couponCode)
+                    ?: throw NotFoundException("can not found coupon code $couponCode")
+            coupon.active = true
+            couponJpaRepository.save(coupon)
         }
-    }
-
-    private fun rollbackCoupon(
-        userMail: String,
-        couponCode: String,
-    ) {
-        val coupon =
-            couponJpaRepository.findByCodeAndUserMail(userMail, couponCode)
-                ?: throw NotFoundException("can not found coupon code $couponCode")
-        coupon.active = true
-        couponJpaRepository.save(coupon)
     }
 }
