@@ -41,8 +41,16 @@ class CheckoutService(
         val address = addressService.findMemberAddress(addressId = request.addressDto.id, memberId = memberDto.id)
         val cart = cartService.getCartForOrder(memberDto.id)
         val order = orderService.processOrderWithStockReduction(cart)
-        val totalAmount = applyCouponAndCalculateAmount(order, request.couponCode, memberDto.email)
+        val totalAmount = calculateFinalAmount(order, request.couponCode, memberDto.email)
 
+        return processPaymentSession(request, order, totalAmount)
+    }
+
+    private fun processPaymentSession(
+        request: CheckoutStartRequest,
+        order: Order,
+        totalAmount: BigDecimal,
+    ): CheckoutStartResponse {
         return try {
             val paymentIntent = paymentService.createPaymentIntent(request, totalAmount)
             val payment = paymentService.createPayment(request, paymentIntent, order)
@@ -61,7 +69,7 @@ class CheckoutService(
         }
     }
 
-    private fun applyCouponAndCalculateAmount(
+    private fun calculateFinalAmount(
         order: Order,
         couponCode: String?,
         email: String,
