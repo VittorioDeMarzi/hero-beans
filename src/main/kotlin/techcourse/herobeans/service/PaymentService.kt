@@ -1,5 +1,6 @@
 package techcourse.herobeans.service
 
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import techcourse.herobeans.client.StripeClient
 import techcourse.herobeans.dto.CheckoutStartRequest
@@ -12,6 +13,8 @@ import techcourse.herobeans.repository.PaymentJpaRepository
 import java.math.BigDecimal
 import java.math.RoundingMode
 
+private val log = KotlinLogging.logger {}
+
 @Service
 class PaymentService(
     private val stripeClient: StripeClient,
@@ -21,20 +24,27 @@ class PaymentService(
         request: CheckoutStartRequest,
         totalAmount: BigDecimal,
     ): PaymentIntent {
+        log.info { "payment.intent.create.started paymentMethod=${request.paymentMethod} amount=$totalAmount" }
         val paymentIntent = stripeClient.createPaymentIntent(request, totalAmount)
+        log.info { "payment.intent.create.success paymentIntentId=${paymentIntent.id} amount=${paymentIntent.amount}" }
         return paymentIntent
     }
 
     fun confirmPaymentIntent(paymentIntentId: String): PaymentIntent {
+        log.info { "payment.intent.confirm.started paymentIntentId=$paymentIntentId" }
         require(paymentRepository.existsByPaymentIntentId(paymentIntentId)) {
             throw PaymentIntentNotFoundException("payment intent with id $paymentIntentId not found")
         }
         val paymentIntent = stripeClient.confirmPaymentIntent(paymentIntentId)
+        log.info { "payment.intent.confirm.success paymentIntentId=$paymentIntentId status=${paymentIntent.status}" }
         return paymentIntent
     }
 
     fun isPaymentSucceeded(paymentIntent: PaymentIntent): Boolean {
-        return paymentIntent.status == "succeeded"
+        log.info { "payment.status.check.started paymentIntentId=${paymentIntent.id}" }
+        val succeeded = paymentIntent.status == "succeeded"
+        log.info { "payment.status.check.success paymentIntentId=${paymentIntent.id} succeeded=$succeeded" }
+        return succeeded
     }
 
     fun createPayment(
@@ -42,6 +52,7 @@ class PaymentService(
         paymentIntent: PaymentIntent,
         order: Order,
     ): Payment {
+        log.info { "payment.create.started orderId=${order.id} paymentIntentId=${paymentIntent.id}" }
         val payment =
             Payment(
                 amount =
@@ -53,6 +64,8 @@ class PaymentService(
                 order = order,
                 status = PaymentStatus.PENDING,
             )
-        return paymentRepository.save(payment)
+        val savedPayment = paymentRepository.save(payment)
+        log.info { "payment.create.success orderId=${order.id} paymentIntentId=${paymentIntent.id} amount=${savedPayment.amount}" }
+        return savedPayment
     }
 }
