@@ -95,7 +95,7 @@ class CheckoutService(
 
     @Transactional(
         rollbackFor = [Exception::class],
-        timeout = 30,
+//        timeout = 30,
     )
     fun finalizeCheckout(
         member: MemberDto,
@@ -109,7 +109,7 @@ class CheckoutService(
             val status = updateOrderToPaid(order, paymentIntent)
 
             cartService.clearCart(member.id)
-            val address = addressService.findAddressByMemberId(member.id)
+            val address = addressService.findAddressByMemberId(member.id, request.addressId)
             log.info { "checkout.finalize.success memberId=${member.id} orderId=${order.id} paymentStatus=$status" }
             PaymentResult.Success(orderId = order.id, paymentStatus = status, addressDto = address.toDto())
         } catch (exception: OrderAlreadyTerminatedException) {

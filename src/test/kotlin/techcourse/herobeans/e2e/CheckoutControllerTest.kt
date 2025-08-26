@@ -248,6 +248,7 @@ class CheckoutControllerTest {
             FinalizePaymentRequest(
                 paymentIntentId = "pi_test_67890",
                 orderId = startResponse.orderId,
+                addressId = address.id,
             )
 
         val finalizeResponse =
@@ -336,6 +337,7 @@ class CheckoutControllerTest {
             FinalizePaymentRequest(
                 paymentIntentId = "pi_invalid",
                 orderId = 99999L,
+                addressId = address.id,
             )
 
         RestAssured.given()
@@ -427,6 +429,7 @@ class CheckoutControllerTest {
             FinalizePaymentRequest(
                 paymentIntentId = paymentIntentId,
                 orderId = orderId,
+                addressId = address.id,
             )
 
         val finalizeResponse =
@@ -554,7 +557,7 @@ class CheckoutControllerTest {
                 .baseUri(baseUrl)
                 .header("Authorization", "Bearer $token")
                 .contentType(ContentType.JSON)
-                .body(FinalizePaymentRequest("pi_test_delayed_success", startResponse.orderId))
+                .body(FinalizePaymentRequest(addressId = address.id, "pi_test_delayed_success", startResponse.orderId))
                 .post("/api/checkout/finalize")
                 .then()
                 .statusCode(HttpStatus.OK.value())

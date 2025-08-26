@@ -18,11 +18,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean
 import techcourse.herobeans.client.StripeClient
 import techcourse.herobeans.dto.CheckoutStartRequest
 import techcourse.herobeans.dto.CheckoutStartResponse
-import techcourse.herobeans.dto.FinalizePaymentRequest
-import techcourse.herobeans.dto.PaymentError
-import techcourse.herobeans.dto.PaymentErrorCode
 import techcourse.herobeans.dto.PaymentIntent
-import techcourse.herobeans.dto.PaymentResult
 import techcourse.herobeans.dto.RegistrationRequest
 import techcourse.herobeans.entity.Address
 import techcourse.herobeans.entity.Coffee
@@ -37,7 +33,6 @@ import techcourse.herobeans.enums.OriginCountry
 import techcourse.herobeans.enums.ProcessingMethod
 import techcourse.herobeans.enums.ProfileLevel
 import techcourse.herobeans.enums.RoastLevel
-import techcourse.herobeans.mapper.AddressMapper.toDto
 import techcourse.herobeans.repository.AddressJpaRepository
 import techcourse.herobeans.repository.CartJpaRepository
 import techcourse.herobeans.repository.CoffeeJpaRepository
@@ -325,123 +320,6 @@ class CheckoutCouponIntegrationTest {
         val savedOption = packageOptionRepository.save(option)
         packageOptions.add(savedOption)
         return savedOption
-    }
-
-    fun createPaymentIntentAndStartCheckout(
-        paymentIntentId: String = "pi_test_${System.currentTimeMillis()}",
-        amount: Int = 2550,
-        status: String = "requires_payment_method",
-    ): CheckoutStartResponse {
-        val paymentIntent =
-            PaymentIntent(
-                id = paymentIntentId,
-                amount = amount,
-                status = status,
-                clientSecret = "${paymentIntentId}_secret",
-                currency = "eur",
-            )
-        whenever(stripeClient.createPaymentIntent(any(), any())).thenReturn(paymentIntent)
-
-        val request = CheckoutStartRequest(paymentMethod = "pm_card_visa", addressId = 1L)
-        return RestAssured.given()
-            .baseUri(baseUrl)
-            .header("Authorization", "Bearer $token")
-            .contentType(ContentType.JSON)
-            .body(request)
-            .post("/api/checkout/start")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract()
-            .`as`(CheckoutStartResponse::class.java)
-    }
-
-    fun finalizePayment(
-        paymentIntentId: String,
-        orderId: Long,
-        paymentStatus: String = "succeeded",
-    ): PaymentResult {
-        val confirmedPaymentIntent =
-            PaymentIntent(
-                id = paymentIntentId,
-                amount = 2550,
-                status = paymentStatus,
-                clientSecret = "${paymentIntentId}_secret",
-                currency = "eur",
-            )
-        whenever(stripeClient.confirmPaymentIntent(paymentIntentId)).thenReturn(confirmedPaymentIntent)
-
-        val finalizeRequest =
-            FinalizePaymentRequest(
-                paymentIntentId = paymentIntentId,
-                orderId = orderId,
-            )
-
-        val finalizeResponse =
-            RestAssured.given()
-                .baseUri(baseUrl)
-                .header("Authorization", "Bearer $token")
-                .contentType(ContentType.JSON)
-                .body(finalizeRequest)
-                .post("/api/checkout/finalize")
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .extract()
-                .body()
-                .asString()
-
-        val jsonNode = objectMapper.readTree(finalizeResponse)
-        return if (jsonNode.has("paymentStatus") && !jsonNode.has("error")) {
-            PaymentResult.Success(
-                orderId = jsonNode.get("orderId").asLong(),
-                paymentStatus = jsonNode.get("paymentStatus").asText(),
-                addressDto = address.toDto(),
-            )
-        } else {
-            PaymentResult.Failure(
-                orderId = jsonNode.get("orderId")?.asLong(),
-                error = PaymentError(PaymentErrorCode.PAYMENT_FAILED, message = "Payment failed"),
-            )
-        }
-    }
-
-    fun verifyOrderStatus(
-        orderId: Long,
-        expectedStatus: String,
-    ) {
-        val order = orderRepository.findByIdWithOrderItems(orderId).get()
-        assertThat(order.status.name).isEqualTo(expectedStatus)
-    }
-
-    fun verifyStockQuantity(
-        optionIndex: Int,
-        expectedQuantity: Int,
-    ) {
-        val option = packageOptionRepository.findById(packageOptions[optionIndex].id).get()
-        assertThat(option.quantity).isEqualTo(expectedQuantity)
-    }
-
-    fun verifyCartIsEmpty() {
-        val cartResponse =
-            RestAssured.given()
-                .baseUri(baseUrl)
-                .header("Authorization", "Bearer $token")
-                .get("/api/member/cart")
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .extract()
-                .body()
-                .jsonPath()
-
-        assertThat(cartResponse.getList<Any>("items")).isEmpty()
-    }
-
-    fun clearCart() {
-        RestAssured.given()
-            .baseUri(baseUrl)
-            .header("Authorization", "Bearer $token")
-            .delete("/api/member/cart/clear")
-            .then()
-            .statusCode(HttpStatus.NO_CONTENT.value())
     }
 
     /**

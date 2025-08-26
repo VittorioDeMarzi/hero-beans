@@ -143,7 +143,7 @@ class PaymentServiceTest {
 
     @Test
     fun `should throw NotFoundException when payment intent does not exist in repository`() {
-        val request = FinalizePaymentRequest(paymentIntentId = "pi_missing", orderId = 1L)
+        val request = FinalizePaymentRequest(addressId = 1L, paymentIntentId = "pi_missing", orderId = 1L)
 
         whenever(paymentRepository.existsByPaymentIntentId("pi_missing")).thenReturn(false)
 
@@ -154,7 +154,7 @@ class PaymentServiceTest {
 
     @Test
     fun `should confirm payment intent successfully when exists in repository`() {
-        val request = FinalizePaymentRequest(paymentIntentId = PAYMENT_INTENT_ID, orderId = 1L)
+        val request = FinalizePaymentRequest(addressId = 1L, paymentIntentId = PAYMENT_INTENT_ID, orderId = 1L)
         val expectedPaymentIntent =
             PaymentIntent(
                 id = PAYMENT_INTENT_ID,
