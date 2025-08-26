@@ -4,4 +4,7 @@ enum class OrderStatus {
     PENDING,
     PAID,
     PAYMENT_FAILED,
+    SHIPPED,
+    DELIVERED,
+    CANCELED,
 }
