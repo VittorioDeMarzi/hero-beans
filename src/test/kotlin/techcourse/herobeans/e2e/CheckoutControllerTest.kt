@@ -499,8 +499,8 @@ class CheckoutControllerTest {
 
     @Test
     fun `should handle multiple items in cart and complete full payment flow`() {
-        val option500g = addPackageOption(Grams.G500, "45.00", 30)
-        val option1000g = addPackageOption(Grams.G1000, "80.00", 20)
+        addPackageOption(Grams.G500, "45.00", 30)
+        addPackageOption(Grams.G1000, "80.00", 20)
 
         addItemsToCart(1, 3)
 
