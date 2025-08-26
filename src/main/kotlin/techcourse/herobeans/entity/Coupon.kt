@@ -17,7 +17,7 @@ import java.time.LocalDateTime
 class Coupon(
     @Column(nullable = false)
     val code: String,
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     val discountType: DiscountType,
     val discountValue: BigDecimal,
     @Column(nullable = true)

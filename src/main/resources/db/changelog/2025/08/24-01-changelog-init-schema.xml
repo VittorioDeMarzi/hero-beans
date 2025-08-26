@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1756054263013-1" author="petra.bencze">
+        <createTable tableName="address">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_address"/>
+            </column>
+            <column name="street" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="number" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="city" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="postal_code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="country_code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="label" type="VARCHAR(255)"/>
+            <column name="member_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1756054263013-2" author="petra.bencze">
+        <createTable tableName="cart">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_cart"/>
+            </column>
+            <column name="member_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_updated_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1756054263013-3" author="petra.bencze">
+        <createTable tableName="cart_item">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_cartitem"/>
+            </column>
+            <column name="cart_id" type="BIGINT"/>
+            <column name="package_option_id" type="BIGINT"/>
+            <column name="quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price_snapshot" type="DECIMAL"/>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_updated_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1756054263013-4" author="petra.bencze">
+        <createTable tableName="coffee">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_coffee"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="taste" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="brew_recommendation" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="origin" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="processing_method" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="roast_level" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="image_url" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="body" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sweetness" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="acidity" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1756054263013-5" author="petra.bencze">
+        <createTable tableName="coffee_certificates">
+            <column name="coffee_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="certificate" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1756054263013-6" author="petra.bencze">
+        <createTable tableName="coupon">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_coupon"/>
+            </column>
+            <column name="code" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="discount_type" type="VARCHAR(255)"/>
+            <column name="discount_value" type="DECIMAL"/>
+            <column name="expires_at" type="DATETIME"/>
+            <column name="user_mail" type="VARCHAR(255)"/>
+            <column name="active" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1756054263013-7" author="petra.bencze">
+        <createTable tableName="member">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_member"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="VARCHAR(255)"/>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_updated_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1756054263013-8" author="petra.bencze">
+        <createTable tableName="order_item">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_orderitem"/>
+            </column>
+            <column name="option_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="option_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="DECIMAL(12, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_updated_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1756054263013-9" author="petra.bencze">
+        <createTable tableName="orders">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_orders"/>
+            </column>
+            <column name="member_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="coffee_sub_total" type="DECIMAL(12, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shipping_fee" type="DECIMAL(12, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shipping_method" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shipped_at" type="DATETIME"/>
+            <column name="delivered_at" type="DATETIME"/>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_updated_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="_status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1756054263013-10" author="petra.bencze">
+        <createTable tableName="orders_order_items">
+            <column name="order_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_items_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1756054263013-11" author="petra.bencze">
+        <createTable tableName="package_option">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_packageoption"/>
+            </column>
+            <column name="quantity" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="DECIMAL">
+                <constraints nullable="false"/>
+            </column>
+            <column name="weight" type="SMALLINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="coffee_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1756054263013-12" author="petra.bencze">
+        <createTable tableName="payment">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_payment"/>
+            </column>
+            <column name="amount" type="DECIMAL"/>
+            <column name="currency" type="VARCHAR(255)"/>
+            <column name="payment_method" type="VARCHAR(255)"/>
+            <column name="order_id" type="BIGINT"/>
+            <column name="payment_intent_id" type="VARCHAR(255)"/>
+            <column name="status" type="VARCHAR(255)"/>
+            <column name="created_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_updated_at" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1756054263013-13" author="petra.bencze">
+        <addUniqueConstraint columnNames="member_id" constraintName="uc_cart_member" tableName="cart"/>
+    </changeSet>
+    <changeSet id="1756054263013-14" author="petra.bencze">
+        <addUniqueConstraint columnNames="name" constraintName="uc_coffee_name" tableName="coffee"/>
+    </changeSet>
+    <changeSet id="1756054263013-15" author="petra.bencze">
+        <addUniqueConstraint columnNames="email" constraintName="uc_member_email" tableName="member"/>
+    </changeSet>
+    <changeSet id="1756054263013-16" author="petra.bencze">
+        <addUniqueConstraint columnNames="order_items_id" constraintName="uc_orders_order_items_orderitems"
+                             tableName="orders_order_items"/>
+    </changeSet>
+    <changeSet id="1756054263013-17" author="petra.bencze">
+        <addUniqueConstraint columnNames="payment_intent_id" constraintName="uc_payment_paymentintentid"
+                             tableName="payment"/>
+    </changeSet>
+    <changeSet id="1756054263013-18" author="petra.bencze">
+        <addForeignKeyConstraint baseColumnNames="member_id" baseTableName="address"
+                                 constraintName="FK_ADDRESS_ON_MEMBER" referencedColumnNames="id"
+                                 referencedTableName="member"/>
+    </changeSet>
+    <changeSet id="1756054263013-19" author="petra.bencze">
+        <addForeignKeyConstraint baseColumnNames="cart_id" baseTableName="cart_item"
+                                 constraintName="FK_CARTITEM_ON_CART" referencedColumnNames="id"
+                                 referencedTableName="cart"/>
+    </changeSet>
+    <changeSet id="1756054263013-20" author="petra.bencze">
+        <addForeignKeyConstraint baseColumnNames="package_option_id" baseTableName="cart_item"
+                                 constraintName="FK_CARTITEM_ON_PACKAGE_OPTION" onDelete="CASCADE"
+                                 referencedColumnNames="id" referencedTableName="package_option"/>
+    </changeSet>
+    <changeSet id="1756054263013-21" author="petra.bencze">
+        <addForeignKeyConstraint baseColumnNames="member_id" baseTableName="cart" constraintName="FK_CART_ON_MEMBER"
+                                 onDelete="CASCADE" referencedColumnNames="id" referencedTableName="member"/>
+    </changeSet>
+    <changeSet id="1756054263013-22" author="petra.bencze">
+        <addForeignKeyConstraint baseColumnNames="coffee_id" baseTableName="package_option"
+                                 constraintName="FK_PACKAGEOPTION_ON_COFFEE" referencedColumnNames="id"
+                                 referencedTableName="coffee"/>
+    </changeSet>
+    <changeSet id="1756054263013-23" author="petra.bencze">
+        <addForeignKeyConstraint baseColumnNames="order_id" baseTableName="payment" constraintName="FK_PAYMENT_ON_ORDER"
+                                 referencedColumnNames="id" referencedTableName="orders"/>
+    </changeSet>
+    <changeSet id="1756054263013-24" author="petra.bencze">
+        <addForeignKeyConstraint baseColumnNames="coffee_id" baseTableName="coffee_certificates"
+                                 constraintName="fk_coffee_certificates_on_coffee" referencedColumnNames="id"
+                                 referencedTableName="coffee"/>
+    </changeSet>
+    <changeSet id="1756054263013-25" author="petra.bencze">
+        <addForeignKeyConstraint baseColumnNames="order_id" baseTableName="orders_order_items"
+                                 constraintName="fk_ordordite_on_order" referencedColumnNames="id"
+                                 referencedTableName="orders"/>
+    </changeSet>
+    <changeSet id="1756054263013-26" author="petra.bencze">
+        <addForeignKeyConstraint baseColumnNames="order_items_id" baseTableName="orders_order_items"
+                                 constraintName="fk_ordordite_on_order_item" referencedColumnNames="id"
+                                 referencedTableName="order_item"/>
+    </changeSet>
+
+</databaseChangeLog>

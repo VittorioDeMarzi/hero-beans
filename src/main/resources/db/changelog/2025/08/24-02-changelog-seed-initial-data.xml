@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <changeSet id="1756054520755-1" author="petra.bencze">
+        <loadData tableName="coffee" file="db/changelog/data/coffees.csv"/>
+        <loadData tableName="coffee_certificates" file="db/changelog/data/coffee_certificates.csv"/>
+        <loadData tableName="package_option" file="db/changelog/data/package_options.csv"/>
+    </changeSet>
+</databaseChangeLog>

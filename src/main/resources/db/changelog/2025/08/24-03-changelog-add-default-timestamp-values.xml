@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.31.xsd">
+
+    <changeSet id="1756054772726-1" author="petra.bencze">
+        <addDefaultValue tableName="cart" columnName="created_at" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        <addDefaultValue tableName="cart_item" columnName="created_at" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        <addDefaultValue tableName="coffee" columnName="created_at" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        <addDefaultValue tableName="member" columnName="created_at" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        <addDefaultValue tableName="orders" columnName="created_at" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        <addDefaultValue tableName="order_item" columnName="created_at" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        <addDefaultValue tableName="payment" columnName="created_at" defaultValueComputed="CURRENT_TIMESTAMP"/>
+    </changeSet>
+    <changeSet id="1756055355348-1" author="petra.bencze">
+        <addDefaultValue tableName="cart" columnName="last_updated_at" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        <addDefaultValue tableName="cart_item" columnName="last_updated_at" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        <addDefaultValue tableName="coffee" columnName="updated_at" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        <addDefaultValue tableName="member" columnName="last_updated_at" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        <addDefaultValue tableName="orders" columnName="last_updated_at" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        <addDefaultValue tableName="order_item" columnName="last_updated_at" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        <addDefaultValue tableName="payment" columnName="last_updated_at" defaultValueComputed="CURRENT_TIMESTAMP"/>
+    </changeSet>
+
+</databaseChangeLog>

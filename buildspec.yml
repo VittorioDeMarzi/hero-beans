@@ -8,6 +8,17 @@ phases:
     commands:
       - echo ">>> Cleaning project..."
       - ./gradlew clean
+      - echo ">>> Creating .env file..."
+      - echo "DB_URL=${DB_URL}" > .env
+      - echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
+      - echo "DB_USER=${DB_USER}" >> .env
+      - echo "TOKEN_SECRET_KEY=${TOKEN_SECRET_KEY}" >> .env
+      - echo "TOKEN_EXPIRE_LENGTH=${TOKEN_EXPIRE_LENGTH}" >> .env
+      - echo "STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}" >> .env
+      - echo "STRIPE_PAYMENT_URL=${STRIPE_PAYMENT_URL}" >> .env
+      - echo "ACTIVE_PROFILE=${ACTIVE_PROFILE}" >> .env
+      - echo ".env file created:"
+
   build:
     commands:
       - echo ">>> Building jar..."
@@ -18,7 +29,7 @@ phases:
 
 artifacts:
   files:
+    - .env
     - build/libs/*.jar
     - appspec.yml
     - scripts/**/*
-  discard-paths: no

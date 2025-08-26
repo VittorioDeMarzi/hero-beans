@@ -29,8 +29,9 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-mail")
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")
@@ -48,6 +49,7 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.11")
     implementation("mysql:mysql-connector-java:8.0.33")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+    implementation("org.liquibase:liquibase-core:4.31.1")
 }
 
 kotlin {
