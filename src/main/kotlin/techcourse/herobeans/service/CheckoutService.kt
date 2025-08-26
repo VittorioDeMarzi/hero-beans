@@ -1,5 +1,7 @@
 package techcourse.herobeans.service
 
+import jakarta.transaction.Transactional
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.dto.CheckoutStartRequest
@@ -21,6 +23,7 @@ import techcourse.herobeans.exception.StripeServerException
 import techcourse.herobeans.mapper.AddressMapper.toDto
 import java.math.BigDecimal
 
+private val log = KotlinLogging.logger {}
 @Service
 class CheckoutService(
     private val orderService: OrderService,
@@ -37,8 +40,8 @@ class CheckoutService(
         memberDto: MemberDto,
         request: CheckoutStartRequest,
     ): CheckoutStartResponse {
-        // TODO: address do nothing!
         val address = addressService.findMemberAddress(addressId = request.addressId, memberId = memberDto.id)
+        log.info { "checkout.started memberId=${memberDto.id}" }
         val cart = cartService.getCartForOrder(memberDto.id)
         val order = orderService.processOrderWithStockReduction(cart)
         val totalAmount = calculateFinalAmount(order, request.couponCode, memberDto.email)
@@ -54,7 +57,7 @@ class CheckoutService(
         return try {
             val paymentIntent = paymentService.createPaymentIntent(request, totalAmount)
             val payment = paymentService.createPayment(request, paymentIntent, order)
-
+            log.info { "checkout.payment.created memberId=${memberDto.id} orderId=${order.id} paymentIntentId=${paymentIntent.id}" }
             CheckoutStartResponse(
                 paymentIntentId = paymentIntent.id,
                 orderId = order.id,
@@ -95,6 +98,7 @@ class CheckoutService(
         member: MemberDto,
         request: FinalizePaymentRequest,
     ): PaymentResult {
+        log.info { "checkout.finalize.started memberId=${member.id} orderId=${request.orderId} paymentIntentId=${request.paymentIntentId}" }
         val order = orderService.getValidatedPendingOrder(request.orderId, member.id)
         return try {
             val paymentIntent = paymentService.confirmPaymentIntent(request.paymentIntentId)
@@ -102,6 +106,7 @@ class CheckoutService(
 
             cartService.clearCart(member.id)
             val address = addressService.findAddressByMemberId(member.id)
+            log.info { "checkout.finalize.success memberId=${member.id} orderId=${order.id} paymentStatus=${status.name}" }
             PaymentResult.Success(orderId = order.id, paymentStatus = status, addressDto = address.toDto())
         } catch (exception: Exception) {
             paymentService.markAsFailed(request.paymentIntentId)
@@ -118,7 +123,7 @@ class CheckoutService(
         orderService.rollbackOptionsStock(order)
         couponService.rollbackCouponIfApplied(memberEmail, couponCode)
         val error = mapToPaymentError(exception)
-
+        log.info { "checkout.rollback.completed orderId=${order.id} errorCode=${error.code}" }
         return PaymentResult.Failure(order.id, error)
     }
 
@@ -136,9 +141,11 @@ class CheckoutService(
         order: Order,
         paymentIntent: PaymentIntent,
     ): String {
+      log.debug { "order.update.paid orderId=${order.id} paymentIntentId=${paymentIntent.id}" }
         when (paymentService.isPaymentSucceeded(paymentIntent)) {
             true -> {
                 orderService.markOrderAsPaid(order)
+                log.info { "order.marked.paid orderId=${order.id} status=${order.status}" }
                 val payment = paymentService.markAsCompleted(paymentIntent.id)
                 return payment.status.name
             }
