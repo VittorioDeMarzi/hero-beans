@@ -24,7 +24,9 @@ import techcourse.herobeans.dto.PaymentErrorCode
 import techcourse.herobeans.dto.PaymentIntent
 import techcourse.herobeans.dto.PaymentResult
 import techcourse.herobeans.dto.RegistrationRequest
+import techcourse.herobeans.entity.Address
 import techcourse.herobeans.entity.Coffee
+import techcourse.herobeans.entity.Member
 import techcourse.herobeans.entity.PackageOption
 import techcourse.herobeans.entity.Profile
 import techcourse.herobeans.enums.BrewRecommendation
@@ -34,6 +36,7 @@ import techcourse.herobeans.enums.PaymentStatus
 import techcourse.herobeans.enums.ProcessingMethod
 import techcourse.herobeans.enums.ProfileLevel
 import techcourse.herobeans.enums.RoastLevel
+import techcourse.herobeans.repository.AddressJpaRepository
 import techcourse.herobeans.repository.CartJpaRepository
 import techcourse.herobeans.repository.CoffeeJpaRepository
 import techcourse.herobeans.repository.CouponJpaRepository
@@ -46,30 +49,45 @@ import java.math.BigDecimal
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 class CheckoutControllerTest {
-    @Autowired private lateinit var memberRepository: MemberJpaRepository
+    @Autowired
+    private lateinit var memberRepository: MemberJpaRepository
 
-    @Autowired private lateinit var coffeeRepository: CoffeeJpaRepository
+    @Autowired
+    private lateinit var coffeeRepository: CoffeeJpaRepository
 
-    @Autowired private lateinit var packageOptionRepository: PackageOptionJpaRepository
+    @Autowired
+    private lateinit var packageOptionRepository: PackageOptionJpaRepository
 
-    @Autowired private lateinit var cartRepository: CartJpaRepository
+    @Autowired
+    private lateinit var cartRepository: CartJpaRepository
 
-    @Autowired private lateinit var orderRepository: OrderJpaRepository
+    @Autowired
+    private lateinit var orderRepository: OrderJpaRepository
 
-    @Autowired private lateinit var paymentRepository: PaymentJpaRepository
+    @Autowired
+    private lateinit var paymentRepository: PaymentJpaRepository
 
-    @Autowired private lateinit var objectMapper: ObjectMapper
+    @Autowired
+    private lateinit var objectMapper: ObjectMapper
 
-    @Autowired private lateinit var couponRepository: CouponJpaRepository
+    @Autowired
+    private lateinit var couponRepository: CouponJpaRepository
 
-    @MockitoBean private lateinit var stripeClient: StripeClient
+    @Autowired
+    private lateinit var addressRepository: AddressJpaRepository
 
-    @LocalServerPort private var port: Int = 0
+    @MockitoBean
+    private lateinit var stripeClient: StripeClient
+
+    @LocalServerPort
+    private var port: Int = 0
     val baseUrl get() = "http://localhost:$port"
 
     private lateinit var token: String
     private lateinit var coffee: Coffee
     private lateinit var packageOptions: MutableList<PackageOption>
+    private lateinit var member: Member
+    private lateinit var address: Address
 
     @BeforeEach
     fun setUp() {
@@ -77,13 +95,15 @@ class CheckoutControllerTest {
         paymentRepository.deleteAll()
         orderRepository.deleteAll()
         cartRepository.deleteAll()
+        addressRepository.deleteAll()
         memberRepository.deleteAll()
         packageOptionRepository.deleteAll()
         coffeeRepository.deleteAll()
         couponRepository.deleteAll()
 
+        val memberEmail = "test@test.com"
         // Register user and get token
-        val registrationRequest = RegistrationRequest("testuser", "test@test.com", "12345678")
+        val registrationRequest = RegistrationRequest("testuser", memberEmail, "12345678")
         val response =
             RestAssured.given()
                 .baseUri(baseUrl)
@@ -96,6 +116,19 @@ class CheckoutControllerTest {
 
         token = response.body().jsonPath().getString("token")
         assertThat(token).isNotEmpty()
+
+        member = memberRepository.findByEmail(memberEmail)!!
+
+        address =
+            Address(
+                street = "Oranienburger Str.",
+                number = "70",
+                city = "Berlin",
+                postalCode = "10117",
+                countryCode = "DE",
+                member = member,
+            )
+        addressRepository.save(address)
 
         // Create test coffee
         coffee =
@@ -148,8 +181,7 @@ class CheckoutControllerTest {
                 currency = "eur",
             )
         whenever(stripeClient.createPaymentIntent(any(), any())).thenReturn(paymentIntent)
-
-        val request = CheckoutStartRequest(paymentMethod = "pm_card_visa")
+        val request = CheckoutStartRequest(paymentMethod = "pm_card_visa", addressId = address.id)
         val response =
             RestAssured.given()
                 .baseUri(baseUrl)
@@ -188,7 +220,7 @@ class CheckoutControllerTest {
             )
         whenever(stripeClient.createPaymentIntent(any(), any())).thenReturn(startPaymentIntent)
 
-        val startRequest = CheckoutStartRequest(paymentMethod = "pm_card_visa")
+        val startRequest = CheckoutStartRequest(paymentMethod = "pm_card_visa", addressId = address.id)
         val startResponse =
             RestAssured.given()
                 .baseUri(baseUrl)
@@ -247,7 +279,7 @@ class CheckoutControllerTest {
         assertThat(result).isInstanceOf(PaymentResult.Success::class.java)
         val successResult = result as PaymentResult.Success
         assertThat(successResult.orderId).isEqualTo(startResponse.orderId)
-        assertThat(successResult.paymentStatus).isEqualTo("PAID")
+        assertThat(successResult.paymentStatus).isEqualTo("COMPLETED")
 
         val order = orderRepository.findByIdWithOrderItems(startResponse.orderId).get()
         assertThat(order.status.name).isEqualTo("PAID")
@@ -283,7 +315,7 @@ class CheckoutControllerTest {
     fun `should return 400 when trying to checkout with empty cart`() {
         clearCart()
 
-        val request = CheckoutStartRequest(paymentMethod = "pm_card_visa")
+        val request = CheckoutStartRequest(paymentMethod = "pm_card_visa", addressId = address.id)
 
         RestAssured.given()
             .baseUri(baseUrl)
@@ -361,7 +393,7 @@ class CheckoutControllerTest {
             )
         whenever(stripeClient.createPaymentIntent(any(), any())).thenReturn(paymentIntent)
 
-        val request = CheckoutStartRequest(paymentMethod = "pm_card_visa")
+        val request = CheckoutStartRequest(paymentMethod = "pm_card_visa", addressId = address.id)
         return RestAssured.given()
             .baseUri(baseUrl)
             .header("Authorization", "Bearer $token")
@@ -464,8 +496,8 @@ class CheckoutControllerTest {
 
     @Test
     fun `should handle multiple items in cart and complete full payment flow`() {
-        val option500g = addPackageOption(Grams.G500, "45.00", 30)
-        val option1000g = addPackageOption(Grams.G1000, "80.00", 20)
+        addPackageOption(Grams.G500, "45.00", 30)
+        addPackageOption(Grams.G1000, "80.00", 20)
 
         addItemsToCart(1, 3)
 

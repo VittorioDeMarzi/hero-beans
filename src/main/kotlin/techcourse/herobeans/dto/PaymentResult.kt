@@ -16,11 +16,11 @@ data class PaymentError(
 }
 
 enum class PaymentErrorCode() {
+    ORDER_ALREADY_TERMINATED,
     STRIPE_CLIENT_ERROR,
     STRIPE_SERVER_ERROR,
     STRIPE_ERROR,
-    STRIPE_MESSAGE_ERROR,
     PAYMENT_FAILED,
     SYSTEM_ERROR,
-    TIMEOUT,
+    TRANSACTION_TIMEOUT,
 }

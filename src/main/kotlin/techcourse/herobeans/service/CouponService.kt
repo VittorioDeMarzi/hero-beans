@@ -5,14 +5,19 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.entity.Coupon
 import techcourse.herobeans.exception.InvalidCouponException
+import techcourse.herobeans.exception.NotFoundException
 import techcourse.herobeans.repository.CouponJpaRepository
+import techcourse.herobeans.repository.MemberJpaRepository
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
 private val log = KotlinLogging.logger {}
 
 @Service
-class CouponService(private val couponJpaRepository: CouponJpaRepository) {
+class CouponService(
+    private val couponJpaRepository: CouponJpaRepository,
+    private val memberJpaRepository: MemberJpaRepository,
+) {
     @Transactional(readOnly = true)
     fun validate(
         code: String,
@@ -39,7 +44,7 @@ class CouponService(private val couponJpaRepository: CouponJpaRepository) {
     }
 
     @Transactional
-    fun apply(
+    fun applyCoupon(
         coupon: Coupon,
         orderTotal: BigDecimal,
     ): BigDecimal {
@@ -62,5 +67,18 @@ class CouponService(private val couponJpaRepository: CouponJpaRepository) {
     fun getAllCouponsForUser(email: String): List<Coupon> {
         log.info { "coupon.list.started userMail=$email" }
         return couponJpaRepository.findAllByUserMail(email)
+    }
+
+    fun rollbackCouponIfApplied(
+        memberEmail: String,
+        couponCode: String?,
+    ) {
+        couponCode?.let { couponCode ->
+            val coupon =
+                couponJpaRepository.findByCodeAndUserMail(memberEmail, couponCode)
+                    ?: throw NotFoundException("can not found coupon code $couponCode")
+            coupon.active = true
+            couponJpaRepository.save(coupon)
+        }
     }
 }
