@@ -109,9 +109,8 @@ class CheckoutService(
             val status = updateOrderToPaid(order, paymentIntent)
 
             cartService.clearCart(member.id)
-            val address = addressService.findAddressByMemberId(member.id, request.addressId)
             log.info { "checkout.finalize.success memberId=${member.id} orderId=${order.id} paymentStatus=$status" }
-            PaymentResult.Success(orderId = order.id, paymentStatus = status, addressDto = address.toDto())
+            PaymentResult.Success(orderId = order.id, paymentStatus = status)
         } catch (exception: OrderAlreadyTerminatedException) {
             handleOrderAlreadyTerminated(order, exception)
         } catch (exception: Exception) {

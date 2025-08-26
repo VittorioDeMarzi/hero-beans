@@ -36,7 +36,6 @@ import techcourse.herobeans.enums.PaymentStatus
 import techcourse.herobeans.enums.ProcessingMethod
 import techcourse.herobeans.enums.ProfileLevel
 import techcourse.herobeans.enums.RoastLevel
-import techcourse.herobeans.mapper.AddressMapper.toDto
 import techcourse.herobeans.repository.AddressJpaRepository
 import techcourse.herobeans.repository.CartJpaRepository
 import techcourse.herobeans.repository.CoffeeJpaRepository
@@ -248,7 +247,6 @@ class CheckoutControllerTest {
             FinalizePaymentRequest(
                 paymentIntentId = "pi_test_67890",
                 orderId = startResponse.orderId,
-                addressId = address.id,
             )
 
         val finalizeResponse =
@@ -270,7 +268,6 @@ class CheckoutControllerTest {
                 PaymentResult.Success(
                     orderId = jsonNode.get("orderId").asLong(),
                     paymentStatus = jsonNode.get("paymentStatus").asText(),
-                    addressDto = address.toDto(),
                 )
             } else {
                 PaymentResult.Failure(
@@ -337,7 +334,6 @@ class CheckoutControllerTest {
             FinalizePaymentRequest(
                 paymentIntentId = "pi_invalid",
                 orderId = 99999L,
-                addressId = address.id,
             )
 
         RestAssured.given()
@@ -429,7 +425,6 @@ class CheckoutControllerTest {
             FinalizePaymentRequest(
                 paymentIntentId = paymentIntentId,
                 orderId = orderId,
-                addressId = address.id,
             )
 
         val finalizeResponse =
@@ -450,7 +445,6 @@ class CheckoutControllerTest {
             PaymentResult.Success(
                 orderId = jsonNode.get("orderId").asLong(),
                 paymentStatus = jsonNode.get("paymentStatus").asText(),
-                addressDto = address.toDto(),
             )
         } else {
             PaymentResult.Failure(
@@ -557,7 +551,7 @@ class CheckoutControllerTest {
                 .baseUri(baseUrl)
                 .header("Authorization", "Bearer $token")
                 .contentType(ContentType.JSON)
-                .body(FinalizePaymentRequest(addressId = address.id, "pi_test_delayed_success", startResponse.orderId))
+                .body(FinalizePaymentRequest("pi_test_delayed_success", startResponse.orderId))
                 .post("/api/checkout/finalize")
                 .then()
                 .statusCode(HttpStatus.OK.value())
@@ -571,7 +565,6 @@ class CheckoutControllerTest {
                 PaymentResult.Success(
                     orderId = jsonNode.get("orderId").asLong(),
                     paymentStatus = jsonNode.get("paymentStatus").asText(),
-                    addressDto = address.toDto(),
                 )
             } else {
                 PaymentResult.Failure(
