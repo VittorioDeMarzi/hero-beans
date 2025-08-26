@@ -1,5 +1,6 @@
 package techcourse.herobeans.service
 
+import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.entity.Coupon
@@ -8,6 +9,8 @@ import techcourse.herobeans.repository.CouponJpaRepository
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
+private val log = KotlinLogging.logger {}
+
 @Service
 class CouponService(private val couponJpaRepository: CouponJpaRepository) {
     @Transactional(readOnly = true)
@@ -15,6 +18,7 @@ class CouponService(private val couponJpaRepository: CouponJpaRepository) {
         code: String,
         userMail: String,
     ): Coupon {
+        log.info { "coupon.validate.started code=$code userMail=$userMail" }
         val coupon =
             couponJpaRepository.findByCodeAndActiveTrue(code)
                 ?: throw InvalidCouponException("Invalid coupon code")
@@ -30,7 +34,7 @@ class CouponService(private val couponJpaRepository: CouponJpaRepository) {
                 throw InvalidCouponException("Coupon has expired")
             }
         }
-
+        log.info { "coupon.validate.success code=$code userMail=$userMail" }
         return coupon
     }
 
@@ -39,18 +43,24 @@ class CouponService(private val couponJpaRepository: CouponJpaRepository) {
         coupon: Coupon,
         orderTotal: BigDecimal,
     ): BigDecimal {
+        log.info { "coupon.apply.started couponId=${coupon.id} orderTotal=$orderTotal" }
         val discountedTotal = coupon.calculateDiscountedTotal(orderTotal)
         coupon.active = false
+        log.info { "coupon.apply.success couponId=${coupon.id} discountedTotal=$discountedTotal" }
         return discountedTotal
     }
 
     @Transactional
     fun createWelcomeCoupon(userMail: String): Coupon {
-        return couponJpaRepository.save(Coupon.createWelcomeCoupon(userMail))
+        log.info { "coupon.create.welcome.started userMail=$userMail" }
+        val coupon = couponJpaRepository.save(Coupon.createWelcomeCoupon(userMail))
+        log.info { "coupon.create.welcome.success userMail=$userMail couponId=${coupon.id}" }
+        return coupon
     }
 
     @Transactional
     fun getAllCouponsForUser(email: String): List<Coupon> {
+        log.info { "coupon.list.started userMail=$email" }
         return couponJpaRepository.findAllByUserMail(email)
     }
 }
