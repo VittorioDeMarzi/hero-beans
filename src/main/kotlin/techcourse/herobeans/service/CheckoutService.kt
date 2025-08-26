@@ -95,7 +95,7 @@ class CheckoutService(
 
     @Transactional(
         rollbackFor = [Exception::class],
-//        timeout = 30,
+        timeout = 30,
     )
     fun finalizeCheckout(
         member: MemberDto,
