@@ -81,13 +81,6 @@ class PaymentService(
     }
 
     @Transactional
-    fun markAsFailed(paymentIntentId: String): Payment {
-        val payment = findPaymentByPaymentIntentId(paymentIntentId)
-        payment.status = PaymentStatus.FAILED
-        return paymentRepository.save(payment)
-    }
-
-    @Transactional
     fun findPaymentByPaymentIntentId(paymentIntentId: String): Payment {
         return paymentRepository.findByPaymentIntentId(paymentIntentId)
             ?: throw PaymentNotFoundException("payment intent with id $paymentIntentId not found")

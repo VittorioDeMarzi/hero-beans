@@ -115,7 +115,7 @@ class CheckoutService(
         } catch (exception: OrderAlreadyTerminatedException) {
             handleOrderAlreadyTerminated(order, exception)
         } catch (exception: Exception) {
-            handleCheckoutFinalizeFailure(order, exception, request.paymentIntentId, member.email, request.couponKey)
+            handleCheckoutFinalizeFailure(order, exception, member.email, request.couponKey)
         }
     }
 
@@ -138,11 +138,9 @@ class CheckoutService(
     private fun handleCheckoutFinalizeFailure(
         order: Order,
         exception: Throwable,
-        paymentIntentId: String,
         memberEmail: String,
         couponCode: String?,
     ): PaymentResult.Failure {
-        paymentService.markAsFailed(paymentIntentId)
         orderService.rollbackOptionsStock(order)
         couponService.rollbackCouponIfApplied(memberEmail, couponCode)
         val error = mapToPaymentError(exception)
