@@ -2,6 +2,8 @@ package techcourse.herobeans.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -15,6 +17,7 @@ import java.time.LocalDateTime
 class Coupon(
     @Column(nullable = false)
     val code: String,
+    @Enumerated(EnumType.STRING)
     val discountType: DiscountType,
     val discountValue: BigDecimal,
     @Column(nullable = true)

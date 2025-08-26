@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <include file="/db/changelog/2025/08/24-01-changelog-init-schema.xml"/>
+    <include file="/db/changelog/2025/08/24-03-changelog-add-default-timestamp-values.xml"/>
+    <include file="/db/changelog/2025/08/24-02-changelog-seed-initial-data.xml"/>
+    <include file="/db/changelog/2025/08/25-04-changelog-initial-members.xml"/>
+</databaseChangeLog>
