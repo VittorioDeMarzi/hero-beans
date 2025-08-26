@@ -45,9 +45,10 @@ class CouponRollbackServiceTest {
     fun `should throw NotFoundException when coupon does not exist`() {
         every { couponJpaRepository.findByCodeAndUserMail(testMemberEmail, testCouponCode) } returns null
 
-        val exception = assertThrows<NotFoundException> {
-            couponService.rollbackCouponIfApplied(testMemberEmail, testCouponCode)
-        }
+        val exception =
+            assertThrows<NotFoundException> {
+                couponService.rollbackCouponIfApplied(testMemberEmail, testCouponCode)
+            }
 
         assertThat(exception.message).contains(testCouponCode)
         verify { memberJpaRepository wasNot Called }
@@ -55,13 +56,14 @@ class CouponRollbackServiceTest {
 
     @Test
     fun `should rollback coupon to active true when coupon exists`() {
-        val coupon = Coupon(
-            code = testCouponCode,
-            userMail = testMemberEmail,
-            discountValue = BigDecimal(10),
-            discountType = DiscountType.PERCENTAGE,
-            active = false
-        )
+        val coupon =
+            Coupon(
+                code = testCouponCode,
+                userMail = testMemberEmail,
+                discountValue = BigDecimal(10),
+                discountType = DiscountType.PERCENTAGE,
+                active = false,
+            )
         val savedCouponSlot = slot<Coupon>()
 
         every { couponJpaRepository.findByCodeAndUserMail(testMemberEmail, testCouponCode) } returns coupon
@@ -78,13 +80,14 @@ class CouponRollbackServiceTest {
 
     @Test
     fun `should save coupon even when already active`() {
-        val coupon = Coupon(
-            code = testCouponCode,
-            userMail = testMemberEmail,
-            discountValue = BigDecimal(10),
-            discountType = DiscountType.PERCENTAGE,
-            active = true
-        )
+        val coupon =
+            Coupon(
+                code = testCouponCode,
+                userMail = testMemberEmail,
+                discountValue = BigDecimal(10),
+                discountType = DiscountType.PERCENTAGE,
+                active = true,
+            )
         val savedCouponSlot = slot<Coupon>()
 
         every { couponJpaRepository.findByCodeAndUserMail(testMemberEmail, testCouponCode) } returns coupon

@@ -71,6 +71,7 @@ class GlobalExceptionHandler(private val env: Environment? = null) {
 
     @ExceptionHandler(
         value = [
+            OrderAlreadyTerminatedException::class,
             OrderNotProcessableException::class,
             CartEmptyException::class,
             InvalidCouponException::class,

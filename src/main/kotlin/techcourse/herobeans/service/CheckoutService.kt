@@ -12,7 +12,9 @@ import techcourse.herobeans.dto.PaymentErrorCode
 import techcourse.herobeans.dto.PaymentIntent
 import techcourse.herobeans.dto.PaymentResult
 import techcourse.herobeans.entity.Order
+import techcourse.herobeans.enums.OrderStatus
 import techcourse.herobeans.exception.InvalidCouponException
+import techcourse.herobeans.exception.OrderAlreadyTerminatedException
 import techcourse.herobeans.exception.OrderNotProcessableException
 import techcourse.herobeans.exception.PaymentException
 import techcourse.herobeans.exception.PaymentStatusNotSuccessException
@@ -23,6 +25,7 @@ import techcourse.herobeans.mapper.AddressMapper.toDto
 import java.math.BigDecimal
 
 private val log = KotlinLogging.logger {}
+
 @Service
 class CheckoutService(
     private val orderService: OrderService,
@@ -57,7 +60,7 @@ class CheckoutService(
         return try {
             val paymentIntent = paymentService.createPaymentIntent(request, totalAmount)
             val payment = paymentService.createPayment(request, paymentIntent, order)
-            log.info { "checkout.payment.created memberId=${memberId} orderId=${order.id} paymentIntentId=${paymentIntent.id}" }
+            log.info { "checkout.payment.created memberId=$memberId orderId=${order.id} paymentIntentId=${paymentIntent.id}" }
             CheckoutStartResponse(
                 paymentIntentId = paymentIntent.id,
                 orderId = order.id,
@@ -101,25 +104,45 @@ class CheckoutService(
         log.info { "checkout.finalize.started memberId=${member.id} orderId=${request.orderId} paymentIntentId=${request.paymentIntentId}" }
         val order = orderService.getValidatedPendingOrder(request.orderId, member.id)
         return try {
+            validateOrderStatus(order)
             val paymentIntent = paymentService.confirmPaymentIntent(request.paymentIntentId)
             val status = updateOrderToPaid(order, paymentIntent)
 
             cartService.clearCart(member.id)
             val address = addressService.findAddressByMemberId(member.id)
-            log.info { "checkout.finalize.success memberId=${member.id} orderId=${order.id} paymentStatus=${status}" }
+            log.info { "checkout.finalize.success memberId=${member.id} orderId=${order.id} paymentStatus=$status" }
             PaymentResult.Success(orderId = order.id, paymentStatus = status, addressDto = address.toDto())
+        } catch (exception: OrderAlreadyTerminatedException) {
+            handleOrderAlreadyTerminated(order, exception)
         } catch (exception: Exception) {
-            paymentService.markAsFailed(request.paymentIntentId)
-            handleCheckoutFinalizeFailure(order, exception, memberEmail = member.email, request.couponKey)
+            handleCheckoutFinalizeFailure(order, exception, request.paymentIntentId, member.email, request.couponKey)
+        }
+    }
+
+    private fun handleOrderAlreadyTerminated(
+        order: Order,
+        exception: OrderAlreadyTerminatedException,
+    ): PaymentResult.Failure {
+        val paymentError =
+            PaymentError(PaymentErrorCode.ORDER_ALREADY_TERMINATED)
+                .copy(message = exception.message)
+        return PaymentResult.Failure(order.id, paymentError)
+    }
+
+    private fun validateOrderStatus(order: Order) {
+        if (order.status != OrderStatus.PENDING) {
+            throw OrderAlreadyTerminatedException("order ${order.id} is already terminated.")
         }
     }
 
     private fun handleCheckoutFinalizeFailure(
         order: Order,
         exception: Throwable,
+        paymentIntentId: String,
         memberEmail: String,
         couponCode: String?,
     ): PaymentResult.Failure {
+        paymentService.markAsFailed(paymentIntentId)
         orderService.rollbackOptionsStock(order)
         couponService.rollbackCouponIfApplied(memberEmail, couponCode)
         val error = mapToPaymentError(exception)
@@ -141,7 +164,7 @@ class CheckoutService(
         order: Order,
         paymentIntent: PaymentIntent,
     ): String {
-      log.debug { "order.update.paid orderId=${order.id} paymentIntentId=${paymentIntent.id}" }
+        log.debug { "order.update.paid orderId=${order.id} paymentIntentId=${paymentIntent.id}" }
         when (paymentService.isPaymentSucceeded(paymentIntent)) {
             true -> {
                 orderService.markOrderAsPaid(order)
