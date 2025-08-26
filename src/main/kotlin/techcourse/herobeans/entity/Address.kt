@@ -37,15 +37,11 @@ class Address(
     }
 
     fun isInBerlin(): Boolean {
-        return this.city.equals("Berlin", ignoreCase = true) ||
-            (
-                this.postalCode.length == 5 &&
-                    (
-                        this.postalCode.startsWith("10") || // Berlin postal codes start with 10xxx or 12xxx
-                            this.postalCode.startsWith("12")
-                    )
-            )
+        return this.city.equals("Berlin", ignoreCase = true) &&
+            (this.postalCode.length == 5 && isBerlinPostCode())
     }
+
+    private fun isBerlinPostCode() = this.postalCode.startsWith("10") || this.postalCode.startsWith("12")
 
     fun isInGermany(): Boolean {
         return this.countryCode.equals("DE", ignoreCase = true)

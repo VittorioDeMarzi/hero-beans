@@ -7,7 +7,6 @@ import techcourse.herobeans.dto.AddressDto
 import techcourse.herobeans.dto.AddressRequest
 import techcourse.herobeans.dto.UpdateAddressRequest
 import techcourse.herobeans.entity.Address
-import techcourse.herobeans.exception.ForbiddenAccessException
 import techcourse.herobeans.exception.MaxAddressesExceededException
 import techcourse.herobeans.exception.NotFoundException
 import techcourse.herobeans.mapper.AddressMapper.toDto
@@ -74,23 +73,16 @@ class AddressService(
             .also { list -> log.info { "address.listed memberId=$memberId count=${list.size}" } }
     }
 
+    @Transactional(readOnly = true)
     fun findMemberAddress(
         addressId: Long,
         memberId: Long,
     ): Address {
-        return findAddressById(addressId).apply {
-            if (this.member.id != memberId) {
-                throw ForbiddenAccessException("You are not allowed to access this address")
-            }
-        }
+        return addressRepository.findByIdAndMemberId(addressId, memberId)
+            ?: throw NotFoundException("Address with id=$addressId not found for memberId=$memberId")
     }
 
     fun findAddressByMemberId(memberId: Long): Address {
         return addressRepository.findByMemberId(memberId)
-    }
-
-    private fun findAddressById(id: Long): Address {
-        return addressRepository.findById(id)
-            .orElseThrow { NotFoundException("Address with id: $id not found") }
     }
 }
