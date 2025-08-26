@@ -14,6 +14,11 @@ import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.test.context.ActiveProfiles
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
+import techcourse.herobeans.entity.Order
+import techcourse.herobeans.entity.OrderItem
+import techcourse.herobeans.enums.ShippingMethod
+import java.math.BigDecimal
+import java.time.LocalDateTime
 
 @ActiveProfiles("test")
 class EmailServiceTest {
@@ -25,7 +30,7 @@ class EmailServiceTest {
 
     @BeforeEach
     fun setUp() {
-        emailService = EmailService(mailSender, templateEngine)
+        emailService = EmailService(mailSender, templateEngine, "testHerobeans@email.com")
     }
 
     @Test
@@ -71,6 +76,76 @@ class EmailServiceTest {
 
         assertEquals("Email service error", exception.message)
 
+        verify(exactly = 0) { mailSender.send(any<MimeMessage>()) }
+    }
+
+    @Test
+    fun `after order should send confirmation email successfully`() {
+        val userEmail = "customer@example.com"
+        val order =
+            Order(
+                id = 12345L,
+                createdAt = LocalDateTime.now(),
+                orderItems =
+                    listOf(
+                        OrderItem(10, "Specialty Coffee Beans", "250g", 2, BigDecimal("15.50")),
+                    ) as MutableList<OrderItem>,
+                coffeeSubTotal = BigDecimal("31.00"),
+                shippingMethod = ShippingMethod.STANDARD,
+                shippingFee = BigDecimal("5.00"),
+                memberId = 10,
+            )
+        val expectedHtmlContent = "<html>Your order #12345 is confirmed</html>"
+
+        every { templateEngine.process("order-confirmation-email", any<Context>()) } returns expectedHtmlContent
+        every { mailSender.createMimeMessage() } returns mimeMessage
+        every { mailSender.send(mimeMessage) } just Runs
+
+        // When
+        emailService.sendOrderConfirmationEmail(userEmail, order)
+
+        // Then
+        verify {
+            templateEngine.process(
+                eq("order-confirmation-email"),
+                match<Context> { context ->
+                    context.getVariable("order") == order
+                },
+            )
+        }
+        verify { mailSender.createMimeMessage() }
+        verify { mailSender.send(mimeMessage) }
+    }
+
+    @Test
+    fun `sendOrderConfirmationEmail should throw runtime if template processing fails`() {
+        // Given
+        val userEmail = "customer@example.com"
+        val order =
+            Order(
+                id = 54321L,
+                createdAt = LocalDateTime.now(),
+                orderItems =
+                    listOf(
+                        OrderItem(10, "Specialty Coffee Beans", "250g", 2, BigDecimal("15.50")),
+                    ) as MutableList<OrderItem>,
+                coffeeSubTotal = BigDecimal("31.00"),
+                shippingMethod = ShippingMethod.STANDARD,
+                shippingFee = BigDecimal("5.00"),
+                memberId = 10,
+            )
+
+        every { templateEngine.process(any<String>(), any<Context>()) } throws RuntimeException("Template error")
+
+        // When & Then
+        val exception =
+            assertThrows<RuntimeException> {
+                emailService.sendOrderConfirmationEmail(userEmail, order)
+            }
+
+        assertEquals("Email confirmation failed", exception.message)
+
+        // Verify that no email was sent
         verify(exactly = 0) { mailSender.send(any<MimeMessage>()) }
     }
 }

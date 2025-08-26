@@ -11,6 +11,5 @@ class WelcomeCouponListener(private val couponService: CouponService, private va
     fun handleUserRegisteredEvent(event: UserRegisteredEvent) {
         val coupon = couponService.createWelcomeCoupon(event.userMail)
         emailService.sendRegistrationEmail(event.userMail, event.name, coupon.code)
-        // TODO Log the creation of the welcome coupon
     }
 }

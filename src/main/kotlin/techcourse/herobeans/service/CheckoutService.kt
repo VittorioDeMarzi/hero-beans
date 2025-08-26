@@ -1,6 +1,7 @@
 package techcourse.herobeans.service
 
 import jakarta.transaction.Transactional
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import techcourse.herobeans.dto.CheckoutStartRequest
 import techcourse.herobeans.dto.CheckoutStartResponse
@@ -12,6 +13,7 @@ import techcourse.herobeans.dto.PaymentIntent
 import techcourse.herobeans.dto.PaymentResult
 import techcourse.herobeans.entity.Order
 import techcourse.herobeans.enums.OrderStatus
+import techcourse.herobeans.event.OrderConfirmationEvent
 import techcourse.herobeans.exception.PaymentException
 import techcourse.herobeans.exception.PaymentStatusNotSuccessException
 import techcourse.herobeans.exception.StripeClientException
@@ -24,6 +26,7 @@ class CheckoutService(
     private val orderService: OrderService,
     private val paymentService: PaymentService,
     private val cartService: CartService,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
     // TODO: timeout setting
     //  @Transactional(rollbackFor = [Exception::class])
@@ -60,6 +63,7 @@ class CheckoutService(
         return try {
             val paymentIntent = paymentService.confirmPaymentIntent(request.paymentIntentId)
             val status = updateOrderToPaid(order, paymentIntent)
+            applicationEventPublisher.publishEvent(OrderConfirmationEvent(order, member))
             cartService.clearCart(member.id)
             PaymentResult.Success(orderId = order.id, paymentStatus = status.name)
         } catch (exception: Exception) {
