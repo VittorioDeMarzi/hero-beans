@@ -1,8 +1,11 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-APP_NAME="herobeans-backend"
 APP_DIR="/home/ubuntu/app"
+
+if [ -f /home/ubuntu/app/.env ]; then
+  export $(grep -v '^#' /home/ubuntu/app/.env | xargs)
+fi
 
 PORT_BLUE=8081
 PORT_GREEN=8082
@@ -10,7 +13,6 @@ ACTIVE_UPSTREAM_CONFIG="/etc/nginx/snippets/active_upstream.conf"
 HEALTH_CHECK_ENDPOINT="/actuator/health"
 
 PROFILE="${1:-${SPRING_PROFILES_ACTIVE:-prod}}"
-
 
 if [ ! -f $ACTIVE_UPSTREAM_CONFIG ] || grep -q "blue" $ACTIVE_UPSTREAM_CONFIG; then
     CURRENT_COLOR="blue"
@@ -22,12 +24,6 @@ else
     CURRENT_PORT=$PORT_GREEN
     NEXT_COLOR="blue"
     NEXT_PORT=$PORT_BLUE
-fi
-
-if [[ -f "$APP_DIR/.env" ]]; then
-  set -a
-  source "$APP_DIR/.env"
-  set +a
 fi
 
 JAR_FILE=$(ls /home/ubuntu/app/build/libs/*.jar | head -n 1 || true)
