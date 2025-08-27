@@ -21,7 +21,6 @@ import techcourse.herobeans.exception.PaymentStatusNotSuccessException
 import techcourse.herobeans.exception.StripeClientException
 import techcourse.herobeans.exception.StripeProcessingException
 import techcourse.herobeans.exception.StripeServerException
-import techcourse.herobeans.mapper.AddressMapper.toDto
 import java.math.BigDecimal
 
 private val log = KotlinLogging.logger {}
