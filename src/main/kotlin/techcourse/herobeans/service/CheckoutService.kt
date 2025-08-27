@@ -21,7 +21,6 @@ import techcourse.herobeans.exception.PaymentStatusNotSuccessException
 import techcourse.herobeans.exception.StripeClientException
 import techcourse.herobeans.exception.StripeProcessingException
 import techcourse.herobeans.exception.StripeServerException
-import techcourse.herobeans.mapper.AddressMapper.toDto
 import java.math.BigDecimal
 
 private val log = KotlinLogging.logger {}
@@ -42,7 +41,7 @@ class CheckoutService(
         memberDto: MemberDto,
         request: CheckoutStartRequest,
     ): CheckoutStartResponse {
-        val address = addressService.findMemberAddress(addressId = request.addressId, memberId = memberDto.id)
+        addressService.findMemberAddress(addressId = request.addressId, memberId = memberDto.id)
         log.info { "checkout.started memberId=${memberDto.id}" }
         val cart = cartService.getCartForOrder(memberDto.id)
         val order = orderService.processOrderWithStockReduction(cart)
@@ -70,7 +69,7 @@ class CheckoutService(
                 couponCode = request.couponCode,
             )
         } catch (exception: Exception) {
-            val error = mapToPaymentError(exception)
+            mapToPaymentError(exception)
             throw exception
         }
     }

@@ -7,7 +7,6 @@ import techcourse.herobeans.entity.Coupon
 import techcourse.herobeans.exception.InvalidCouponException
 import techcourse.herobeans.exception.NotFoundException
 import techcourse.herobeans.repository.CouponJpaRepository
-import techcourse.herobeans.repository.MemberJpaRepository
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
@@ -16,7 +15,6 @@ private val log = KotlinLogging.logger {}
 @Service
 class CouponService(
     private val couponJpaRepository: CouponJpaRepository,
-    private val memberJpaRepository: MemberJpaRepository,
 ) {
     @Transactional(readOnly = true)
     fun validate(

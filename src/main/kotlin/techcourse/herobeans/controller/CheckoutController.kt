@@ -20,7 +20,6 @@ import techcourse.herobeans.service.CheckoutService
 
 private val log = KotlinLogging.logger {}
 
-// TODO: address process need
 @Tag(name = "Checkout", description = "Checkout and payment flow")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
