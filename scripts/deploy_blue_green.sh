@@ -6,7 +6,7 @@ APP_DIR="/home/ubuntu/app"
 
 PORT_BLUE=8081
 PORT_GREEN=8082
-ACTIVE_UPSTREAM_CONFIG="/etc/nginx/conf.d/active_upstream.conf"
+ACTIVE_UPSTREAM_CONFIG="/etc/nginx/snippets/active_upstream.conf
 HEALTH_CHECK_ENDPOINT="/actuator/health"
 
 PROFILE="${1:-${SPRING_PROFILES_ACTIVE:-prod}}"
@@ -38,7 +38,7 @@ if [ -z "$JAR_FILE" ]; then
   exit 1
 fi
 
-echo "[deploy] current=$CUR_COLOR:$CUR_PORT  next=$NEXT_COLOR:$NEXT_PORT"
+echo "[deploy] current=$CURRENT_COLOR:$CURRENT_PORT  next=$NEXT_COLOR:$NEXT_PORT"
 nohup java -jar -Dserver.port=$NEXT_PORT "$JAR_FILE" $SPRING_OPTS > "$APP_DIR/app-$NEXT_COLOR.log" 2>&1 &
 NEW_PID=$!
 
