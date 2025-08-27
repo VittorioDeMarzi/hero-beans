@@ -32,7 +32,7 @@ class WebMvcConfigurer(
 
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/api/**")
-            .allowedOrigins("https://herobeans.com")
+            .allowedOrigins("https://www.herobeans.com")
             .allowedMethods("GET", "POST", "HEAD", "OPTIONS", "DELETE", "PUT", "PATCH")
             .allowedHeaders("*")
             .exposedHeaders("Location")
