@@ -23,7 +23,7 @@ private val log = KotlinLogging.logger {}
 
 @Tag(name = "Catalog", description = "Public product catalog")
 @RestController
-@RequestMapping("/api/product")
+@RequestMapping("/api/coffees")
 class GuestController(
     private val coffeeService: CoffeeService,
 ) {
