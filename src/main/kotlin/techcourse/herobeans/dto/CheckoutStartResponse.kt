@@ -9,4 +9,5 @@ class CheckoutStartResponse(
     val amount: BigDecimal,
     val status: PaymentStatus,
     val clientSecret: String?,
+    val couponCode: String?,
 )

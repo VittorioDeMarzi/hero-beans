@@ -13,6 +13,9 @@ import techcourse.herobeans.client.StripeClient
 import techcourse.herobeans.dto.CheckoutStartRequest
 import techcourse.herobeans.dto.FinalizePaymentRequest
 import techcourse.herobeans.dto.PaymentIntent
+import techcourse.herobeans.entity.Address
+import techcourse.herobeans.entity.Member
+import techcourse.herobeans.enums.MemberRole
 import techcourse.herobeans.exception.PaymentIntentNotFoundException
 import techcourse.herobeans.exception.PaymentProcessingException
 import techcourse.herobeans.repository.PaymentJpaRepository
@@ -33,7 +36,26 @@ class PaymentServiceTest {
 
     @Test
     fun `should create payment intent successfully`() {
-        val request = CheckoutStartRequest(paymentMethod = "card")
+        val member =
+            Member(
+                name = "Guri Kim",
+                email = "guri.kim@herobeans.com",
+                password = "very_happy_dog",
+                role = MemberRole.USER,
+                id = 1L,
+            )
+
+        val address =
+            Address(
+                street = "Oranienburger Str.",
+                number = "70",
+                city = "Berlin",
+                postalCode = "10117",
+                countryCode = "DE",
+                member = member,
+                id = 1L,
+            )
+        val request = CheckoutStartRequest(paymentMethod = "card", addressId = 1L)
         val amount = BigDecimal("29.99")
         val expectedPaymentIntent =
             PaymentIntent(
@@ -57,7 +79,26 @@ class PaymentServiceTest {
 
     @Test
     fun `should throw exception when payment intent creation fails`() {
-        val request = CheckoutStartRequest(paymentMethod = "card")
+        val member =
+            Member(
+                name = "Guri Kim",
+                email = "guri.kim@herobeans.com",
+                password = "very_happy_dog",
+                role = MemberRole.USER,
+                id = 1L,
+            )
+
+        val address =
+            Address(
+                street = "Oranienburger Str.",
+                number = "70",
+                city = "Berlin",
+                postalCode = "10117",
+                countryCode = "DE",
+                member = member,
+                id = 1L,
+            )
+        val request = CheckoutStartRequest(paymentMethod = "card", addressId = 1L)
         val amount = BigDecimal("29.99")
 
         whenever(stripeClient.createPaymentIntent(request, amount))

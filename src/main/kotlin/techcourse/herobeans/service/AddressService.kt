@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.dto.AddressDto
 import techcourse.herobeans.dto.AddressRequest
 import techcourse.herobeans.dto.UpdateAddressRequest
+import techcourse.herobeans.entity.Address
 import techcourse.herobeans.exception.ForbiddenAccessException
 import techcourse.herobeans.exception.MaxAddressesExceededException
 import techcourse.herobeans.exception.NotFoundException
@@ -26,7 +27,9 @@ class AddressService(
         request: AddressRequest,
         memberId: Long,
     ): AddressDto {
-        val member = memberJpaRepository.findById(memberId).orElseThrow { NotFoundException("Member with id: $memberId not found") }
+        val member =
+            memberJpaRepository.findById(memberId)
+                .orElseThrow { NotFoundException("Member with id: $memberId not found") }
         if (addressRepository.findAllByMemberId(memberId).size >= 5) {
             throw MaxAddressesExceededException("Max 5 addresses allowed")
         }
@@ -41,10 +44,7 @@ class AddressService(
         id: Long,
         memberId: Long,
     ) {
-        val address = addressRepository.findById(id).orElseThrow { NotFoundException("Address with id: $id not found") }
-        if (address.member.id != memberId) {
-            throw ForbiddenAccessException("You are not allowed to delete this address")
-        }
+        val address = findMemberAddress(id, memberId)
         address
             .apply { addressRepository.delete(this) }
             .also { log.info { "address.removed memberId=$memberId addressId=$id" } }
@@ -55,10 +55,7 @@ class AddressService(
         memberId: Long,
         request: UpdateAddressRequest,
     ): AddressDto {
-        val address = addressRepository.findById(id).orElseThrow { NotFoundException("Address with id: $id not found") }
-        if (address.member.id != memberId) {
-            throw ForbiddenAccessException("You are not allowed to modify this address")
-        }
+        val address = findMemberAddress(id, memberId)
 
         request.street?.let { address.street = it }
         request.number?.let { address.number = it }
@@ -75,5 +72,28 @@ class AddressService(
         return addressRepository.findAllByMemberId(memberId)
             .map { it.toDto() }
             .also { list -> log.info { "address.listed memberId=$memberId count=${list.size}" } }
+    }
+
+    @Transactional(readOnly = true)
+    fun findMemberAddress(
+        addressId: Long,
+        memberId: Long,
+    ): Address {
+        return addressRepository.findByIdAndMemberId(addressId, memberId)
+            ?: throw NotFoundException("Address with id=$addressId not found for memberId=$memberId")
+    }
+
+    fun findAddressByMemberId(
+        memberId: Long,
+        addressId: Long,
+    ): Address {
+        val address =
+            addressRepository.findById(addressId).orElse(null)
+                ?: throw NotFoundException("Address with id=$addressId not found")
+
+        if (address.member.id != memberId) {
+            throw ForbiddenAccessException("Access denied to address $addressId")
+        }
+        return address
     }
 }

@@ -7,4 +7,9 @@ interface CouponJpaRepository : JpaRepository<Coupon, Long> {
     fun findByCodeAndActiveTrue(code: String): Coupon?
 
     fun findAllByUserMail(userMail: String): List<Coupon>
+
+    fun findByCodeAndUserMail(
+        userMail: String,
+        code: String,
+    ): Coupon?
 }
