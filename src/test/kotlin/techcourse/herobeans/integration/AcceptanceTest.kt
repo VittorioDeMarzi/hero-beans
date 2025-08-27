@@ -22,11 +22,11 @@ class AcceptanceTest {
     fun cors() {
         mockMvc.perform(
             MockMvcRequestBuilders.options("/api/coffees")
-                .header(HttpHeaders.ORIGIN, "https://herobeans.com")
+                .header(HttpHeaders.ORIGIN, "https://www.herobeans.com")
                 .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET"),
         )
             .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "https://herobeans.com"))
+            .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "https://www.herobeans.com"))
             .andExpect(
                 MockMvcResultMatchers.header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, ALLOWED_METHOD_NAMES),
             )
