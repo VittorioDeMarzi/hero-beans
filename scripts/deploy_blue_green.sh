@@ -6,7 +6,7 @@ APP_DIR="/home/ubuntu/app"
 
 PORT_BLUE=8081
 PORT_GREEN=8082
-ACTIVE_UPSTREAM_CONFIG="/etc/nginx/snippets/active_upstream.conf
+ACTIVE_UPSTREAM_CONFIG="/etc/nginx/snippets/active_upstream.conf"
 HEALTH_CHECK_ENDPOINT="/actuator/health"
 
 PROFILE="${1:-${SPRING_PROFILES_ACTIVE:-prod}}"
@@ -38,8 +38,12 @@ if [ -z "$JAR_FILE" ]; then
   exit 1
 fi
 
+JVM_OPTS="-Dserver.port=${NEXT_PORT} -Dspring.profiles.active=${PROFILE} -Dlogging.config=classpath:logback-spring.xml"
+
 echo "[deploy] current=$CURRENT_COLOR:$CURRENT_PORT  next=$NEXT_COLOR:$NEXT_PORT"
-nohup java -jar -Dserver.port=$NEXT_PORT "$JAR_FILE" $SPRING_OPTS > "$APP_DIR/app-$NEXT_COLOR.log" 2>&1 &
+echo "[deploy] jar=${JAR_FILE}  profile=${PROFILE}"
+
+nohup java -jar ${JVM_OPTS} "${JAR_FILE}" > "${APP_DIR}/app-${NEXT_COLOR}.log" 2>&1 &
 NEW_PID=$!
 
 sleep 60
@@ -50,8 +54,8 @@ for i in {1..10}; do
     HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" $HEALTH_CHECK_URL)
     if [ "$HTTP_CODE" == "200" ]; then
 
-        sudo bash -c "echo 'set \$active_upstream $NEXT_COLOR;' > $ACTIVE_UPSTREAM_CONFIG"
-        sudo systemctl reload nginx
+        echo "set \$active_upstream ${NEXT_COLOR};" | sudo tee "${ACTIVE_UPSTREAM_CONFIG}" >/dev/null
+        sudo nginx -t && sudo systemctl reload nginx
 
         OLD_PID=$(lsof -t -i:$CURRENT_PORT)
         if [ -n "$OLD_PID" ]; then
@@ -59,8 +63,10 @@ for i in {1..10}; do
         fi
         exit 0
     fi
+    echo "[deploy] health not ready on ${NEXT_PORT} (attempt ${i}/10); retrying..."
     sleep 10
 done
 
-kill $NEW_PID
+kill "${NEW_PID}" || true
+echo "[deploy] ERROR: health checks failed on ${NEXT_PORT}"
 exit 1
