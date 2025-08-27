@@ -55,10 +55,9 @@ class CouponService(
 
     @Transactional
     fun createWelcomeCoupon(userMail: String): Coupon {
-        log.info { "coupon.create.welcome.started userMail=$userMail" }
-        val coupon = couponJpaRepository.save(Coupon.createWelcomeCoupon(userMail))
-        log.info { "coupon.create.welcome.success userMail=$userMail couponId=${coupon.id}" }
-        return coupon
+        return couponJpaRepository.save(Coupon.createWelcomeCoupon(userMail)).also {
+            log.info { "WelcomeCoupon ${it.id} created - user: $userMail}" }
+        }
     }
 
     @Transactional

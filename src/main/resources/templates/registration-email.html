@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ENG">
+    <body>
+        <h2 th:text="|Hi ${userName}!|">Hi User!</h2>
+        <p>Welcome to our ecommerce store! We're thrilled to have you.</p>
+        <p>Your registration has been completed successfully.</p>
+
+        <p>As a welcome gift, here is a 10% discount coupon for your first order:</p>
+        <div style="background-color: #f0f0f0; border: 1px dashed #ccc; padding: 10px 20px; text-align: center; margin: 20px 0;">
+            <h3 style="letter-spacing: 2px; margin: 0;" th:text="${couponCode}">COUPON-CODE</h3>
+        </div>
+
+        <p>You can start shopping on our site now.</p>
+        <br/>
+        <p>Thank you for choosing our store!</p>
+        <p><strong>The HeroBeans Team</strong></p>
+    </body>
+</html>

@@ -28,6 +28,7 @@ class AuthenticationService(
     private val passwordEncoder: PasswordEncoder,
     private val memberJpaRepository: MemberJpaRepository,
     private val applicationEventPublisher: ApplicationEventPublisher,
+    private val emailService: EmailService,
 ) {
     fun register(request: RegistrationRequest): TokenResponse {
         if (memberJpaRepository.existsByEmail(request.email)) {
@@ -40,8 +41,7 @@ class AuthenticationService(
         val token =
             tokenService.createToken(saved.email)
                 .also { log.info { "auth.token.issued memberId=${saved.id}" } }
-        applicationEventPublisher.publishEvent(UserRegisteredEvent(request.email))
-
+        applicationEventPublisher.publishEvent(UserRegisteredEvent(request.email, request.name))
         return TokenResponse(token)
     }
 
