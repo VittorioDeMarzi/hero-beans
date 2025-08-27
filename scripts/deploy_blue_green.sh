@@ -38,12 +38,12 @@ if [ -z "$JAR_FILE" ]; then
   exit 1
 fi
 
-JVM_OPTS="-Dserver.port=${NEXT_PORT} -Dspring.profiles.active=${PROFILE} -Dlogging.config=classpath:logback-spring.xml"
+JVM_OPTS="-Dserver.port=${NEXT_PORT}"
 
 echo "[deploy] current=$CURRENT_COLOR:$CURRENT_PORT  next=$NEXT_COLOR:$NEXT_PORT"
 echo "[deploy] jar=${JAR_FILE}  profile=${PROFILE}"
 
-nohup java ${JVM_OPTS} -jar "${JAR_FILE}" > "${APP_DIR}/app-${NEXT_COLOR}.log" 2>&1 &
+nohup java ${JVM_OPTS} -jar "${JAR_FILE}" ${SPRING_OPTS}> "${APP_DIR}/app-${NEXT_COLOR}.log" 2>&1 &
 NEW_PID=$!
 
 sleep 60

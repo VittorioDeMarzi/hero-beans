@@ -1,5 +1,6 @@
 version: 0.0
 os: linux
+file_exists_behavior: OVERWRITE
 
 files:
   - source: /
@@ -7,10 +8,10 @@ files:
 
 hooks:
   BeforeInstall:
-    - location: /app/scripts/cleanup.sh
+    - location: scripts/cleanup.sh
       timeout: 300
-      runas: root
+      runas: ubuntu
   ApplicationStart:
-    - location: /app/scripts/deploy_blue_green.sh
+    - location: scripts/deploy_blue_green.sh
       timeout: 300
-      runas: root
+      runas: ubuntu
