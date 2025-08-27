@@ -45,7 +45,6 @@ class RealEmailService(
             log.info("Registration email sent successfully to: $userEmail")
         } catch (e: Exception) {
             log.error("Failed to send registration email to $userEmail", e)
-            throw RuntimeException("Email service error", e)
         }
     }
 
@@ -71,7 +70,6 @@ class RealEmailService(
             log.info("Confirmation email sent for order #${order.id} to: $userEmail")
         } catch (e: Exception) {
             log.error("Error sending confirmation email for order #${order.id} to $userEmail", e)
-            throw RuntimeException("Email confirmation failed", e)
         }
     }
 

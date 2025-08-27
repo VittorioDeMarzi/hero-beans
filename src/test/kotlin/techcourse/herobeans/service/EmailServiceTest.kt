@@ -6,10 +6,9 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.mail.internet.MimeMessage
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.assertDoesNotThrow
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.test.context.ActiveProfiles
 import org.thymeleaf.TemplateEngine
@@ -35,7 +34,6 @@ class EmailServiceTest {
 
     @Test
     fun `sendRegistrationEmail should send email successfully`() {
-        // Given
         val userEmail = "test@tes.com"
         val userName = "Test User"
         val code = "WELCOME123"
@@ -61,20 +59,16 @@ class EmailServiceTest {
     }
 
     @Test
-    fun `should throw runtime if email sending fail`() {
-        // Given
+    fun `should not throw exception if email sending fail, should continue process`() {
         val userEmail = "user@example.com"
         val userName = "Mario Rossi"
         val couponCode = "WELCOME10"
 
         every { templateEngine.process(any<String>(), any<Context>()) } throws RuntimeException("Template error")
 
-        val exception =
-            assertThrows<RuntimeException> {
-                emailService.sendRegistrationEmail(userEmail, userName, couponCode)
-            }
-
-        assertEquals("Email service error", exception.message)
+        assertDoesNotThrow {
+            emailService.sendRegistrationEmail(userEmail, userName, couponCode)
+        }
 
         verify(exactly = 0) { mailSender.send(any<MimeMessage>()) }
     }
@@ -101,10 +95,8 @@ class EmailServiceTest {
         every { mailSender.createMimeMessage() } returns mimeMessage
         every { mailSender.send(mimeMessage) } just Runs
 
-        // When
         emailService.sendOrderConfirmationEmail(userEmail, order)
 
-        // Then
         verify {
             templateEngine.process(
                 eq("order-confirmation-email"),
@@ -118,8 +110,7 @@ class EmailServiceTest {
     }
 
     @Test
-    fun `sendOrderConfirmationEmail should throw runtime if template processing fails`() {
-        // Given
+    fun `sendOrderConfirmationEmail should not throw exception if template processing fails, should continue`() {
         val userEmail = "customer@example.com"
         val order =
             Order(
@@ -137,13 +128,9 @@ class EmailServiceTest {
 
         every { templateEngine.process(any<String>(), any<Context>()) } throws RuntimeException("Template error")
 
-        // When & Then
-        val exception =
-            assertThrows<RuntimeException> {
-                emailService.sendOrderConfirmationEmail(userEmail, order)
-            }
-
-        assertEquals("Email confirmation failed", exception.message)
+        assertDoesNotThrow {
+            emailService.sendOrderConfirmationEmail(userEmail, order)
+        }
 
         // Verify that no email was sent
         verify(exactly = 0) { mailSender.send(any<MimeMessage>()) }
