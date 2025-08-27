@@ -11,6 +11,10 @@ hooks:
     - location: scripts/cleanup.sh
       timeout: 300
       runas: ubuntu
+  AfterInstall:
+    - location: scripts/after_install.sh
+      timeout: 60
+      runas: ubuntu
   ApplicationStart:
     - location: scripts/deploy_blue_green.sh
       timeout: 300
