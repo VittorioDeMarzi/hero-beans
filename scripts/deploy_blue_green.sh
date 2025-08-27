@@ -6,7 +6,7 @@ APP_DIR="/home/ubuntu/app"
 
 PORT_BLUE=8081
 PORT_GREEN=8082
-ACTIVE_UPSTREAM_CONFIG="/etc/nginx/snippets/active_upstream.conf
+ACTIVE_UPSTREAM_CONFIG="/etc/nginx/snippets/active_upstream.conf"
 HEALTH_CHECK_ENDPOINT="/actuator/health"
 
 PROFILE="${1:-${SPRING_PROFILES_ACTIVE:-prod}}"
