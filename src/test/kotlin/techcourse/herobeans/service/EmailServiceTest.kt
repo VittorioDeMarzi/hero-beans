@@ -26,11 +26,11 @@ class EmailServiceTest {
     private val templateEngine = mockk<TemplateEngine>()
     private val mimeMessage = mockk<MimeMessage>(relaxed = true)
 
-    private lateinit var emailService: EmailService
+    private lateinit var emailService: RealEmailService
 
     @BeforeEach
     fun setUp() {
-        emailService = EmailService(mailSender, templateEngine, "testHerobeans@email.com")
+        emailService = RealEmailService(mailSender, templateEngine, "testHerobeans@email.com")
     }
 
     @Test

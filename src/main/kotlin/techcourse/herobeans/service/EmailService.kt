@@ -3,6 +3,8 @@ package techcourse.herobeans.service
 import jakarta.mail.internet.MimeMessage
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Primary
+import org.springframework.context.annotation.Profile
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Service
@@ -13,12 +15,13 @@ import techcourse.herobeans.entity.Order
 private val log = KotlinLogging.logger { }
 
 @Service
-class EmailService(
+@Profile("!test")
+class RealEmailService(
     private val mailSender: JavaMailSender,
     private val templateEngine: TemplateEngine,
     @Value("\${spring.mail.username}") private val fromEmail: String,
-) {
-    fun sendRegistrationEmail(
+) : EmailService {
+    override fun sendRegistrationEmail(
         userEmail: String,
         userName: String,
         code: String,
@@ -46,7 +49,7 @@ class EmailService(
         }
     }
 
-    fun sendOrderConfirmationEmail(
+    override fun sendOrderConfirmationEmail(
         userEmail: String,
         order: Order,
     ) {
@@ -73,4 +76,40 @@ class EmailService(
     }
 
     private fun createMimeMessage(): MimeMessage = mailSender.createMimeMessage()
+}
+
+/**
+ * Fake email service – active only when the test profile is enabled.
+ * This bean prevents real email sending during integration tests
+ * by overriding email-related methods with empty bodies
+ */
+@Service
+@Primary
+@Profile("test")
+class FakeEmailService : EmailService {
+    override fun sendRegistrationEmail(
+        userEmail: String,
+        userName: String,
+        code: String,
+    ) {
+    }
+
+    override fun sendOrderConfirmationEmail(
+        userEmail: String,
+        order: Order,
+    ) {
+    }
+}
+
+interface EmailService {
+    fun sendRegistrationEmail(
+        userEmail: String,
+        userName: String,
+        code: String,
+    )
+
+    fun sendOrderConfirmationEmail(
+        userEmail: String,
+        order: Order,
+    )
 }
