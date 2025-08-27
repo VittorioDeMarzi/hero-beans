@@ -80,7 +80,7 @@ class GuestControllerIntegrationTest() {
                 ),
             )
         }
-        mockMvc.get("/api/product")
+        mockMvc.get("/api/coffees")
             .andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -116,7 +116,7 @@ class GuestControllerIntegrationTest() {
                 ),
             )
 
-        mockMvc.get("/api/product/${cappuccino.id}")
+        mockMvc.get("/api/coffees/${cappuccino.id}")
             .andExpect {
                 status { isOk() }
                 content { contentType(MediaType.APPLICATION_JSON) }
@@ -127,7 +127,7 @@ class GuestControllerIntegrationTest() {
 
     @Test
     fun `should return 404 when coffee id does not exist`() {
-        mockMvc.get("/api/product/999999")
+        mockMvc.get("/api/coffees/999999")
             .andExpect {
                 status { isNotFound() }
             }
@@ -141,7 +141,7 @@ class GuestControllerIntegrationTest() {
             createCoffee("Mango", OriginCountry.BRAZIL, RoastLevel.DARK_ROAST, BrewRecommendation.ESPRESSO),
         )
 
-        mockMvc.get("/api/product") {
+        mockMvc.get("/api/coffees") {
             param("sort", "NAME_ASC")
         }.andExpect {
             status { isOk() }
@@ -159,7 +159,7 @@ class GuestControllerIntegrationTest() {
             createCoffee("Mango", OriginCountry.BRAZIL, RoastLevel.DARK_ROAST, BrewRecommendation.ESPRESSO),
         )
 
-        mockMvc.get("/api/product") {
+        mockMvc.get("/api/coffees") {
             param("sort", "NAME_DESC")
             param("size", "10")
         }.andExpect {
@@ -178,7 +178,7 @@ class GuestControllerIntegrationTest() {
             createCoffee("Mango", OriginCountry.ETHIOPIA, RoastLevel.LIGHT_ROAST, BrewRecommendation.FRENCH_PRESS),
         )
 
-        mockMvc.get("/api/product") {
+        mockMvc.get("/api/coffees") {
             param("origin", "ETHIOPIA")
         }.andExpect {
             status { isOk() }
@@ -195,7 +195,7 @@ class GuestControllerIntegrationTest() {
             createCoffee("Mango", OriginCountry.ETHIOPIA, RoastLevel.LIGHT_ROAST, BrewRecommendation.FRENCH_PRESS),
         )
 
-        mockMvc.get("/api/product") {
+        mockMvc.get("/api/coffees") {
             param("roastLevel", "LIGHT_ROAST")
         }.andExpect {
             status { isOk() }
@@ -212,7 +212,7 @@ class GuestControllerIntegrationTest() {
             createCoffee("Mango", OriginCountry.ETHIOPIA, RoastLevel.LIGHT_ROAST, BrewRecommendation.FRENCH_PRESS),
         )
 
-        mockMvc.get("/api/product") {
+        mockMvc.get("/api/coffees") {
             param("brewRecommendation", "ESPRESSO")
             param("brewRecommendation", "FILTER")
         }.andExpect {
@@ -229,7 +229,7 @@ class GuestControllerIntegrationTest() {
             createCoffee("Mango", OriginCountry.ETHIOPIA, RoastLevel.LIGHT_ROAST, BrewRecommendation.FRENCH_PRESS),
         )
 
-        mockMvc.get("/api/product") {
+        mockMvc.get("/api/coffees") {
             param("name", "ng")
         }.andExpect {
             status { isOk() }
@@ -246,7 +246,7 @@ class GuestControllerIntegrationTest() {
             createCoffee("Mango", OriginCountry.ETHIOPIA, RoastLevel.LIGHT_ROAST, BrewRecommendation.FRENCH_PRESS),
         )
 
-        mockMvc.get("/api/product") {
+        mockMvc.get("/api/coffees") {
             param("roastLevel", "strong")
         }.andExpect {
             status { isBadRequest() }
