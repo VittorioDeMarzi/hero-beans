@@ -8,9 +8,6 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToOne
 
-/**
- * label stands for "Home", "Work"
- */
 @Entity
 class Address(
     @Column(nullable = false)
@@ -23,6 +20,9 @@ class Address(
     var postalCode: String,
     @Column(nullable = false)
     val countryCode: String = "DE",
+    /**
+     * label stands for "Home", "Work"
+     */
     var label: String? = null,
     @ManyToOne(fetch = FetchType.LAZY)
     val member: Member,

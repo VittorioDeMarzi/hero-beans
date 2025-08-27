@@ -41,7 +41,6 @@ class LoginMemberArgumentResolverTest {
         Assertions.assertThat(MemberRole.USER).isEqualTo(dto.role)
     }
 
-    // Todo: maybe change to IllegalStateException
     @Test
     fun `should throw UnauthorizedAccessException when no HttpServletRequest`() {
         val webRequest = Mockito.mock(NativeWebRequest::class.java)
@@ -52,7 +51,6 @@ class LoginMemberArgumentResolverTest {
         }
     }
 
-    // Todo: maybe change to IllegalStateException
     @Test
     fun `should throw UnauthorizedAccessException when no email attribute`() {
         val request = Mockito.mock(HttpServletRequest::class.java)
