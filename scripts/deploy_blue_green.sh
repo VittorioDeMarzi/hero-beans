@@ -3,8 +3,10 @@ set -euo pipefail
 
 APP_DIR="/home/ubuntu/app"
 
-if [ -f /home/ubuntu/app/.env ]; then
-  export $(grep -v '^#' /home/ubuntu/app/.env | xargs)
+if [[ -f /home/ubuntu/app/.env ]]; then
+  set -a
+  source <(tr -d '\r' < /home/ubuntu/app/.env)
+  set +a
 fi
 
 PORT_BLUE=8081
