@@ -74,7 +74,7 @@ To achieve **zero downtime during releases**, we implemented a **Blue-Green depl
 1. **API Documentation** : Document APIs with [Swagger](https://github.com/VittorioDeMarzi/hero-beans/wiki/Swagger-OpenAPI-for-Hero-Beans)   
 2. **Logging Strategy** : Define and apply [Logging strategy](https://github.com/VittorioDeMarzi/hero-beans/wiki/Simple-Logging) (including log levels: info, warn, error)
 3. **Production Deployment** : Deploy service to production server (with HTTPS and Custom domain)
-4. **Production Database** : mySQL ([Team decision](https://github.com/VittorioDeMarzi/hero-beans/wiki/PostrgeSQL-vs.-MySQL)), [Liquibase](https://github.com/VittorioDeMarzi/hero-beans/wiki/Liquibase) and [Database Migrations with JPA](https://github.com/VittorioDeMarzi/hero-beans/wiki/Database-Migrations-with-JPA-Buddy-&-Liquibase)
+4. **Production Database** : [mySQL](https://github.com/VittorioDeMarzi/hero-beans/wiki/PostrgeSQL-vs.-MySQL)), [Liquibase](https://github.com/VittorioDeMarzi/hero-beans/wiki/Liquibase) and [Database Migrations with JPA](https://github.com/VittorioDeMarzi/hero-beans/wiki/Database-Migrations-with-JPA-Buddy-&-Liquibase)
 5. **Swagger** : [Swagger](https://www.herobeans.com/swagger-ui/index.html#/)
 
 
