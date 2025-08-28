@@ -2,7 +2,6 @@ package techcourse.herobeans.enums
 
 import java.math.BigDecimal
 
-// TODO: move somewhere related
 val STANDARD_SHIPPING_FEE = BigDecimal("5.99")
 
 enum class ShippingMethod(val shippingFee: BigDecimal) {

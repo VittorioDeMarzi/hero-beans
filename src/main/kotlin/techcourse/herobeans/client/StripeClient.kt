@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestClient
-import techcourse.herobeans.config.StripeProperties
+import techcourse.herobeans.configuration.StripeProperties
 import techcourse.herobeans.dto.CheckoutStartRequest
 import techcourse.herobeans.dto.PaymentIntent
 import techcourse.herobeans.exception.IntentNotValidException

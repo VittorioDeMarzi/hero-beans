@@ -12,7 +12,6 @@ import java.math.RoundingMode
 import java.time.Duration
 import java.time.LocalDateTime
 
-// TODO: deactivate or delete on usage
 @Entity
 class Coupon(
     @Column(nullable = false)
@@ -57,7 +56,6 @@ class Coupon(
     }
 }
 
-// TODO: could be called in order process when someone buys above 5 KGs e.g. 15%
 fun applyPercentageDiscount(
     orderTotal: BigDecimal,
     discountPercent: BigDecimal,

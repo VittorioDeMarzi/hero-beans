@@ -1,6 +1,7 @@
 package techcourse.herobeans.service
 
 import mu.KotlinLogging
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import techcourse.herobeans.dto.CheckoutStartRequest
@@ -13,6 +14,7 @@ import techcourse.herobeans.dto.PaymentIntent
 import techcourse.herobeans.dto.PaymentResult
 import techcourse.herobeans.entity.Order
 import techcourse.herobeans.enums.OrderStatus
+import techcourse.herobeans.event.OrderConfirmationEvent
 import techcourse.herobeans.exception.InvalidCouponException
 import techcourse.herobeans.exception.OrderAlreadyTerminatedException
 import techcourse.herobeans.exception.OrderNotProcessableException
@@ -32,6 +34,7 @@ class CheckoutService(
     private val cartService: CartService,
     private val couponService: CouponService,
     private val addressService: AddressService,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
     @Transactional(
         rollbackFor = [Exception::class],
@@ -41,7 +44,7 @@ class CheckoutService(
         memberDto: MemberDto,
         request: CheckoutStartRequest,
     ): CheckoutStartResponse {
-        val address = addressService.findMemberAddress(addressId = request.addressId, memberId = memberDto.id)
+        addressService.findMemberAddress(addressId = request.addressId, memberId = memberDto.id)
         log.info { "checkout.started memberId=${memberDto.id}" }
         val cart = cartService.getCartForOrder(memberDto.id)
         val order = orderService.processOrderWithStockReduction(cart)
@@ -69,7 +72,7 @@ class CheckoutService(
                 couponCode = request.couponCode,
             )
         } catch (exception: Exception) {
-            val error = mapToPaymentError(exception)
+            mapToPaymentError(exception)
             throw exception
         }
     }
@@ -107,6 +110,7 @@ class CheckoutService(
             val paymentIntent = paymentService.confirmPaymentIntent(request.paymentIntentId)
             val status = updateOrderToPaid(order, paymentIntent)
 
+            applicationEventPublisher.publishEvent(OrderConfirmationEvent(order, member))
             cartService.clearCart(member.id)
             log.info { "checkout.finalize.success memberId=${member.id} orderId=${order.id} paymentStatus=$status" }
             PaymentResult.Success(orderId = order.id, paymentStatus = status)

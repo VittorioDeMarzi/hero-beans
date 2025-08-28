@@ -2,6 +2,7 @@ package techcourse.herobeans.configuration
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
+import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
@@ -16,9 +17,7 @@ class WebMvcConfigurer(
             .addPathPatterns(
                 "/api/member/**",
                 "/api/members/me",
-                "/api/user/wishes/**",
                 "/api/admin/**",
-                "api/admin/stats/**",
                 "/api/payments/**",
                 "/api/address/**",
                 "/api/me/coupons/**",
@@ -29,5 +28,14 @@ class WebMvcConfigurer(
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver?>) {
         resolvers.add(loginMemberArgumentResolver)
         resolvers.add(adminOnlyResolver)
+    }
+
+    override fun addCorsMappings(registry: CorsRegistry) {
+        registry.addMapping("/api/**")
+            .allowedOrigins("https://www.herobeans.com")
+            .allowedMethods("GET", "POST", "HEAD", "OPTIONS", "DELETE", "PUT", "PATCH")
+            .allowedHeaders("*")
+            .exposedHeaders("Location")
+            .maxAge(1800)
     }
 }

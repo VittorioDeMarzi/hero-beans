@@ -43,7 +43,6 @@ class AdminOnlyArgumentResolverTest {
         Assertions.assertThat(MemberRole.ADMIN).isEqualTo(dto.role)
     }
 
-    // Todo: maybe change to IllegalStateException
     @Test
     fun `should throw UnauthorizedAccessException when no HttpServletRequest`() {
         val webRequest = Mockito.mock(NativeWebRequest::class.java)
@@ -54,7 +53,6 @@ class AdminOnlyArgumentResolverTest {
         }
     }
 
-    // Todo: maybe change to IllegalStateException
     @Test
     fun `should throw UnauthorizedAccessException when no email attribute`() {
         val request = Mockito.mock(HttpServletRequest::class.java)
