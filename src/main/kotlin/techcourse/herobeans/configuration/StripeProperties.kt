@@ -1,4 +1,4 @@
-package techcourse.herobeans.config
+package techcourse.herobeans.configuration
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
