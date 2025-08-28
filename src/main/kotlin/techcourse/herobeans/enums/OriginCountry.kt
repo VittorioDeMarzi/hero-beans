@@ -8,4 +8,8 @@ enum class OriginCountry {
     ETHIOPIA,
     HONDURAS,
     INDIA,
+    KENYA,
+    GUATEMALA,
+    COSTA_RICA,
+    PANAMA,
 }
