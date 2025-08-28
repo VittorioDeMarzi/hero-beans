@@ -19,6 +19,10 @@ phases:
       - echo "ACTIVE_PROFILE=${ACTIVE_PROFILE}" >> .env
       - echo "LIQUIBASE_USER=${LIQUIBASE_USER}" >> .env
       - echo "LIQUIBASE_PASSWORD=${LIQUIBASE_PASSWORD}" >> .env
+      - echo "MAIL_HOST=${MAIL_HOST}" >> .env
+      - echo "MAIL_PORT=${MAIL_PORT}" >> .env
+      - echo "MAIL_USERNAME=${MAIL_USERNAME}" >> .env
+      - echo "MAIL_PASSWORD=${MAIL_PASSWORD}" >> .env
       - echo ".env file created:"
 
   build:
