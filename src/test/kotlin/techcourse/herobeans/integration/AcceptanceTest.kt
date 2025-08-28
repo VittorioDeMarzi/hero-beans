@@ -26,7 +26,7 @@ class AcceptanceTest {
                 .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET"),
         )
             .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "https://www.herobeans.com"))
+            .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*"))
             .andExpect(
                 MockMvcResultMatchers.header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, ALLOWED_METHOD_NAMES),
             )
