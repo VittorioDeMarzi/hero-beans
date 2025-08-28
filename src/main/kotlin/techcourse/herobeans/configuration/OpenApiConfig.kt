@@ -4,6 +4,7 @@ import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
 import io.swagger.v3.oas.models.security.SecurityScheme
+import io.swagger.v3.oas.models.servers.Server
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -25,5 +26,6 @@ class OpenApiConfig {
                     .description("Coffee shop backend — products, cart, addresses, auth, and admin ops."),
             )
             .components(Components().addSecuritySchemes("bearerAuth", bearer))
+            .addServersItem(Server().url("https://www.herobeans.com"))
     }
 }
